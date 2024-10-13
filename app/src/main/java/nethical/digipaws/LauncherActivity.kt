@@ -1,7 +1,10 @@
 package nethical.digipaws
 
+import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
@@ -10,6 +13,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -30,8 +34,9 @@ import java.util.Locale
 class LauncherActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLauncherBinding
-
+    private lateinit var adapter: ApplicationAdapter
     private val pinnedAppPackages = mutableSetOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -43,31 +48,18 @@ class LauncherActivity : AppCompatActivity() {
             insets
         }
 
-
-        Log.d("app", loadPinnedApps().toString())
-        pinnedAppPackages.addAll(loadPinnedApps())
-
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            val launcherApps = getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps
-            val allApps = launcherApps.getActivityList(null, android.os.Process.myUserHandle()).mapNotNull {
-                it.applicationInfo
-            }.filter {
-                it.packageName != packageName
-            }
-
-            // Separate pinned and unpinned apps
-            val pinnedApps = allApps.filter { pinnedAppPackages.contains(it.packageName) }
-            val unpinnedApps = allApps.filter { !pinnedAppPackages.contains(it.packageName) }.shuffled()
-
-            val sortedApps = pinnedApps + unpinnedApps // Pinned apps first, followed by shuffled unpinned apps
-
-            lifecycleScope.launch(Dispatchers.Main) {
-                val adapter = ApplicationAdapter(sortedApps)
-                binding.appList.layoutManager = LinearLayoutManager(baseContext)
-                binding.appList.adapter = adapter
-            }
+        val packageChangeIntentFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addDataScheme("package") // Important for detecting package changes
         }
+        registerReceiver(packageChangeReceiver, packageChangeIntentFilter)
+
+        pinnedAppPackages.addAll(loadPinnedApps())
+        adapter = ApplicationAdapter(listOf())
+        binding.appList.layoutManager = LinearLayoutManager(this)
+        binding.appList.adapter = adapter
+        reloadApps()
 
         binding.appList.addItemDecoration(
             DividerItemDecoration(
@@ -75,6 +67,7 @@ class LauncherActivity : AppCompatActivity() {
             )
         )
         binding.clock.text = getCurrentTime()
+        handleBackPress()
 
     }
     override fun onResume() {
@@ -99,6 +92,46 @@ class LauncherActivity : AppCompatActivity() {
             Toast.makeText(context, "Error launching app", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun handleBackPress() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                return
+            }
+        })
+    }
+
+
+    private fun reloadApps(){
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val launcherApps = getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps
+            val allApps = launcherApps.getActivityList(null, android.os.Process.myUserHandle()).mapNotNull {
+                it.applicationInfo
+            }.filter {
+                it.packageName != packageName
+            }
+
+            // Separate pinned and unpinned apps
+            val pinnedApps = allApps.filter { pinnedAppPackages.contains(it.packageName) }
+            val unpinnedApps = allApps.filter { !pinnedAppPackages.contains(it.packageName) }.shuffled()
+
+            val sortedApps = pinnedApps + unpinnedApps // Pinned apps first, followed by shuffled unpinned apps
+
+            lifecycleScope.launch(Dispatchers.Main) {
+                adapter.updatePackages(sortedApps)
+            }
+        }
+    }
+    private val packageChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action
+            if (action == Intent.ACTION_PACKAGE_ADDED || action == Intent.ACTION_PACKAGE_REMOVED) {
+                reloadApps()
+            }
+        }
+    }
+
 
     fun openAppInfo(context: Context, packageName: String) {
         try {
@@ -148,5 +181,11 @@ class LauncherActivity : AppCompatActivity() {
         }
 
         override fun getItemCount(): Int = packages.size
+
+        @SuppressLint("NotifyDataSetChanged")
+        fun updatePackages(newPackages: List<ApplicationInfo>){
+            packages = newPackages
+            notifyDataSetChanged()
+        }
     }
 }
