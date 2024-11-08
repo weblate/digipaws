@@ -2,13 +2,11 @@ package nethical.digipaws.blockers
 
 import android.os.SystemClock
 import android.util.Log
-import android.view.accessibility.AccessibilityEvent
-import kotlin.math.log
 
 class AppBlocker:BaseBlocker() {
     private var cooldownAppsList:MutableMap<String,Long> = mutableMapOf()
     private val blockedAppsList = hashSetOf(
-        "com.instagram.android"
+        "com.instagram.andrmoid"
     )
 
     fun doesAppNeedToBeBlocked(packageName: String): Boolean{
