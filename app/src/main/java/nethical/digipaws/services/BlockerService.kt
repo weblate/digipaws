@@ -4,13 +4,17 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.blockers.AppBlocker
+import nethical.digipaws.blockers.KeywordBlocker
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.utils.OverlayManager
 
 class BlockerService : AccessibilityService() {
+
     private val appBlocker = AppBlocker()
     private val viewBlocker = ViewBlocker()
+    private val keywordBlocker = KeywordBlocker()
 
     private var lastEventActionTakenTimeStamp: Long = SystemClock.uptimeMillis()
     private val overlayManager = OverlayManager(this)
@@ -21,14 +25,15 @@ class BlockerService : AccessibilityService() {
         if(!isDelayOver()){
             return
         }
+        val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
         if(event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED){
             handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName),packageName)
-            handleViewBlockerResult(viewBlocker.doesViewNeedToBeBlocked(rootInActiveWindow))
+            handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
+            handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
         }
         if(event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED){
             handleViewBlockerResult(viewBlocker.doesViewNeedToBeBlocked(rootInActiveWindow))
         }
-
     }
 
     override fun onInterrupt() {
@@ -53,6 +58,17 @@ class BlockerService : AccessibilityService() {
         }
     }
 
+    private fun handleKeywordBlockerResult(detectedWord: String?) {
+        if (detectedWord == null) return
+        overlayManager.showOverlay(
+            "What you doing lil bro. What do you mean by $detectedWord",
+            onClose = { pressback() },
+            onProceed = {
+                lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
+            })
+
+    }
+
 
     private fun pressHome(){
         performGlobalAction(GLOBAL_ACTION_HOME)
@@ -66,10 +82,12 @@ class BlockerService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         val info = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+            eventTypes =
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_FOCUSED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT
+
         }
         serviceInfo = info
     }
