@@ -14,10 +14,11 @@ class OverlayManager(private val context: Context) {
     private var overlayView: View? = null
     private var windowManager: WindowManager? = null
     private var binding: OverlayWarningScreenBinding? = null
+    private var isOverlayVisible = false
 
     @SuppressLint("InlinedApi")
     fun showOverlay(message: String,onClose:()->Unit, onProceed:()->Unit) {
-        if (overlayView != null) return
+        if (overlayView != null || isOverlayVisible) return
 
         binding = OverlayWarningScreenBinding.inflate(LayoutInflater.from(context))
         overlayView = binding?.root
@@ -39,12 +40,15 @@ class OverlayManager(private val context: Context) {
 
         binding?.overlayCloseBtn?.setOnClickListener {
             onClose()
+            isOverlayVisible = false
             removeOverlay()
         }
         binding?.overlayProceedBtn?.setOnClickListener{
             onProceed()
+            isOverlayVisible = false
             removeOverlay()
         }
+        isOverlayVisible = false
     }
 
     fun removeOverlay() {

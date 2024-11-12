@@ -9,6 +9,7 @@ import nethical.digipaws.blockers.AppBlocker
 import nethical.digipaws.blockers.KeywordBlocker
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.utils.OverlayManager
+import nethical.digipaws.utils.SavedPreferencesLoader
 
 class BlockerService : AccessibilityService() {
 
@@ -51,7 +52,7 @@ class BlockerService : AccessibilityService() {
 
     private fun handleViewBlockerResult(viewId: String?){
         if(viewId != null){
-            overlayManager.showOverlay("View Blocked", onClose = {pressback()}, onProceed = {
+            overlayManager.showOverlay("View Blocked", onClose = { pressBack() }, onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
                 viewBlocker.applyCooldown(viewId,  SystemClock.uptimeMillis() + 60000)
             })
@@ -62,7 +63,7 @@ class BlockerService : AccessibilityService() {
         if (detectedWord == null) return
         overlayManager.showOverlay(
             "What you doing lil bro. What do you mean by $detectedWord",
-            onClose = { pressback() },
+            onClose = { pressBack() },
             onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
             })
@@ -75,12 +76,13 @@ class BlockerService : AccessibilityService() {
         lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
 
-    private fun pressback(){
+    private fun pressBack() {
         performGlobalAction(GLOBAL_ACTION_BACK)
         lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
     override fun onServiceConnected() {
         super.onServiceConnected()
+        setupBlockers()
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_FOCUSED
@@ -92,13 +94,19 @@ class BlockerService : AccessibilityService() {
         serviceInfo = info
     }
 
+    private fun setupBlockers() {
+        val savedPreferencesLoader = SavedPreferencesLoader(this)
+        appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
+    }
+
 
     fun isDelayOver(): Boolean {
         return isDelayOver(500)
     }
 
-    fun isDelayOver( delay: Int): Boolean {
+    fun isDelayOver(delay: Int): Boolean {
         val currentTime = SystemClock.uptimeMillis().toFloat()
         return currentTime - lastEventActionTakenTimeStamp > delay
     }
+
 }

@@ -4,16 +4,16 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.os.Bundle
 import android.os.Process
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,6 +24,7 @@ class SelectAppsActivity : AppCompatActivity() {
     // Using ViewBinding for the Activity
     private lateinit var binding: ActivitySelectAppsBinding
     private lateinit var selectedAppList: HashSet<String>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +72,7 @@ class SelectAppsActivity : AppCompatActivity() {
             holder.appIcon.setImageDrawable(null)
             holder.appName.text = ""
 
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 val packageManager = holder.itemView.context.packageManager
                 val icon = app.loadIcon(packageManager)
                 val label = app.loadLabel(packageManager)

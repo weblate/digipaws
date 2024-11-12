@@ -5,9 +5,7 @@ import android.util.Log
 
 class AppBlocker:BaseBlocker() {
     private var cooldownAppsList:MutableMap<String,Long> = mutableMapOf()
-    private val blockedAppsList = hashSetOf(
-        "com.instagram.andrmoid"
-    )
+    var blockedAppsList = hashSetOf("")
 
     fun doesAppNeedToBeBlocked(packageName: String): Boolean{
 

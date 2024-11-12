@@ -1,6 +1,5 @@
 package nethical.digipaws.blockers
 
-import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 
 class KeywordBlocker : BaseBlocker() {
@@ -10,10 +9,8 @@ class KeywordBlocker : BaseBlocker() {
 
     private fun containsBlockedKeyword(text: String): String? {
         // Split text by whitespace to get individual words and check each word
-        Log.d("text", text)
         text.split("\\s+".toRegex()).forEach { word ->
             if (adultKeyword.contains(word.lowercase())) {
-                Log.d("word", word)
                 return word
             }
         }
@@ -21,8 +18,6 @@ class KeywordBlocker : BaseBlocker() {
     }
 
     private fun checkIfNodeEditText(node: AccessibilityNodeInfo?): Boolean {
-        Log.d("clas", node?.className.toString())
-        Log.d("tet", node?.text.toString())
         return node?.className == "android.widget.EditText"
     }
 

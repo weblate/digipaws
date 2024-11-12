@@ -10,7 +10,6 @@ import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -66,6 +65,10 @@ class LauncherActivity : AppCompatActivity() {
                 this, OrientationHelper.VERTICAL
             )
         )
+        binding.tasks.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
         binding.clock.text = getCurrentTime()
         handleBackPress()
 
