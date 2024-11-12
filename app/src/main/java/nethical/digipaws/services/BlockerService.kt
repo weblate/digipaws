@@ -3,13 +3,15 @@ package nethical.digipaws.services
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.os.SystemClock
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.blockers.AppBlocker
 import nethical.digipaws.blockers.KeywordBlocker
 import nethical.digipaws.blockers.ViewBlocker
-import nethical.digipaws.utils.OverlayManager
 import nethical.digipaws.utils.SavedPreferencesLoader
+import nethical.digipaws.utils.UsageStatOverlayManager
+import nethical.digipaws.utils.WarningOverlayManager
 
 class BlockerService : AccessibilityService() {
 
@@ -17,8 +19,15 @@ class BlockerService : AccessibilityService() {
     private val viewBlocker = ViewBlocker()
     private val keywordBlocker = KeywordBlocker()
 
-    private var lastEventActionTakenTimeStamp: Long = SystemClock.uptimeMillis()
-    private val overlayManager = OverlayManager(this)
+    private var lastEventActionTakenTimeStamp: Long =
+        SystemClock.uptimeMillis() // prevents repetitive global actions
+
+    private val userYSwipeSensitivity: Long = 2
+    private var userYSwipeEventCounter: Long = 0
+
+
+    private val usageStatOverlayManager = UsageStatOverlayManager(this)
+    private val warningOverlayManager = WarningOverlayManager(this)
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val packageName = event?.packageName.toString()
@@ -29,10 +38,17 @@ class BlockerService : AccessibilityService() {
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
         if(event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED){
             handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName),packageName)
-            handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
+            //handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
         }
         if(event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED){
-            handleViewBlockerResult(viewBlocker.doesViewNeedToBeBlocked(rootInActiveWindow))
+            if (event.source?.className?.equals("androidx.viewpager.widget.ViewPager") == true) {
+                userYSwipeEventCounter++
+                if (userYSwipeEventCounter > userYSwipeSensitivity) {
+                    Log.d("source", event.source?.className.toString())
+                    userYSwipeEventCounter = 0
+                    handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
+                }
+            }
         }
     }
 
@@ -42,25 +58,36 @@ class BlockerService : AccessibilityService() {
 
     private fun handleAppBlockerResult(isActionRequired: Boolean,packageName: String){
         if(isActionRequired){
-            overlayManager.showOverlay("App Blocked", onClose = {pressHome()}, onProceed = {
+            warningOverlayManager.showTextOverlay(
+                "App Blocked",
+                onClose = { pressHome() },
+                onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
                 appBlocker.putCooldownTo(packageName,  SystemClock.uptimeMillis() + 60000)
             })
         }
     }
 
-    private fun handleViewBlockerResult(viewId: String?){
-        if(viewId != null){
-            overlayManager.showOverlay("View Blocked", onClose = { pressBack() }, onProceed = {
+    private fun handleViewBlockerResult(result: String?) {
+        if (result == ViewBlocker.REEL_TAB_IN_COOLDOWN) {
+            usageStatOverlayManager.incrementReelScrollCount()
+            return
+        }
+        if (result != null) {
+            usageStatOverlayManager.incrementReelScrollCount()
+            warningOverlayManager.showTextOverlay(
+                "View Blocked",
+                onClose = { pressBack() },
+                onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-                viewBlocker.applyCooldown(viewId,  SystemClock.uptimeMillis() + 60000)
+                    viewBlocker.applyCooldown(result, SystemClock.uptimeMillis() + 60000)
             })
         }
     }
 
     private fun handleKeywordBlockerResult(detectedWord: String?) {
         if (detectedWord == null) return
-        overlayManager.showOverlay(
+        warningOverlayManager.showTextOverlay(
             "What you doing lil bro. What do you mean by $detectedWord",
             onClose = { pressBack() },
             onProceed = {
@@ -82,8 +109,8 @@ class BlockerService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         setupBlockers()
-        overlayManager.setupOverlay()
 
+        usageStatOverlayManager.startDisplaying()
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
                 AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_SCROLLED
@@ -93,6 +120,7 @@ class BlockerService : AccessibilityService() {
 
         }
         serviceInfo = info
+
     }
 
     private fun setupBlockers() {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/reel_counter"
+        style="@style/TextAppearance.Material3.HeadlineLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textColor="#FFFFFF"
+        android:textSize="96sp" />
+
+    <TextView
+        android:id="@+id/time_elapsed_reel"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:text="Time Elapsed"
+        android:textColor="#FFFFFF"
+        android:visibility="gone" />
+</LinearLayout>

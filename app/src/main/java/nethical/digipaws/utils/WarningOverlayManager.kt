@@ -13,7 +13,7 @@ import android.view.WindowManager.LayoutParams
 import nethical.digipaws.R
 import nethical.digipaws.databinding.OverlayWarningScreenBinding
 
-class OverlayManager(private val context: Context) {
+class WarningOverlayManager(private val context: Context) {
 
     private var overlayView: View? = null
     private var binding: OverlayWarningScreenBinding? = null
@@ -23,9 +23,8 @@ class OverlayManager(private val context: Context) {
     private var proceedTimer: CountDownTimer? = null
 
     @SuppressLint("InlinedApi")
-    fun showOverlay(message: String,onClose:()->Unit, onProceed:()->Unit) {
+    fun showTextOverlay(message: String, onClose: () -> Unit, onProceed: () -> Unit) {
         if (overlayView != null || isOverlayVisible) return
-
 
         binding = OverlayWarningScreenBinding.inflate(LayoutInflater.from(context))
 
@@ -40,6 +39,9 @@ class OverlayManager(private val context: Context) {
             PixelFormat.TRANSLUCENT
         )
         layoutParams.gravity = Gravity.CENTER
+
+        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
         binding?.overlayText?.text = message
 
         binding?.overlayCloseBtn?.setOnClickListener {
@@ -47,7 +49,7 @@ class OverlayManager(private val context: Context) {
             isOverlayVisible = false
             removeOverlay()
         }
-        binding?.overlayProceedBtn?.setOnClickListener{
+        binding?.overlayProceedBtn?.setOnClickListener {
             onProceed()
             isOverlayVisible = false
             removeOverlay()
@@ -56,16 +58,14 @@ class OverlayManager(private val context: Context) {
 
         setUpDelayToProceedOn()
 
-        windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
         windowManager?.addView(overlayView, layoutParams)
     }
 
     fun removeOverlay() {
         if (overlayView != null) {
             windowManager?.removeView(overlayView)
+            binding = null
             overlayView = null
-            binding = null // Clean up binding
         }
     }
 
@@ -96,8 +96,5 @@ class OverlayManager(private val context: Context) {
         }.start()
     }
 
-
-    fun setupOverlay() {
-    }
 
 }

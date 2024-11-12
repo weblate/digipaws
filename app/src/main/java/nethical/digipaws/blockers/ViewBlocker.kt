@@ -10,9 +10,11 @@ class ViewBlocker : BaseBlocker() {
 
     fun doesViewNeedToBeBlocked(node: AccessibilityNodeInfo): String? {
         blockedViewIdsList.forEach { viewId ->
-            if (isCooldownActive(viewId)) return@forEach
             if(isViewOpened(node,viewId)){
                 Log.d("ViewBlocker", "Blocking view ID: $viewId")
+                if (isCooldownActive(viewId)) {
+                    return REEL_TAB_IN_COOLDOWN
+                }
                 return viewId
             }
         }
@@ -49,5 +51,9 @@ class ViewBlocker : BaseBlocker() {
             //	e.printStackTrace();
         }
         return targetNode
+    }
+
+    companion object {
+        val REEL_TAB_IN_COOLDOWN = "cooldown_reel_found"
     }
 }
