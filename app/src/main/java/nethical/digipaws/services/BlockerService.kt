@@ -29,7 +29,6 @@ class BlockerService : AccessibilityService() {
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
         if(event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED){
             handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName),packageName)
-            handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
             handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
         }
         if(event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED){
@@ -83,9 +82,11 @@ class BlockerService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         setupBlockers()
+        overlayManager.setupOverlay()
+
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
-                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_FOCUSED
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_SCROLLED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT
@@ -101,7 +102,7 @@ class BlockerService : AccessibilityService() {
 
 
     fun isDelayOver(): Boolean {
-        return isDelayOver(500)
+        return isDelayOver(2000)
     }
 
     fun isDelayOver(delay: Int): Boolean {

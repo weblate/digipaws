@@ -1,6 +1,5 @@
 package nethical.digipaws.blockers
 
-import android.accessibilityservice.AccessibilityService
 import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
@@ -37,6 +36,7 @@ class ViewBlocker : BaseBlocker() {
         val viewNode =
             findElementById(rootNode, viewId)
         // view found
+        Log.d("viewfound", viewId)
         return viewNode != null
     }
 

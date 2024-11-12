@@ -11,7 +11,6 @@ class AppBlocker:BaseBlocker() {
 
         if(cooldownAppsList.containsKey(packageName)){
             if (cooldownAppsList[packageName]!! < SystemClock.uptimeMillis()){
-                Log.d("checkResult for $packageName", cooldownAppsList[packageName].toString() + " < " + SystemClock.uptimeMillis())
                 removeCooldownFrom(packageName)
             }
                 return false
