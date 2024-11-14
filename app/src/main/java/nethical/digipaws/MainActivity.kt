@@ -14,11 +14,12 @@ import nethical.digipaws.utils.SavedPreferencesLoader
 
 class MainActivity : AppCompatActivity() {
 
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var selectPinnedAppsLauncher: ActivityResultLauncher<Intent>
 
     private lateinit var selectBlockedAppsLauncher: ActivityResultLauncher<Intent>
+
+    private lateinit var selectBlockedKeywords: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,16 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+        selectBlockedKeywords =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val blockedKeywords = result.data?.getStringArrayListExtra("SELECTED_KEYWORDS")
+                    blockedKeywords?.let {
+                        savedPreferencesLoader.saveBlockedKeywords(it.toSet())
+                    }
+                }
+            }
+
         binding.selectPinnedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -70,6 +81,15 @@ class MainActivity : AppCompatActivity() {
                 ArrayList(savedPreferencesLoader.loadBlockedApps())
             )
             selectBlockedAppsLauncher.launch(intent)
+        }
+
+        binding.selectBlockedKeywords.setOnClickListener {
+            val intent = Intent(this, ManageKeywordsActivity::class.java)
+            intent.putStringArrayListExtra(
+                "PRE_SAVED_KEYWORDS",
+                ArrayList(savedPreferencesLoader.loadBlockedKeywords())
+            )
+            selectBlockedKeywords.launch(intent)
         }
     }
 
