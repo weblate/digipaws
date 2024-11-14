@@ -3,7 +3,7 @@ package nethical.digipaws.blockers
 import android.view.accessibility.AccessibilityNodeInfo
 
 class KeywordBlocker : BaseBlocker() {
-    private val adultKeyword = hashSetOf(
+    var adultKeyword = hashSetOf(
         "porn"
     )
 

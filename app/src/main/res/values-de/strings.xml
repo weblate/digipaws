@@ -104,7 +104,7 @@
     <string name="aura_earned_1">Du hast 1 Aura-Münze verdient</string>
     <string name="tac">Wenn du fortfahrst, erklärst du sich mit unseren Allgemeinen Geschäftsbedingungen einverstanden.</string>
 
-    <string name="accessibility_perm">DigiPaws benötigt Zugriffsdaten, um zu wissen, wann du eine bestimmte Funktion innerhalb einer App öffnen, z. B. einen Social-Media-Feed oder ein Spiel. Auf diese Weise kann DigiPaws diese Funktionen je nach deien Vorlieben für dich blockieren, damit du sich besser konzentrieren können und weniger vom Bildschirm abgelenkt wirst.
+    <string name="accessibility_perm_desc_main">DigiPaws benötigt Zugriffsdaten, um zu wissen, wann du eine bestimmte Funktion innerhalb einer App öffnen, z. B. einen Social-Media-Feed oder ein Spiel. Auf diese Weise kann DigiPaws diese Funktionen je nach deien Vorlieben für dich blockieren, damit du sich besser konzentrieren können und weniger vom Bildschirm abgelenkt wirst.
     \n\n
         Du kannst sicher sein, dass alle Erreichbarkeitsdaten sicher auf Ihrem Gerät verbleiben - wir geben deine Daten niemals weiter oder übertragen sie, so dass deine Privatsphäre stets geschützt ist.
     </string>

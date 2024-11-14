@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.blockers.AppBlocker
-import nethical.digipaws.blockers.KeywordBlocker
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.UsageStatOverlayManager
@@ -17,7 +16,6 @@ class BlockerService : AccessibilityService() {
 
     private val appBlocker = AppBlocker()
     private val viewBlocker = ViewBlocker()
-    private val keywordBlocker = KeywordBlocker()
 
     private var lastEventActionTakenTimeStamp: Long =
         SystemClock.uptimeMillis() // prevents repetitive global actions
@@ -38,7 +36,6 @@ class BlockerService : AccessibilityService() {
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
         if(event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED){
             handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName),packageName)
-            //handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
         }
         if(event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED){
             if (event.source?.className?.equals("androidx.viewpager.widget.ViewPager") == true) {
@@ -85,16 +82,6 @@ class BlockerService : AccessibilityService() {
         }
     }
 
-    private fun handleKeywordBlockerResult(detectedWord: String?) {
-        if (detectedWord == null) return
-        warningOverlayManager.showTextOverlay(
-            "What you doing lil bro. What do you mean by $detectedWord",
-            onClose = { pressBack() },
-            onProceed = {
-                lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-            })
-
-    }
 
 
     private fun pressHome(){

@@ -24,7 +24,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".LauncherActivity"
             android:exported="true"
@@ -39,6 +39,7 @@
 
         <service
             android:name=".services.BlockerService"
+            android:label="Digipaws Main Blocker"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
@@ -47,8 +48,23 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
+                android:resource="@xml/blocker_service_config_main" />
         </service>
+
+        <service
+            android:name=".services.KeywordBlockerService"
+            android:exported="true"
+            android:label="Keyword Blocker"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/blocker_service_config_keyword" />
+        </service>
+
     </application>
 
 </manifest>

@@ -100,7 +100,7 @@
     <string name="aura_earned_1">Você ganhou 1 moeda Aura</string>
     <string name="tac">Ao continuar, você concorda com nossos Termos e Condições</string>
 
-    <string name="accessibility_perm">O DigiPaws precisa de acesso aos dados de acessibilidade para saber quando você abre um recurso específico em um aplicativo, como um feed de mídia social ou um jogo. Isso permite que o DigiPaws bloqueie esses recursos para você com base em suas preferências, ajudando você a manter o foco e reduzir as distrações da tela.
+    <string name="accessibility_perm_desc_main">O DigiPaws precisa de acesso aos dados de acessibilidade para saber quando você abre um recurso específico em um aplicativo, como um feed de mídia social ou um jogo. Isso permite que o DigiPaws bloqueie esses recursos para você com base em suas preferências, ajudando você a manter o foco e reduzir as distrações da tela.
     \n\n
         Fique tranquilo, todos os dados de acessibilidade permanecem seguros no seu dispositivo. Nunca compartilhamos ou transmitimos seus dados, garantindo que sua privacidade esteja sempre protegida.
     </string>
