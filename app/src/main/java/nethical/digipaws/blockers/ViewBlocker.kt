@@ -42,18 +42,20 @@ class ViewBlocker : BaseBlocker() {
         return viewNode != null
     }
 
-    private fun findElementById(node: AccessibilityNodeInfo?, id: String?): AccessibilityNodeInfo? {
-        if (node == null) return null
-        var targetNode: AccessibilityNodeInfo? = null
-        try {
-            targetNode = node.findAccessibilityNodeInfosByViewId(id!!)[0]
-        } catch (e: Exception) {
-            //	e.printStackTrace();
-        }
-        return targetNode
-    }
+
 
     companion object {
         val REEL_TAB_IN_COOLDOWN = "cooldown_reel_found"
+
+        fun findElementById(node: AccessibilityNodeInfo?, id: String?): AccessibilityNodeInfo? {
+            if (node == null) return null
+            var targetNode: AccessibilityNodeInfo? = null
+            try {
+                targetNode = node.findAccessibilityNodeInfosByViewId(id!!)[0]
+            } catch (e: Exception) {
+                //	e.printStackTrace();
+            }
+            return targetNode
+        }
     }
 }

@@ -67,7 +67,7 @@
 
 
         <service
-            android:name=".services.AppUsageTrackingService"
+            android:name=".services.UsageTrackingService"
             android:exported="true"
             android:label="Usage Overlay"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

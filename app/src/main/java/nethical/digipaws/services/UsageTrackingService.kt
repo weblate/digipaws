@@ -10,11 +10,13 @@ import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.View
 import android.view.accessibility.AccessibilityEvent
+import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.utils.UsageStatOverlayManager
 import java.util.concurrent.TimeUnit
 
-class ScreenTimeTrackingService : AccessibilityService() {
+class UsageTrackingService : AccessibilityService() {
 
     private var screenOnTime: Long = 0
     private var accumulatedTime: Long = 0
@@ -25,9 +27,15 @@ class ScreenTimeTrackingService : AccessibilityService() {
     private var updateRunnable: Runnable? = null
     private val usageStatOverlayManager by lazy { UsageStatOverlayManager(this) }
 
+    private var userYSwipeEventCounter: Long =
+        0 // basically tracks an estimate of how many pixels did the user scroll
+
     companion object {
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
+
+        private val USER_Y_SWIPE_THRESHOLD: Long = 2
+
     }
 
     private val screenReceiver = object : BroadcastReceiver() {
@@ -41,7 +49,8 @@ class ScreenTimeTrackingService : AccessibilityService() {
 
     override fun onServiceConnected() {
         serviceInfo = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            eventTypes =
+                AccessibilityEvent.TYPE_VIEW_SCROLLED or AccessibilityEvent.TYPE_VIEW_CLICKED or AccessibilityEvent.TYPE_GESTURE_DETECTION_START or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.DEFAULT
         }
@@ -118,7 +127,38 @@ class ScreenTimeTrackingService : AccessibilityService() {
 
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Not needed for screen time tracking
+
+        Log.d(
+            "youtube",
+            event?.className.toString() + " " + event?.packageName + " " + event?.eventType.toString()
+        )
+
+        if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            if (event.source?.className == "androidx.viewpager.widget.ViewPager") {
+                logToReelCounter()
+            } else if (event.packageName == "com.google.android.youtube" && event.source?.className == "android.support.v7.widget.RecyclerView") {
+                val reelview = ViewBlocker.findElementById(
+                    rootInActiveWindow,
+                    "com.google.android.youtube:id/reel_recycler"
+                )
+                if (reelview != null) {
+                    logToReelCounter()
+                } else {
+                    usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
+                }
+            } else {
+                usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun logToReelCounter() {
+        userYSwipeEventCounter++
+        if (userYSwipeEventCounter > USER_Y_SWIPE_THRESHOLD) {
+            userYSwipeEventCounter = 0
+            usageStatOverlayManager.binding?.reelCounter?.visibility = View.VISIBLE
+            usageStatOverlayManager.incrementReelScrollCount()
+        }
     }
 
     override fun onInterrupt() {
