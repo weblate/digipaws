@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    xmlns:tool="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -10,15 +11,17 @@
         style="@style/TextAppearance.Material3.HeadlineLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"
         android:textColor="#FFFFFF"
-        android:textSize="96sp" />
+        android:textSize="96sp"
+        android:visibility="gone"
+        tool:text="38" />
 
     <TextView
-        android:id="@+id/time_elapsed_reel"
+        android:id="@+id/time_elapsed_txt"
         android:layout_width="wrap_content"
-        android:layout_height="24dp"
-        android:text="Time Elapsed"
+        android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
-        android:visibility="gone" />
+        android:textSize="20sp"
+        tool:text="13:33" />
+
 </LinearLayout>

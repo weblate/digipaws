@@ -14,7 +14,7 @@ import nethical.digipaws.databinding.OverlayUsageStatBinding
 class UsageStatOverlayManager(private val context: Context) {
 
     private var overlayView: View? = null
-    private var binding: OverlayUsageStatBinding? = null
+    var binding: OverlayUsageStatBinding? = null
     private var isOverlayVisible = false
     private var windowManager: WindowManager? = null
     private lateinit var layoutParams: LayoutParams
@@ -31,7 +31,7 @@ class UsageStatOverlayManager(private val context: Context) {
         overlayView = binding?.root
 
         // Set up WindowManager.LayoutParams for the overlay
-        layoutParams = LayoutParams(
+        val layoutParams = WindowManager.LayoutParams(
             LayoutParams.WRAP_CONTENT,
             LayoutParams.WRAP_CONTENT,
             LayoutParams.TYPE_APPLICATION_OVERLAY, // For Android O and above
