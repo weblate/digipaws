@@ -2,6 +2,12 @@ package nethical.digipaws.services
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
@@ -14,6 +20,11 @@ import nethical.digipaws.utils.WarningOverlayManager
 
 class BlockerService : AccessibilityService() {
 
+    companion object {
+        val INTENT_ACTION_REFRESH_BLOCKED_APP_LIST = "nethical.digipaws.refresh.appblocker"
+    }
+
+    private val savedPreferencesLoader = SavedPreferencesLoader(this)
     private val appBlocker = AppBlocker()
     private val viewBlocker = ViewBlocker()
 
@@ -66,7 +77,7 @@ class BlockerService : AccessibilityService() {
     }
 
     private fun handleViewBlockerResult(result: String?) {
-        if (result == ViewBlocker.REEL_TAB_IN_COOLDOWN) {
+        if (result == ViewBlocker.RETURN_RESULT_REEL_TAB_IN_COOLDOWN) {
             usageStatOverlayManager.incrementReelScrollCount()
             return
         }
@@ -93,6 +104,8 @@ class BlockerService : AccessibilityService() {
         performGlobalAction(GLOBAL_ACTION_BACK)
         lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onServiceConnected() {
         super.onServiceConnected()
         setupBlockers()
@@ -108,13 +121,38 @@ class BlockerService : AccessibilityService() {
         }
         serviceInfo = info
 
+        val filter = IntentFilter().apply {
+            addAction(INTENT_ACTION_REFRESH_BLOCKED_APP_LIST)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(refreshReceiver, filter)
+        }
+
     }
 
+    private val refreshReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.d("updated Packs", appBlocker.blockedAppsList.toString())
+
+            if (intent != null && intent.action == INTENT_ACTION_REFRESH_BLOCKED_APP_LIST) {
+                appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
+                Log.d("updated Packs", appBlocker.blockedAppsList.toString())
+            }
+        }
+    }
+
+
+
     private fun setupBlockers() {
-        val savedPreferencesLoader = SavedPreferencesLoader(this)
         appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(refreshReceiver)
+    }
 
     fun isDelayOver(): Boolean {
         return isDelayOver(2000)

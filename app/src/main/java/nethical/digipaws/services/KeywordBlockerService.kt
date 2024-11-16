@@ -2,6 +2,12 @@ package nethical.digipaws.services
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
@@ -10,6 +16,13 @@ import nethical.digipaws.blockers.KeywordBlocker
 import nethical.digipaws.utils.SavedPreferencesLoader
 
 class KeywordBlockerService : AccessibilityService() {
+
+    companion object {
+        val INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST = "nethical.digipaws.refresh.keywordblocker"
+    }
+
+    val savedPreferencesLoader = SavedPreferencesLoader(this)
+
 
     private val keywordBlocker = KeywordBlocker()
 
@@ -32,6 +45,7 @@ class KeywordBlockerService : AccessibilityService() {
         TODO("Not yet implemented")
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onServiceConnected() {
         super.onServiceConnected()
         setupBlockers()
@@ -43,8 +57,26 @@ class KeywordBlockerService : AccessibilityService() {
             flags = AccessibilityServiceInfo.DEFAULT
         }
         serviceInfo = info
+
+
+        val filter = IntentFilter().apply {
+            addAction(INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(refreshReceiver, filter)
+        }
     }
 
+
+    private val refreshReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent != null && intent.action == INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST) {
+                setupBlockers()
+            }
+        }
+    }
 
     private fun handleKeywordBlockerResult(detectedWord: String?) {
         if (detectedWord == null) return
@@ -54,13 +86,18 @@ class KeywordBlockerService : AccessibilityService() {
 
 
     private fun setupBlockers() {
-        val savedPreferencesLoader = SavedPreferencesLoader(this)
-        keywordBlocker.adultKeyword = savedPreferencesLoader.loadBlockedKeywords().toHashSet()
+        keywordBlocker.blockedKeyword = savedPreferencesLoader.loadBlockedKeywords().toHashSet()
     }
 
     private fun pressHome() {
         performGlobalAction(GLOBAL_ACTION_HOME)
         lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(refreshReceiver)
     }
 
     fun isDelayOver(): Boolean {

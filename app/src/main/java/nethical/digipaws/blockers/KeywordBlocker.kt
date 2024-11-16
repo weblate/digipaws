@@ -3,14 +3,14 @@ package nethical.digipaws.blockers
 import android.view.accessibility.AccessibilityNodeInfo
 
 class KeywordBlocker : BaseBlocker() {
-    var adultKeyword = hashSetOf(
+    var blockedKeyword = hashSetOf(
         "porn"
     )
 
     private fun containsBlockedKeyword(text: String): String? {
         // Split text by whitespace to get individual words and check each word
         text.split("\\s+".toRegex()).forEach { word ->
-            if (adultKeyword.contains(word.lowercase())) {
+            if (blockedKeyword.contains(word.lowercase())) {
                 return word
             }
         }

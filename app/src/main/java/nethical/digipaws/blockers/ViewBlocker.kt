@@ -13,7 +13,7 @@ class ViewBlocker : BaseBlocker() {
             if(isViewOpened(node,viewId)){
                 Log.d("ViewBlocker", "Blocking view ID: $viewId")
                 if (isCooldownActive(viewId)) {
-                    return REEL_TAB_IN_COOLDOWN
+                    return RETURN_RESULT_REEL_TAB_IN_COOLDOWN
                 }
                 return viewId
             }
@@ -45,7 +45,7 @@ class ViewBlocker : BaseBlocker() {
 
 
     companion object {
-        val REEL_TAB_IN_COOLDOWN = "cooldown_reel_found"
+        val RETURN_RESULT_REEL_TAB_IN_COOLDOWN = "cooldown_reel_found"
 
         fun findElementById(node: AccessibilityNodeInfo?, id: String?): AccessibilityNodeInfo? {
             if (node == null) return null

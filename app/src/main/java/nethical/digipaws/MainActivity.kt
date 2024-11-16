@@ -3,6 +3,7 @@ package nethical.digipaws
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import nethical.digipaws.databinding.ActivityMainBinding
+import nethical.digipaws.services.BlockerService
+import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
 
 class MainActivity : AppCompatActivity() {
@@ -51,6 +54,8 @@ class MainActivity : AppCompatActivity() {
                     val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
                     selectedApps?.let {
                         savedPreferencesLoader.saveBlockedApps(it.toSet())
+                        sendRefreshRequest(BlockerService.INTENT_ACTION_REFRESH_BLOCKED_APP_LIST)
+                        Log.d("send req", "sent")
                     }
                 }
             }
@@ -61,6 +66,7 @@ class MainActivity : AppCompatActivity() {
                     val blockedKeywords = result.data?.getStringArrayListExtra("SELECTED_KEYWORDS")
                     blockedKeywords?.let {
                         savedPreferencesLoader.saveBlockedKeywords(it.toSet())
+                        sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
                     }
                 }
             }
@@ -93,8 +99,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
+    private fun sendRefreshRequest(action: String) {
+        val intent = Intent(action)
+        sendBroadcast(intent)
+    }
 
 
 }
