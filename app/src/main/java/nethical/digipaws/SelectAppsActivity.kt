@@ -33,12 +33,34 @@ class SelectAppsActivity : AppCompatActivity() {
 
         selectedAppList = intent.getStringArrayListExtra("PRE_SELECTED_APPS")?.toHashSet() ?: HashSet()
 
-        val launcherApps = getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps
-        val apps = launcherApps.getActivityList(null, Process.myUserHandle()).map { it.applicationInfo }
-            .filter { it.packageName != packageName }
 
         binding.appList.layoutManager = LinearLayoutManager(this)
-        binding.appList.adapter = ApplicationAdapter(apps, selectedAppList)
+        val appItemList: MutableList<AppItem> = mutableListOf()
+
+        if (intent.hasExtra("APP_LIST")) { // load only selected apps instead of everything installed
+            val appList = intent.getStringArrayListExtra("APP_LIST")
+
+            appList?.forEach { packageName ->
+                appItemList.add(
+                    AppItem(
+                        packageName,
+                        packageManager.getApplicationInfo(packageName, 0)
+                    )
+                )
+            }
+        } else { // load all installed apps
+            val launcherApps = getSystemService(LAUNCHER_APPS_SERVICE) as LauncherApps
+            val apps = launcherApps.getActivityList(null, Process.myUserHandle())
+                .map { it.applicationInfo }
+                .filter { it.packageName != packageName }
+
+            apps.forEach { appInfo ->
+                appItemList.add(AppItem(appInfo.packageName, appInfo))
+            }
+        }
+
+        binding.appList.layoutManager = LinearLayoutManager(this)
+        binding.appList.adapter = ApplicationAdapter(appItemList, selectedAppList)
 
         binding.confirmSelection.setOnClickListener {
             val selectedAppsArrayList = ArrayList(selectedAppList)
@@ -57,7 +79,7 @@ class SelectAppsActivity : AppCompatActivity() {
     }
 
     inner class ApplicationAdapter(
-        private val apps: List<ApplicationInfo>,
+        private val apps: List<AppItem>,
         private val selectedAppList: HashSet<String>
     ) : RecyclerView.Adapter<ApplicationViewHolder>() {
 
@@ -67,15 +89,15 @@ class SelectAppsActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
-            val app = apps[position]
+            val appItem = apps[position]
 
             holder.appIcon.setImageDrawable(null)
             holder.appName.text = ""
 
             lifecycleScope.launch(Dispatchers.IO) {
                 val packageManager = holder.itemView.context.packageManager
-                val icon = app.loadIcon(packageManager)
-                val label = app.loadLabel(packageManager)
+                val icon = appItem.appInfo.loadIcon(packageManager)
+                val label = appItem.appInfo.loadLabel(packageManager)
 
                 withContext(Dispatchers.Main) {
                     holder.appIcon.setImageDrawable(icon)
@@ -86,13 +108,13 @@ class SelectAppsActivity : AppCompatActivity() {
             // Remove the previous OnCheckedChangeListener before setting a new one
             holder.checkbox.setOnCheckedChangeListener(null)
 
-            holder.checkbox.isChecked = selectedAppList.contains(app.packageName)
+            holder.checkbox.isChecked = selectedAppList.contains(appItem.appInfo.packageName)
 
             holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
-                    selectedAppList.add(app.packageName)
+                    selectedAppList.add(appItem.appInfo.packageName)
                 } else {
-                    selectedAppList.remove(app.packageName)
+                    selectedAppList.remove(appItem.appInfo.packageName)
                 }
             }
 
@@ -103,4 +125,9 @@ class SelectAppsActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = apps.size
     }
+
+    data class AppItem(
+        val packageName: String,
+        val appInfo: ApplicationInfo
+    )
 }

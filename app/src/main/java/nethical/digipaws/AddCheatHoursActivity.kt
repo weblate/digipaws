@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +29,9 @@ class AddCheatHoursActivity : AppCompatActivity() {
     private var cheatHoursList: MutableList<CheatHourItem> = mutableListOf()
 
     private lateinit var selectUnblockedAppsLauncher: ActivityResultLauncher<Intent>
-    private var selectedUnblockedApps: ArrayList<String>? = null
+    private var selectedUnblockedApps: ArrayList<String>? = arrayListOf()
+
+    private lateinit var dialogAddToCheatHoursBinding: DialogAddToCheatHoursBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +44,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
         cheatHoursList = savedPreferencesLoader.loadCheatHoursList()
         selectUnblockedAppsLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -49,6 +52,8 @@ class AddCheatHoursActivity : AppCompatActivity() {
                     val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
                     selectedApps?.let {
                         selectedUnblockedApps = selectedApps
+                        dialogAddToCheatHoursBinding.btnSelectUnblockedApps.text =
+                            "${selectedApps.size} app(s) selected"
                     }
                 }
             }
@@ -62,7 +67,6 @@ class AddCheatHoursActivity : AppCompatActivity() {
 
     private fun makeCheatHoursDialog() {
 
-        val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
 
         var endTimeInMins: Int? = null
         var startTimeInMins: Int? = null
@@ -108,7 +112,11 @@ class AddCheatHoursActivity : AppCompatActivity() {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
                 "PRE_SELECTED_APPS",
-                arrayListOf()
+                selectedUnblockedApps
+            )
+            intent.putStringArrayListExtra(
+                "APP_LIST",
+                java.util.ArrayList(savedPreferencesLoader.loadBlockedApps())
             )
             selectUnblockedAppsLauncher.launch(intent)
         }
@@ -116,17 +124,30 @@ class AddCheatHoursActivity : AppCompatActivity() {
             .setTitle("Specify Cheat Hours")
             .setView(dialogAddToCheatHoursBinding.root)
             .setPositiveButton("Add") { dialog, _ ->
-                cheatHoursList.add(
-                    CheatHourItem(
-                        dialogAddToCheatHoursBinding.cheatHourTitle.text.toString(),
-                        startTimeInMins!!,
-                        endTimeInMins!!,
-                        selectedUnblockedApps!!
+                if (dialogAddToCheatHoursBinding.cheatHourTitle.text?.isEmpty() == true) {
+                    Toast.makeText(this, "Please type a title", Toast.LENGTH_SHORT).show()
+                }
+                if (startTimeInMins == null) {
+                    Toast.makeText(this, "Please Select a start time", Toast.LENGTH_SHORT).show()
+                } else if (endTimeInMins == null) {
+                    Toast.makeText(this, "Please Select an end time", Toast.LENGTH_SHORT).show()
+                } else if (selectedUnblockedApps?.isEmpty() == true) {
+                    Toast.makeText(this, "Please Select a few apps to block", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    cheatHoursList.add(
+                        CheatHourItem(
+                            dialogAddToCheatHoursBinding.cheatHourTitle.text.toString(),
+                            startTimeInMins!!,
+                            endTimeInMins!!,
+                            selectedUnblockedApps!!
+                        )
                     )
-                )
-                binding.recyclerView2.adapter?.notifyItemInserted(cheatHoursList.size)
-                savedPreferencesLoader.saveCheatHoursList(cheatHoursList)
-                dialog.dismiss()
+                    binding.recyclerView2.adapter?.notifyItemInserted(cheatHoursList.size)
+                    savedPreferencesLoader.saveCheatHoursList(cheatHoursList)
+                    dialog.dismiss()
+                }
+
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
