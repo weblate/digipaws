@@ -1,6 +1,9 @@
 package nethical.digipaws.utils
 
 import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import nethical.digipaws.AddCheatHoursActivity
 
 class SavedPreferencesLoader(private val context: Context) {
 
@@ -42,4 +45,27 @@ class SavedPreferencesLoader(private val context: Context) {
             context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         sharedPreferences.edit().putStringSet("blocked_keywords", pinnedApps).apply()
     }
+    fun saveCheatHoursList(cheatHoursList: MutableList<AddCheatHoursActivity.CheatHourItem>) {
+        val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(cheatHoursList)
+
+        editor.putString("cheatHoursList", json)
+        editor.apply()
+    }
+
+    fun loadCheatHoursList(): MutableList<AddCheatHoursActivity.CheatHourItem> {
+        val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val json = sharedPreferences.getString("cheatHoursList", null)
+
+        if (json.isNullOrEmpty()) return mutableListOf()
+
+        val type = object : TypeToken<MutableList<AddCheatHoursActivity.CheatHourItem>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
 }

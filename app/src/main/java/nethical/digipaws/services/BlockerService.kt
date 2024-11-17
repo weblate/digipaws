@@ -21,7 +21,7 @@ import nethical.digipaws.utils.WarningOverlayManager
 class BlockerService : AccessibilityService() {
 
     companion object {
-        val INTENT_ACTION_REFRESH_BLOCKED_APP_LIST = "nethical.digipaws.refresh.appblocker"
+        val INTENT_ACTION_REFRESH_APP_BLOCKER = "nethical.digipaws.refresh.appblocker"
     }
 
     private val savedPreferencesLoader = SavedPreferencesLoader(this)
@@ -122,7 +122,7 @@ class BlockerService : AccessibilityService() {
         serviceInfo = info
 
         val filter = IntentFilter().apply {
-            addAction(INTENT_ACTION_REFRESH_BLOCKED_APP_LIST)
+            addAction(INTENT_ACTION_REFRESH_APP_BLOCKER)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
@@ -136,8 +136,8 @@ class BlockerService : AccessibilityService() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.d("updated Packs", appBlocker.blockedAppsList.toString())
 
-            if (intent != null && intent.action == INTENT_ACTION_REFRESH_BLOCKED_APP_LIST) {
-                appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
+            if (intent != null && intent.action == INTENT_ACTION_REFRESH_APP_BLOCKER) {
+                setupBlockers()
                 Log.d("updated Packs", appBlocker.blockedAppsList.toString())
             }
         }
@@ -147,6 +147,8 @@ class BlockerService : AccessibilityService() {
 
     private fun setupBlockers() {
         appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
+        appBlocker.refreshCheatMinutesData(savedPreferencesLoader.loadCheatHoursList())
+
     }
 
     override fun onDestroy() {

@@ -3,7 +3,6 @@ package nethical.digipaws
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +22,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var selectBlockedAppsLauncher: ActivityResultLauncher<Intent>
 
     private lateinit var selectBlockedKeywords: ActivityResultLauncher<Intent>
+
+    private lateinit var addCheatHoursActivity: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +55,7 @@ class MainActivity : AppCompatActivity() {
                     val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
                     selectedApps?.let {
                         savedPreferencesLoader.saveBlockedApps(it.toSet())
-                        sendRefreshRequest(BlockerService.INTENT_ACTION_REFRESH_BLOCKED_APP_LIST)
-                        Log.d("send req", "sent")
+                        sendRefreshRequest(BlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
                     }
                 }
             }
@@ -69,6 +69,10 @@ class MainActivity : AppCompatActivity() {
                         sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
                     }
                 }
+            }
+        addCheatHoursActivity =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+                sendRefreshRequest(BlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
             }
 
         binding.selectPinnedApps.setOnClickListener {
@@ -96,6 +100,11 @@ class MainActivity : AppCompatActivity() {
                 ArrayList(savedPreferencesLoader.loadBlockedKeywords())
             )
             selectBlockedKeywords.launch(intent)
+        }
+
+        binding.selectCheatHours.setOnClickListener {
+            val intent = Intent(this, AddCheatHoursActivity::class.java)
+            addCheatHoursActivity.launch(intent)
         }
     }
 
