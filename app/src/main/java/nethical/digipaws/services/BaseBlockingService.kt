@@ -25,10 +25,10 @@ open class BaseBlockingService : AccessibilityService() {
     }
 
     fun isDelayOver(): Boolean {
-        return isDelayOver(2000)
+        return isDelayOver(500)
     }
 
-    private fun isDelayOver(delay: Int): Boolean {
+    fun isDelayOver(delay: Int): Boolean {
         val currentTime = SystemClock.uptimeMillis().toFloat()
         return currentTime - lastEventActionTakenTimeStamp > delay
     }

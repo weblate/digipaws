@@ -26,9 +26,7 @@ class AppBlockerService : BaseBlockingService() {
         if (!isDelayOver()) {
             return
         }
-        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName), packageName)
-        }
+        handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName), packageName)
     }
 
     override fun onInterrupt() {
@@ -41,7 +39,7 @@ class AppBlockerService : BaseBlockingService() {
         setupBlockers()
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
-                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT

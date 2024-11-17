@@ -72,6 +72,15 @@ class AddCheatHoursActivity : AppCompatActivity() {
         var startTimeInMins: Int? = null
 
         dialogAddToCheatHoursBinding.btnSelectEndTime.setOnClickListener {
+            if (startTimeInMins == null) {
+                Toast.makeText(
+                    this,
+                    "Please Specify Start Time first",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
             val calendar = Calendar.getInstance()
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
             val minute = calendar.get(Calendar.MINUTE)
@@ -79,13 +88,25 @@ class AddCheatHoursActivity : AppCompatActivity() {
             val timePickerDialog = TimePickerDialog(
                 this,
                 { _, selectedHour, selectedMinute ->
-                    endTimeInMins = Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
-                    dialogAddToCheatHoursBinding.btnSelectEndTime.text =
-                        "End Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                    val selectedEndTime =
+                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+
+                    // Ensure end time is after start time
+                    if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
+                        Toast.makeText(
+                            this,
+                            "End time must be after start time!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        endTimeInMins = selectedEndTime
+                        dialogAddToCheatHoursBinding.btnSelectEndTime.text =
+                            "End Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                    }
                 },
                 hour,
                 minute,
-                true
+                false
             )
             timePickerDialog.show()
         }
@@ -104,7 +125,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 },
                 hour,
                 minute,
-                true // Use 24-hour format
+                false // Use 24-hour format
             )
             timePickerDialog.show()
         }
@@ -156,11 +177,11 @@ class AddCheatHoursActivity : AppCompatActivity() {
     }
 
 
-    class CheatHourAdapter(
+    inner class CheatHourAdapter(
         private val items: List<CheatHourItem>
-    ) : RecyclerView.Adapter<CheatHourAdapter.ExampleViewHolder>() {
+    ) : RecyclerView.Adapter<CheatHourAdapter.CheatHourViewHolder>() {
 
-        class ExampleViewHolder(private val binding: CheatHourItemBinding) :
+        inner class CheatHourViewHolder(private val binding: CheatHourItemBinding) :
             RecyclerView.ViewHolder(binding.root) {
 
             fun bind(item: CheatHourItem) {
@@ -168,25 +189,32 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 val convertedStartTime = Tools.convertMinutesTo24Hour(item.startTime)
                 val convertedEndTIme = Tools.convertMinutesTo24Hour(item.endTime)
 
+                binding.removeCheatHour.setOnClickListener {
+                    cheatHoursList.removeAt(layoutPosition)
+                    notifyItemRemoved(layoutPosition)
+                    savedPreferencesLoader.saveCheatHoursList(cheatHoursList)
+                }
+
                 binding.cheatTimings.text =
                     "${convertedStartTime.first}:${convertedStartTime.second} to ${convertedEndTIme.first}:${convertedEndTIme.second}"
                 item.packages.forEach { packageName ->
                     binding.selectedApps.text =
                         binding.selectedApps.text.toString() + " " + packageName
                 }
+
             }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExampleViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheatHourViewHolder {
             val binding = CheatHourItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
             )
-            return ExampleViewHolder(binding)
+            return CheatHourViewHolder(binding)
         }
 
-        override fun onBindViewHolder(holder: ExampleViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: CheatHourViewHolder, position: Int) {
             holder.bind(items[position])
         }
 
