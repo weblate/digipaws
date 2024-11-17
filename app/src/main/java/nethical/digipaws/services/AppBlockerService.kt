@@ -7,29 +7,27 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.SystemClock
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
-import android.widget.Toast
-import nethical.digipaws.blockers.KeywordBlocker
+import nethical.digipaws.blockers.AppBlocker
 
-class KeywordBlockerService : BaseBlockingService() {
+class AppBlockerService : BaseBlockingService() {
 
     companion object {
-        const val INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST =
-            "nethical.digipaws.refresh.keywordblocker"
+        const val INTENT_ACTION_REFRESH_APP_BLOCKER = "nethical.digipaws.refresh.appblocker"
     }
 
-    private val keywordBlocker = KeywordBlocker()
-
+    private val appBlocker = AppBlocker()
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+
+        val packageName = event?.packageName.toString()
         if (!isDelayOver()) {
             return
         }
-
-        val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
+            handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName), packageName)
         }
     }
 
@@ -43,7 +41,7 @@ class KeywordBlockerService : BaseBlockingService() {
         setupBlockers()
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
-                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT
@@ -52,7 +50,7 @@ class KeywordBlockerService : BaseBlockingService() {
 
 
         val filter = IntentFilter().apply {
-            addAction(INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
+            addAction(INTENT_ACTION_REFRESH_APP_BLOCKER)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
@@ -64,26 +62,37 @@ class KeywordBlockerService : BaseBlockingService() {
 
     private val refreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent != null && intent.action == INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST) {
+            Log.d("updated Packs", appBlocker.blockedAppsList.toString())
+
+            if (intent != null && intent.action == INTENT_ACTION_REFRESH_APP_BLOCKER) {
                 setupBlockers()
+                Log.d("updated Packs", appBlocker.blockedAppsList.toString())
             }
         }
     }
 
-    private fun handleKeywordBlockerResult(detectedWord: String?) {
-        if (detectedWord == null) return
-        Toast.makeText(this, "Blocked keyword $detectedWord was found.", Toast.LENGTH_LONG).show()
-        pressHome()
-    }
 
+    private fun handleAppBlockerResult(isActionRequired: Boolean, packageName: String) {
+        if (isActionRequired) {
+            warningOverlayManager.showTextOverlay(
+                "App Blocked",
+                onClose = { pressHome() },
+                onProceed = {
+                    lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
+                    appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + 60000)
+                })
+        }
+    }
 
     private fun setupBlockers() {
-        keywordBlocker.blockedKeyword = savedPreferencesLoader.loadBlockedKeywords().toHashSet()
-    }
+        appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
+        appBlocker.refreshCheatMinutesData(savedPreferencesLoader.loadCheatHoursList())
 
+    }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(refreshReceiver)
     }
+
 }

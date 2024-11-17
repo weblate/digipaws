@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DigiPaws"
         tools:targetApi="31">
+
         <activity
             android:name=".AddCheatHoursActivity"
             android:exported="false" />
@@ -42,9 +43,9 @@
         </activity>
 
         <service
-            android:name=".services.BlockerService"
+            android:name=".services.ViewBlockerService"
             android:exported="true"
-            android:label="Digipaws Main Blocker"
+            android:label="View Blocker"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -52,8 +53,9 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/blocker_service_config_main" />
+                android:resource="@xml/view_blocker_service_config" />
         </service>
+
         <service
             android:name=".services.KeywordBlockerService"
             android:exported="true"
@@ -65,12 +67,13 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/blocker_service_config_keyword" />
+                android:resource="@xml/keyword_blocker_service_config" />
         </service>
+
         <service
-            android:name=".services.UsageTrackingService"
+            android:name=".services.AppBlockerService"
             android:exported="true"
-            android:label="Usage Overlay"
+            android:label="App Blocker"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -78,8 +81,24 @@
 
             <meta-data
                 android:name="android.accessibilityservice"
-                android:resource="@xml/blocker_service_config_keyword" />
+                android:resource="@xml/app_blocker_service_config" />
         </service>
+
+        <service
+            android:name=".services.UsageTrackingService"
+            android:exported="true"
+            android:label="Usage Tracker"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/keyword_blocker_service_config" />
+        </service>
+
+
     </application>
 
 </manifest>

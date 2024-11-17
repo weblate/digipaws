@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import nethical.digipaws.databinding.ActivityMainBinding
-import nethical.digipaws.services.BlockerService
+import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
 
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                     val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
                     selectedApps?.let {
                         savedPreferencesLoader.saveBlockedApps(it.toSet())
-                        sendRefreshRequest(BlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
+                        sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
                     }
                 }
             }
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
             }
         addCheatHoursActivity =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-                sendRefreshRequest(BlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
+                sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
             }
 
         binding.selectPinnedApps.setOnClickListener {

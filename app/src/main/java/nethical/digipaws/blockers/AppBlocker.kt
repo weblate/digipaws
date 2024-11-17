@@ -61,11 +61,11 @@ class AppBlocker:BaseBlocker() {
                 Log.d("cheat adding for", packageName)
                 if (cheatMinutes.containsKey(packageName)) {
                     val cheatHourTimeData: List<Pair<Int, Int>>? = cheatMinutes[packageName]
-                    val cheatHourNewTimeData: MutableList<Pair<Int, Int>>? =
-                        cheatHourTimeData?.toMutableList()
+                    val cheatHourNewTimeData: MutableList<Pair<Int, Int>> =
+                        cheatHourTimeData!!.toMutableList()
 
-                    cheatHourNewTimeData?.add(Pair(startTime, endTime))
-                    cheatMinutes[packageName] = cheatHourNewTimeData!!
+                    cheatHourNewTimeData.add(Pair(startTime, endTime))
+                    cheatMinutes[packageName] = cheatHourNewTimeData
                 } else {
                     cheatMinutes[packageName] = listOf(Pair(startTime, endTime))
                 }
@@ -73,4 +73,5 @@ class AppBlocker:BaseBlocker() {
         }
 
     }
+
 }
