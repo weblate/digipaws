@@ -161,7 +161,8 @@ class AddCheatHoursActivity : AppCompatActivity() {
                             dialogAddToCheatHoursBinding.cheatHourTitle.text.toString(),
                             startTimeInMins!!,
                             endTimeInMins!!,
-                            selectedUnblockedApps!!
+                            selectedUnblockedApps!!,
+                            dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
                         )
                     )
                     binding.recyclerView2.adapter?.notifyItemInserted(cheatHoursList.size)
@@ -226,7 +227,8 @@ class AddCheatHoursActivity : AppCompatActivity() {
         val title: String,
         val startTime: Int,
         val endTime: Int,
-        val packages: ArrayList<String>
+        val packages: ArrayList<String>,
+        val isProceedHidden: Boolean = false
     )
 
 }

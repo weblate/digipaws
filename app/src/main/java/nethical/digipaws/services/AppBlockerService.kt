@@ -70,21 +70,23 @@ class AppBlockerService : BaseBlockingService() {
     }
 
 
-    private fun handleAppBlockerResult(isActionRequired: Boolean, packageName: String) {
-        if (isActionRequired) {
-            warningOverlayManager.showTextOverlay(
-                "App Blocked",
-                onClose = { pressHome() },
-                onProceed = {
-                    lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-                    appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + 60000)
-                })
-        }
+    private fun handleAppBlockerResult(result: AppBlocker.AppBlockerResult?, packageName: String) {
+        Log.d("result", result.toString())
+        if (result == null || !result.isBlocked) return
+        warningOverlayManager.showTextOverlay(
+            "App Blocked",
+            onClose = { pressHome() },
+            onProceed = {
+                lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
+                appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + 60000)
+            }, isProceedHidden = result.isProceedHidden
+        )
     }
-
     private fun setupBlockers() {
         appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
+        Log.d("cheatData", savedPreferencesLoader.loadCheatHoursList().toString())
         appBlocker.refreshCheatMinutesData(savedPreferencesLoader.loadCheatHoursList())
+        Log.d("cheat", appBlocker.cheatMinutes.toString())
 
     }
 

@@ -13,20 +13,30 @@ class AppBlocker:BaseBlocker() {
 
     var blockedAppsList = hashSetOf("")
 
-    fun doesAppNeedToBeBlocked(packageName: String): Boolean{
+    var proceedBtnInfo: MutableMap<String, Boolean> =
+        mutableMapOf() // stores info about proceed button visibility
+
+
+    fun doesAppNeedToBeBlocked(packageName: String): AppBlockerResult? {
 
         if(cooldownAppsList.containsKey(packageName)){
             if (cooldownAppsList[packageName]!! < SystemClock.uptimeMillis()){
                 removeCooldownFrom(packageName)
             }
-                return false
+            return null
         }
 
         if (isWithinUsageMinutes(packageName)) {
-            return false
+            return AppBlockerResult(isBlocked = false)
         }
 
-        return blockedAppsList.contains(packageName)
+        if (blockedAppsList.contains(packageName)) {
+            return AppBlockerResult(
+                isBlocked = true,
+                isProceedHidden = proceedBtnInfo.getOrDefault(packageName, defaultValue = false)
+            )
+        }
+        return null
     }
     fun putCooldownTo(packageName: String, endTime: Long) {
         cooldownAppsList.put(packageName,endTime)
@@ -52,6 +62,8 @@ class AppBlocker:BaseBlocker() {
     }
 
     fun refreshCheatMinutesData(cheatList: List<AddCheatHoursActivity.CheatHourItem>) {
+        cheatMinutes.clear()
+        proceedBtnInfo.clear()
         cheatList.forEach { item ->
             val startTime = item.startTime
             val endTime = item.endTime
@@ -59,6 +71,8 @@ class AppBlocker:BaseBlocker() {
 
             packageNames.forEach { packageName ->
                 Log.d("cheat adding for", packageName)
+
+                proceedBtnInfo[packageName] = item.isProceedHidden
                 if (cheatMinutes.containsKey(packageName)) {
                     val cheatHourTimeData: List<Pair<Int, Int>>? = cheatMinutes[packageName]
                     val cheatHourNewTimeData: MutableList<Pair<Int, Int>> =
@@ -73,5 +87,10 @@ class AppBlocker:BaseBlocker() {
         }
 
     }
+
+    data class AppBlockerResult(
+        val isBlocked: Boolean = false,
+        val isProceedHidden: Boolean = false
+    )
 
 }

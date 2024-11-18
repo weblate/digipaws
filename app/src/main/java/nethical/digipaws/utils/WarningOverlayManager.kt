@@ -23,7 +23,12 @@ class WarningOverlayManager(private val context: Context) {
     private var proceedTimer: CountDownTimer? = null
 
     @SuppressLint("InlinedApi")
-    fun showTextOverlay(message: String, onClose: () -> Unit, onProceed: () -> Unit) {
+    fun showTextOverlay(
+        message: String,
+        onClose: () -> Unit,
+        onProceed: () -> Unit,
+        isProceedHidden: Boolean = false
+    ) {
         if (overlayView != null || isOverlayVisible) return
 
         binding = OverlayWarningScreenBinding.inflate(LayoutInflater.from(context))
@@ -56,7 +61,11 @@ class WarningOverlayManager(private val context: Context) {
         }
         isOverlayVisible = false
 
-        setUpDelayToProceedOn()
+        if (isProceedHidden) {
+            binding?.overlayProceedBtn?.visibility = View.GONE
+        } else {
+            setUpDelayToProceedOn()
+        }
 
         windowManager?.addView(overlayView, layoutParams)
     }
