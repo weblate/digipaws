@@ -9,7 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.databinding.ActivityMainBinding
+import nethical.digipaws.databinding.DialogTweakAppBlockerWarningBinding
 import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
@@ -25,6 +27,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addCheatHoursActivity: ActivityResultLauncher<Intent>
 
+    val savedPreferencesLoader = SavedPreferencesLoader(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,7 +42,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val savedPreferencesLoader = SavedPreferencesLoader(this)
 
         selectPinnedAppsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -106,6 +109,9 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AddCheatHoursActivity::class.java)
             addCheatHoursActivity.launch(intent)
         }
+        binding.btnConfigAppblockerWarning.setOnClickListener {
+            makeTweakWarningIntervalDialog()
+        }
     }
 
     private fun sendRefreshRequest(action: String) {
@@ -113,5 +119,40 @@ class MainActivity : AppCompatActivity() {
         sendBroadcast(intent)
     }
 
+    private fun makeTweakWarningIntervalDialog() {
+        val tweakAppBlockerWarningBinding: DialogTweakAppBlockerWarningBinding =
+            DialogTweakAppBlockerWarningBinding.inflate(layoutInflater)
+        tweakAppBlockerWarningBinding.selectMins.minValue = 1
+        tweakAppBlockerWarningBinding.selectMins.maxValue = 240
+
+        val prevdata = savedPreferencesLoader.loadAppBlockerWarningInfo()
+        tweakAppBlockerWarningBinding.selectMins.value = prevdata.timeInterval / 60000
+        tweakAppBlockerWarningBinding.warningMsgEdit.setText(prevdata.message)
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Configure Warning Screen")
+            .setView(tweakAppBlockerWarningBinding.root)
+            .setPositiveButton("Save") { dialog, _ ->
+                val selectedMinInMs = tweakAppBlockerWarningBinding.selectMins.value * 60000
+                savedPreferencesLoader.saveAppBlockerWarningInfo(
+                    WarningData(
+                        tweakAppBlockerWarningBinding.warningMsgEdit.text.toString(),
+                        selectedMinInMs,
+                        false
+                    )
+                )
+                sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    data class WarningData(
+        val message: String = "",
+        val timeInterval: Int = 5000,
+        val isDynamicIntervalSettingAllowed: Boolean = false
+    )
 
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import nethical.digipaws.AddCheatHoursActivity
+import nethical.digipaws.MainActivity
 
 class SavedPreferencesLoader(private val context: Context) {
 
@@ -65,6 +66,29 @@ class SavedPreferencesLoader(private val context: Context) {
         if (json.isNullOrEmpty()) return mutableListOf()
 
         val type = object : TypeToken<MutableList<AddCheatHoursActivity.CheatHourItem>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun saveAppBlockerWarningInfo(warningData: MainActivity.WarningData) {
+        val sharedPreferences = context.getSharedPreferences("warning_data", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(warningData)
+
+        editor.putString("app_blocker", json)
+        editor.apply()
+    }
+
+    fun loadAppBlockerWarningInfo(): MainActivity.WarningData {
+        val sharedPreferences = context.getSharedPreferences("warning_data", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val json = sharedPreferences.getString("app_blocker", null)
+
+        if (json.isNullOrEmpty()) return MainActivity.WarningData()
+
+        val type = object : TypeToken<MainActivity.WarningData>() {}.type
         return gson.fromJson(json, type)
     }
 

@@ -42,4 +42,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/select_blocked_keywords" />
+
+    <Button
+        android:id="@+id/btn_config_appblocker_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tweak App Blocker Warning"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_cheat_hours" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

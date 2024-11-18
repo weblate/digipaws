@@ -20,6 +20,9 @@ class AppBlockerService : BaseBlockingService() {
 
     private val appBlocker = AppBlocker()
 
+    private var cooldownInterval = 10 * 60000
+    private var warningMessage = ""
+
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
         val packageName = event?.packageName.toString()
@@ -36,7 +39,7 @@ class AppBlockerService : BaseBlockingService() {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onServiceConnected() {
         super.onServiceConnected()
-        setupBlockers()
+        setupBlocker()
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
@@ -63,7 +66,7 @@ class AppBlockerService : BaseBlockingService() {
             Log.d("updated Packs", appBlocker.blockedAppsList.toString())
 
             if (intent != null && intent.action == INTENT_ACTION_REFRESH_APP_BLOCKER) {
-                setupBlockers()
+                setupBlocker()
                 Log.d("updated Packs", appBlocker.blockedAppsList.toString())
             }
         }
@@ -74,19 +77,22 @@ class AppBlockerService : BaseBlockingService() {
         Log.d("result", result.toString())
         if (result == null || !result.isBlocked) return
         warningOverlayManager.showTextOverlay(
-            "App Blocked",
+            warningMessage,
             onClose = { pressHome() },
             onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-                appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + 60000)
+                appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + cooldownInterval)
             }, isProceedHidden = result.isProceedHidden
         )
     }
-    private fun setupBlockers() {
+
+    private fun setupBlocker() {
         appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
-        Log.d("cheatData", savedPreferencesLoader.loadCheatHoursList().toString())
         appBlocker.refreshCheatMinutesData(savedPreferencesLoader.loadCheatHoursList())
-        Log.d("cheat", appBlocker.cheatMinutes.toString())
+
+        val warningScreenConfig = savedPreferencesLoader.loadAppBlockerWarningInfo()
+        cooldownInterval = warningScreenConfig.timeInterval
+        warningMessage = warningScreenConfig.message
 
     }
 
