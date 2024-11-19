@@ -3,12 +3,24 @@ package nethical.digipaws.blockers
 import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
+import nethical.digipaws.utils.Tools
+import java.util.Calendar
 
 class ViewBlocker : BaseBlocker() {
     private val cooldownViewIdsList = mutableMapOf<String, Long>()
     private val blockedViewIdsList = mutableListOf("com.instagram.android:id/root_clips_layout")
 
+    var isProceedBtnDisabled = false
+
+    var cheatMinuteStartTime: Int? = null
+    var cheatMinutesEndTIme: Int? = null
+
     fun doesViewNeedToBeBlocked(node: AccessibilityNodeInfo): String? {
+
+        if (isCheatHourActive()) {
+            return null
+        }
+
         blockedViewIdsList.forEach { viewId ->
             if(isViewOpened(node,viewId)){
                 Log.d("ViewBlocker", "Blocking view ID: $viewId")
@@ -42,6 +54,22 @@ class ViewBlocker : BaseBlocker() {
         return viewNode != null
     }
 
+    private fun isCheatHourActive(): Boolean {
+
+        val currentTime = Calendar.getInstance()
+        val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+        val currentMinute = currentTime.get(Calendar.MINUTE)
+
+        val currentMinutes = Tools.convertToMinutesFromMidnight(currentHour, currentMinute)
+
+        // If cheat hours are not set, treat as inactive
+        if (cheatMinuteStartTime == null || cheatMinutesEndTIme == null || cheatMinuteStartTime == -1 || cheatMinutesEndTIme == -1) {
+            return false
+        }
+
+
+        return currentMinutes in cheatMinuteStartTime!!..cheatMinutesEndTIme!!
+    }
 
 
     companion object {

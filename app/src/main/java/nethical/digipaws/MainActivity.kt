@@ -1,8 +1,11 @@
 
 package nethical.digipaws
 
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,10 +14,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.databinding.ActivityMainBinding
-import nethical.digipaws.databinding.DialogTweakAppBlockerWarningBinding
+import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
+import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.KeywordBlockerService
+import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
+import nethical.digipaws.utils.Tools
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
@@ -110,7 +117,13 @@ class MainActivity : AppCompatActivity() {
             addCheatHoursActivity.launch(intent)
         }
         binding.btnConfigAppblockerWarning.setOnClickListener {
-            makeTweakWarningIntervalDialog()
+            makeTweakAppBlockerWarningIntervalDialog()
+        }
+        binding.btnConfigViewblockerWarning.setOnClickListener {
+            makeTweakViewBlockerWarningIntervalDialog()
+        }
+        binding.btnConfigViewblockerCheatHours.setOnClickListener {
+            makeCheatHoursDialog()
         }
     }
 
@@ -119,9 +132,9 @@ class MainActivity : AppCompatActivity() {
         sendBroadcast(intent)
     }
 
-    private fun makeTweakWarningIntervalDialog() {
-        val tweakAppBlockerWarningBinding: DialogTweakAppBlockerWarningBinding =
-            DialogTweakAppBlockerWarningBinding.inflate(layoutInflater)
+    private fun makeTweakAppBlockerWarningIntervalDialog() {
+        val tweakAppBlockerWarningBinding: DialogTweakBlockerWarningBinding =
+            DialogTweakBlockerWarningBinding.inflate(layoutInflater)
         tweakAppBlockerWarningBinding.selectMins.minValue = 1
         tweakAppBlockerWarningBinding.selectMins.maxValue = 240
 
@@ -148,6 +161,131 @@ class MainActivity : AppCompatActivity() {
             }
             .show()
     }
+
+    private fun makeTweakViewBlockerWarningIntervalDialog() {
+        val tweakViewlockerWarningBinding: DialogTweakBlockerWarningBinding =
+            DialogTweakBlockerWarningBinding.inflate(layoutInflater)
+        tweakViewlockerWarningBinding.selectMins.minValue = 1
+        tweakViewlockerWarningBinding.selectMins.maxValue = 240
+
+        val prevdata = savedPreferencesLoader.loadViewBlockerWarningInfo()
+        tweakViewlockerWarningBinding.selectMins.value = prevdata.timeInterval / 60000
+        tweakViewlockerWarningBinding.warningMsgEdit.setText(prevdata.message)
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Configure Warning Screen")
+            .setView(tweakViewlockerWarningBinding.root)
+            .setPositiveButton("Save") { dialog, _ ->
+                val selectedMinInMs = tweakViewlockerWarningBinding.selectMins.value * 60000
+                savedPreferencesLoader.saveViewBlockerWarningInfo(
+                    WarningData(
+                        tweakViewlockerWarningBinding.warningMsgEdit.text.toString(),
+                        selectedMinInMs,
+                        false
+                    )
+                )
+                sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+
+    private fun makeCheatHoursDialog() {
+
+        val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
+
+        var endTimeInMins: Int? = null
+        var startTimeInMins: Int? = null
+
+        dialogAddToCheatHoursBinding.btnSelectUnblockedApps.visibility = View.GONE
+        dialogAddToCheatHoursBinding.cheatHourTitle.visibility = View.GONE
+
+        dialogAddToCheatHoursBinding.btnSelectEndTime.setOnClickListener {
+            if (startTimeInMins == null) {
+                Toast.makeText(
+                    this,
+                    "Please Specify Start Time first",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+
+            val timePickerDialog = TimePickerDialog(
+                this,
+                { _, selectedHour, selectedMinute ->
+                    val selectedEndTime =
+                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+
+                    // Ensure end time is after start time
+                    if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
+                        Toast.makeText(
+                            this,
+                            "End time must be after start time!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        endTimeInMins = selectedEndTime
+                        dialogAddToCheatHoursBinding.btnSelectEndTime.text =
+                            "End Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                    }
+                },
+                hour,
+                minute,
+                false
+            )
+            timePickerDialog.show()
+        }
+        dialogAddToCheatHoursBinding.btnSelectStartTime.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+
+            val timePickerDialog = TimePickerDialog(
+                this,
+                { _, selectedHour, selectedMinute ->
+                    startTimeInMins =
+                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+                    dialogAddToCheatHoursBinding.btnSelectStartTime.text =
+                        "Start Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                },
+                hour,
+                minute,
+                false // Use 24-hour format
+            )
+            timePickerDialog.show()
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Specify Cheat Hours")
+            .setView(dialogAddToCheatHoursBinding.root)
+            .setPositiveButton("Add") { dialog, _ ->
+                if (startTimeInMins == null) {
+                    Toast.makeText(this, "Please Select a start time", Toast.LENGTH_SHORT).show()
+                } else if (endTimeInMins == null) {
+                    Toast.makeText(this, "Please Select an end time", Toast.LENGTH_SHORT).show()
+                } else {
+                    savedPreferencesLoader.saveCheatHoursForViewBlocker(
+                        startTimeInMins!!,
+                        endTimeInMins!!,
+                        dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
+                    )
+                    sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
+                    dialog.dismiss()
+                }
+
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
 
     data class WarningData(
         val message: String = "",

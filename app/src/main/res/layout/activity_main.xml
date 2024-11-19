@@ -38,7 +38,7 @@
         android:id="@+id/select_cheat_hours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select Cheat Hours"
+        android:text="Select AppBlocker Cheat Hours"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/select_blocked_keywords" />
@@ -51,5 +51,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/select_cheat_hours" />
+
+    <Button
+        android:id="@+id/btn_config_viewblocker_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tweak View Blocker Warning"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_config_appblocker_warning" />
+
+    <Button
+        android:id="@+id/btn_config_viewblocker_cheat_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ViewBlocker Cheat Hours"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_config_viewblocker_warning" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -92,4 +92,36 @@ class SavedPreferencesLoader(private val context: Context) {
         return gson.fromJson(json, type)
     }
 
+    fun saveViewBlockerWarningInfo(warningData: MainActivity.WarningData) {
+        val sharedPreferences = context.getSharedPreferences("warning_data", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(warningData)
+
+        editor.putString("view_blocker", json)
+        editor.apply()
+    }
+
+    fun loadViewBlockerWarningInfo(): MainActivity.WarningData {
+        val sharedPreferences = context.getSharedPreferences("warning_data", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val json = sharedPreferences.getString("view_blocker", null)
+
+        if (json.isNullOrEmpty()) return MainActivity.WarningData()
+
+        val type = object : TypeToken<MainActivity.WarningData>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun saveCheatHoursForViewBlocker(startTime: Int, endTime: Int, isProceedDisabled: Boolean) {
+        val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
+        val edit = sharedPreferences.edit()
+        edit.putInt("view_blocker_start_time", startTime)
+        edit.putInt("view_blocker_end_time", endTime)
+        edit.putBoolean("view_blocker_is_proceed_disabled", isProceedDisabled)
+        edit.commit()
+    }
+
 }
