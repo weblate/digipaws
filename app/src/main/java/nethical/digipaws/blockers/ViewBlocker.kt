@@ -8,14 +8,18 @@ import java.util.Calendar
 
 class ViewBlocker : BaseBlocker() {
     private val cooldownViewIdsList = mutableMapOf<String, Long>()
-    private val blockedViewIdsList = mutableListOf("com.instagram.android:id/root_clips_layout")
+    private val blockedViewIdsList = mutableListOf(
+        "com.instagram.android:id/root_clips_layout",
+        "com.google.android.youtube:id/reel_recycler",
+        "app.revanced.android.youtube:id/reel_recycler"
+    )
 
     var isProceedBtnDisabled = false
 
     var cheatMinuteStartTime: Int? = null
     var cheatMinutesEndTIme: Int? = null
 
-    fun doesViewNeedToBeBlocked(node: AccessibilityNodeInfo): String? {
+    fun doesViewNeedToBeBlocked(node: AccessibilityNodeInfo): ViewBlockerResult? {
 
         if (isCheatHourActive()) {
             return null
@@ -23,11 +27,10 @@ class ViewBlocker : BaseBlocker() {
 
         blockedViewIdsList.forEach { viewId ->
             if(isViewOpened(node,viewId)){
-                Log.d("ViewBlocker", "Blocking view ID: $viewId")
                 if (isCooldownActive(viewId)) {
-                    return RETURN_RESULT_REEL_TAB_IN_COOLDOWN
+                    return ViewBlockerResult(isReelFoundInCooldownState = true, viewId = viewId)
                 }
-                return viewId
+                return ViewBlockerResult(isBlocked = true, viewId = viewId)
             }
         }
         return null
@@ -70,10 +73,13 @@ class ViewBlocker : BaseBlocker() {
 
         return currentMinutes in cheatMinuteStartTime!!..cheatMinutesEndTIme!!
     }
-
+    data class ViewBlockerResult(
+        val isBlocked: Boolean = false,
+        val isReelFoundInCooldownState: Boolean = false,
+        val viewId: String = ""
+    )
 
     companion object {
-        val RETURN_RESULT_REEL_TAB_IN_COOLDOWN = "cooldown_reel_found"
 
         fun findElementById(node: AccessibilityNodeInfo?, id: String?): AccessibilityNodeInfo? {
             if (node == null) return null

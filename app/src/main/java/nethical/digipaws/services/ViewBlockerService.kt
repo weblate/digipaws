@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.SystemClock
-import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.blockers.ViewBlocker
@@ -33,15 +32,10 @@ class ViewBlockerService : BaseBlockingService() {
             return
         }
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
-        if(event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED){
-            if (event.source?.className?.equals("androidx.viewpager.widget.ViewPager") == true) {
-                userYSwipeEventCounter++
-                if (userYSwipeEventCounter > userYSwipeSensitivity) {
-                    Log.d("source", event.source?.className.toString())
-                    userYSwipeEventCounter = 0
-                    handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
-                }
-            }
+        if (event?.packageName == "com.instagram.android" && event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
+        } else if (event?.packageName == "com.google.android.youtube" && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
         }
     }
 
@@ -50,20 +44,21 @@ class ViewBlockerService : BaseBlockingService() {
     }
 
 
-    private fun handleViewBlockerResult(result: String?) {
-        if (result != null) {
-            warningOverlayManager.showTextOverlay(
-                warningMessage,
-                onClose = { pressBack() },
-                onProceed = {
+    private fun handleViewBlockerResult(result: ViewBlocker.ViewBlockerResult?) {
+        if (result == null || !result.isBlocked) return
+        warningOverlayManager.showTextOverlay(
+            warningMessage,
+            onClose = { pressBack() },
+            onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-                    viewBlocker.applyCooldown(result, SystemClock.uptimeMillis() + cooldownInterval)
-                },
-                isProceedHidden = viewBlocker.isProceedBtnDisabled
-            )
-        }
+                viewBlocker.applyCooldown(
+                    result.viewId,
+                    SystemClock.uptimeMillis() + cooldownInterval
+                )
+            },
+            isProceedHidden = viewBlocker.isProceedBtnDisabled
+        )
     }
-
 
     private val refreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {

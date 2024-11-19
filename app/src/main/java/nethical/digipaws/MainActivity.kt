@@ -2,6 +2,7 @@
 package nethical.digipaws
 
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             makeTweakViewBlockerWarningIntervalDialog()
         }
         binding.btnConfigViewblockerCheatHours.setOnClickListener {
-            makeCheatHoursDialog()
+            makeViewBlockerCheatHoursDialog()
         }
     }
 
@@ -193,15 +194,34 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun makeCheatHoursDialog() {
+    private fun makeViewBlockerCheatHoursDialog() {
 
         val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
 
-        var endTimeInMins: Int? = null
-        var startTimeInMins: Int? = null
 
         dialogAddToCheatHoursBinding.btnSelectUnblockedApps.visibility = View.GONE
         dialogAddToCheatHoursBinding.cheatHourTitle.visibility = View.GONE
+
+
+        val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
+        var endTimeInMins =
+            viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
+        var startTimeInMins = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
+        val isProceedBtnDisabled =
+            viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
+
+        val convertedStartTime = Tools.convertMinutesTo24Hour(startTimeInMins)
+        val convertedEndTIme = Tools.convertMinutesTo24Hour(endTimeInMins)
+
+        dialogAddToCheatHoursBinding.btnSelectEndTime.text =
+            "Start Time: ${convertedStartTime.first}:${convertedStartTime.second}"
+
+        dialogAddToCheatHoursBinding.btnSelectStartTime.text =
+            "End Time: ${convertedEndTIme.first}:${convertedEndTIme.second}"
+
+
+        dialogAddToCheatHoursBinding.cbDisableProceed.isChecked = isProceedBtnDisabled
+
 
         dialogAddToCheatHoursBinding.btnSelectEndTime.setOnClickListener {
             if (startTimeInMins == null) {
@@ -264,7 +284,7 @@ class MainActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle("Specify Cheat Hours")
             .setView(dialogAddToCheatHoursBinding.root)
-            .setPositiveButton("Add") { dialog, _ ->
+            .setPositiveButton("Save") { dialog, _ ->
                 if (startTimeInMins == null) {
                     Toast.makeText(this, "Please Select a start time", Toast.LENGTH_SHORT).show()
                 } else if (endTimeInMins == null) {
