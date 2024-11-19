@@ -24,11 +24,11 @@
         app:layout_constraintTop_toBottomOf="@+id/select_mins" />
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:hint="warning message"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4"
         tools:layout_editor_absoluteX="16dp">
 
@@ -37,5 +37,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <CheckBox
+        android:id="@+id/cb_reel_inbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Allow viewing instagram reels sent in Instagram inbox"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+
+    <CheckBox
+        android:id="@+id/cb_first_reel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Allow opening the first reel in feed"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_reel_inbox" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

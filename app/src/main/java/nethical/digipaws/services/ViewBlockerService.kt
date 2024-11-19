@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.SystemClock
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.blockers.ViewBlocker
@@ -20,10 +21,6 @@ class ViewBlockerService : BaseBlockingService() {
 
     private val viewBlocker = ViewBlocker()
 
-    private val userYSwipeSensitivity: Long = 2
-    private var userYSwipeEventCounter: Long = 0
-
-
     private var cooldownInterval = 10 * 60000
     private var warningMessage = ""
 
@@ -31,11 +28,11 @@ class ViewBlockerService : BaseBlockingService() {
         if(!isDelayOver()){
             return
         }
-        val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
+        val rootNode: AccessibilityNodeInfo? = rootInActiveWindow
         if (event?.packageName == "com.instagram.android" && event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
+            handleViewBlockerResult(rootNode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
         } else if (event?.packageName == "com.google.android.youtube" && event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            handleViewBlockerResult(rootnode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
+            handleViewBlockerResult(rootNode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
         }
     }
 
@@ -80,6 +77,12 @@ class ViewBlockerService : BaseBlockingService() {
         viewBlocker.cheatMinutesEndTIme = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
         viewBlocker.isProceedBtnDisabled =
             viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
+
+        val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
+        viewBlocker.isIGInboxReelAllowed = addReelData.getBoolean("is_reel_inbox", false)
+        viewBlocker.isFirstReelInFeedAllowed = addReelData.getBoolean("is_reel_first", false)
+
+        Log.d("data", viewBlocker.isFirstReelInFeedAllowed.toString())
     }
 
 
@@ -107,5 +110,11 @@ class ViewBlockerService : BaseBlockingService() {
             registerReceiver(refreshReceiver, filter)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(refreshReceiver)
+    }
+
 
 }

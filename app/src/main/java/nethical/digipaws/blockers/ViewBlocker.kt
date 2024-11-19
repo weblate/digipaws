@@ -16,14 +16,29 @@ class ViewBlocker : BaseBlocker() {
 
     var isProceedBtnDisabled = false
 
+    var isIGInboxReelAllowed = false
+    var isFirstReelInFeedAllowed = false
+
+    var typeEventScrollCounter: Int =
+        0 //required for ignoring a few scroll events to allow viewing the first reel. resets to 0 after 3 scroll events
+
     var cheatMinuteStartTime: Int? = null
     var cheatMinutesEndTIme: Int? = null
 
     fun doesViewNeedToBeBlocked(node: AccessibilityNodeInfo): ViewBlockerResult? {
-
         if (isCheatHourActive()) {
             return null
         }
+
+        if (isIGInboxReelAllowed && isViewOpened(
+                node,
+                "com.instagram.android:id/reply_bar_container"
+            )
+        ) {
+            return null
+        }
+
+
 
         blockedViewIdsList.forEach { viewId ->
             if(isViewOpened(node,viewId)){
@@ -92,4 +107,5 @@ class ViewBlocker : BaseBlocker() {
             return targetNode
         }
     }
+
 }

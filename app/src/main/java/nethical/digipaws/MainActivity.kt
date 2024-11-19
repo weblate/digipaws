@@ -1,6 +1,7 @@
 
 package nethical.digipaws
 
+import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
@@ -163,15 +164,27 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    @SuppressLint("ApplySharedPref")
     private fun makeTweakViewBlockerWarningIntervalDialog() {
         val tweakViewlockerWarningBinding: DialogTweakBlockerWarningBinding =
             DialogTweakBlockerWarningBinding.inflate(layoutInflater)
         tweakViewlockerWarningBinding.selectMins.minValue = 1
         tweakViewlockerWarningBinding.selectMins.maxValue = 240
 
+        tweakViewlockerWarningBinding.cbFirstReel.visibility = View.VISIBLE
+        tweakViewlockerWarningBinding.cbReelInbox.visibility = View.VISIBLE
+
+
         val prevdata = savedPreferencesLoader.loadViewBlockerWarningInfo()
         tweakViewlockerWarningBinding.selectMins.value = prevdata.timeInterval / 60000
         tweakViewlockerWarningBinding.warningMsgEdit.setText(prevdata.message)
+
+        val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
+        tweakViewlockerWarningBinding.cbReelInbox.isChecked =
+            addReelData.getBoolean("is_reel_inbox", false)
+        tweakViewlockerWarningBinding.cbFirstReel.isChecked =
+            addReelData.getBoolean("is_reel_first", false)
+
         MaterialAlertDialogBuilder(this)
             .setTitle("Configure Warning Screen")
             .setView(tweakViewlockerWarningBinding.root)
@@ -184,6 +197,16 @@ class MainActivity : AppCompatActivity() {
                         false
                     )
                 )
+                val editor = addReelData.edit()
+                editor.putBoolean(
+                    "is_reel_inbox",
+                    tweakViewlockerWarningBinding.cbReelInbox.isChecked
+                )
+                editor.putBoolean(
+                    "is_reel_first",
+                    tweakViewlockerWarningBinding.cbFirstReel.isChecked
+                )
+                editor.commit()
                 sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
                 dialog.dismiss()
             }
