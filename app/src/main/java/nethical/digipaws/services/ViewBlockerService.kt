@@ -48,9 +48,16 @@ class ViewBlockerService : BaseBlockingService() {
             onClose = { pressBack() },
             onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
+                var interval = 0
+                interval = if (warningOverlayManager.isDynamicCooldownALlowed) {
+                    (warningOverlayManager.getSelectedCooldownMins()?.times(60000))
+                        ?: cooldownInterval
+                } else {
+                    cooldownInterval
+                }
                 viewBlocker.applyCooldown(
                     result.viewId,
-                    SystemClock.uptimeMillis() + cooldownInterval
+                    SystemClock.uptimeMillis() + interval
                 )
             },
             isProceedHidden = viewBlocker.isProceedBtnDisabled
@@ -70,6 +77,10 @@ class ViewBlockerService : BaseBlockingService() {
         val warningScreenConfig = savedPreferencesLoader.loadViewBlockerWarningInfo()
         cooldownInterval = warningScreenConfig.timeInterval
         warningMessage = warningScreenConfig.message
+        warningOverlayManager.isDynamicCooldownALlowed =
+            warningScreenConfig.isDynamicIntervalSettingAllowed
+        warningOverlayManager.defaultCooldown = cooldownInterval / 60000
+
 
         val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         viewBlocker.cheatMinuteStartTime =
@@ -81,7 +92,6 @@ class ViewBlockerService : BaseBlockingService() {
         val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
         viewBlocker.isIGInboxReelAllowed = addReelData.getBoolean("is_reel_inbox", false)
         viewBlocker.isFirstReelInFeedAllowed = addReelData.getBoolean("is_reel_first", false)
-
         Log.d("data", viewBlocker.isFirstReelInFeedAllowed.toString())
     }
 

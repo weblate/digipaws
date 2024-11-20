@@ -178,6 +178,8 @@ class MainActivity : AppCompatActivity() {
         val prevdata = savedPreferencesLoader.loadViewBlockerWarningInfo()
         tweakViewlockerWarningBinding.selectMins.value = prevdata.timeInterval / 60000
         tweakViewlockerWarningBinding.warningMsgEdit.setText(prevdata.message)
+        tweakViewlockerWarningBinding.cbDynamicWarning.isChecked =
+            prevdata.isDynamicIntervalSettingAllowed
 
         val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
         tweakViewlockerWarningBinding.cbReelInbox.isChecked =
@@ -194,7 +196,7 @@ class MainActivity : AppCompatActivity() {
                     WarningData(
                         tweakViewlockerWarningBinding.warningMsgEdit.text.toString(),
                         selectedMinInMs,
-                        false
+                        tweakViewlockerWarningBinding.cbDynamicWarning.isChecked
                     )
                 )
                 val editor = addReelData.edit()
@@ -206,6 +208,7 @@ class MainActivity : AppCompatActivity() {
                     "is_reel_first",
                     tweakViewlockerWarningBinding.cbFirstReel.isChecked
                 )
+
                 editor.commit()
                 sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
                 dialog.dismiss()

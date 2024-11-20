@@ -22,6 +22,8 @@ class WarningOverlayManager(private val context: Context) {
     private lateinit var layoutParams: LayoutParams
     private var proceedTimer: CountDownTimer? = null
 
+    var isDynamicCooldownALlowed = false
+    var defaultCooldown: Int = 0
     @SuppressLint("InlinedApi")
     fun showTextOverlay(
         message: String,
@@ -59,6 +61,10 @@ class WarningOverlayManager(private val context: Context) {
             isOverlayVisible = false
             removeOverlay()
         }
+        binding?.cooldownPicker?.minValue = 1
+        binding?.cooldownPicker?.maxValue = 60
+        binding?.cooldownPicker?.value = defaultCooldown
+
         isOverlayVisible = false
 
         if (isProceedHidden) {
@@ -99,6 +105,9 @@ class WarningOverlayManager(private val context: Context) {
             override fun onFinish() {
                 binding?.overlayProceedBtn?.let { button ->
                     button.isEnabled = true
+                    if (isDynamicCooldownALlowed) {
+                        binding?.pickDynamicTiming?.visibility = View.VISIBLE
+                    }
                     button.setText(R.string.proceed)
                 }
             }
@@ -106,4 +115,7 @@ class WarningOverlayManager(private val context: Context) {
     }
 
 
+    fun getSelectedCooldownMins(): Int? {
+        return binding?.cooldownPicker?.value
+    }
 }
