@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></NumberPicker>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView4"
@@ -38,36 +38,36 @@
             android:layout_height="wrap_content" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+    <CheckBox
+        android:id="@+id/cb_reel_inbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Allow viewing instagram reels sent in Instagram inbox"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
+        tools:visibility="visible" />
+
+    <CheckBox
+        android:id="@+id/cb_first_reel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Allow opening the first reel in feed"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_reel_inbox"
+        tools:visibility="visible" />
+
+    <CheckBox
+        android:id="@+id/cb_dynamic_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="in-warning changeable cooldown"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
-
-        <CheckBox
-            android:id="@+id/cb_reel_inbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Allow viewing instagram reels sent in Instagram inbox"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <CheckBox
-            android:id="@+id/cb_first_reel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Allow opening the first reel in feed"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
-        <CheckBox
-            android:id="@+id/cb_dynamic_warning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="in-warning changeable cooldown" />
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/cb_first_reel"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

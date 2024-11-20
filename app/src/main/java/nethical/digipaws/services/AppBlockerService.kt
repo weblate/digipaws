@@ -81,7 +81,14 @@ class AppBlockerService : BaseBlockingService() {
             onClose = { pressHome() },
             onProceed = {
                 lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-                appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + cooldownInterval)
+                var interval = 0
+                interval = if (warningOverlayManager.isDynamicCooldownALlowed) {
+                    (warningOverlayManager.getSelectedCooldownMins()?.times(60000))
+                        ?: cooldownInterval
+                } else {
+                    cooldownInterval
+                }
+                appBlocker.putCooldownTo(packageName, SystemClock.uptimeMillis() + interval)
             }, isProceedHidden = result.isProceedHidden
         )
     }
@@ -93,7 +100,9 @@ class AppBlockerService : BaseBlockingService() {
         val warningScreenConfig = savedPreferencesLoader.loadAppBlockerWarningInfo()
         cooldownInterval = warningScreenConfig.timeInterval
         warningMessage = warningScreenConfig.message
-
+        warningOverlayManager.defaultCooldown = cooldownInterval / 60000
+        warningOverlayManager.isDynamicCooldownALlowed =
+            warningScreenConfig.isDynamicIntervalSettingAllowed
     }
 
     override fun onDestroy() {

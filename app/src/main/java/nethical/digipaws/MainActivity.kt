@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                     WarningData(
                         tweakAppBlockerWarningBinding.warningMsgEdit.text.toString(),
                         selectedMinInMs,
-                        false
+                        tweakAppBlockerWarningBinding.cbDynamicWarning.isChecked
                     )
                 )
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
