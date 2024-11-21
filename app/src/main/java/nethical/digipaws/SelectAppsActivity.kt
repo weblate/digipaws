@@ -1,5 +1,6 @@
 package nethical.digipaws
 
+import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.SearchView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +23,6 @@ import nethical.digipaws.databinding.ActivitySelectAppsBinding
 
 class SelectAppsActivity : AppCompatActivity() {
 
-    // Using ViewBinding for the Activity
     private lateinit var binding: ActivitySelectAppsBinding
     private lateinit var selectedAppList: HashSet<String>
 
@@ -59,6 +60,9 @@ class SelectAppsActivity : AppCompatActivity() {
             }
         }
 
+        appItemList.sortBy {
+            it.appInfo.loadLabel(packageManager).toString()
+        }
         binding.appList.layoutManager = LinearLayoutManager(this)
         binding.appList.adapter = ApplicationAdapter(appItemList, selectedAppList)
 
@@ -70,7 +74,32 @@ class SelectAppsActivity : AppCompatActivity() {
             setResult(RESULT_OK, resultIntent)
             finish()
         }
+
+        val filteredList = appItemList.toMutableList()
+        binding.appList.adapter = ApplicationAdapter(filteredList, selectedAppList)
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val query = newText?.trim() ?: ""
+                filteredList.clear()
+                filteredList.addAll(
+                    appItemList.filter {
+                        it.appInfo.loadLabel(packageManager).toString()
+                            .contains(query, ignoreCase = true)
+                    }
+                )
+                binding.appList.adapter?.notifyDataSetChanged()
+                return true
+            }
+        })
+
     }
+
 
     inner class ApplicationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appIcon: ImageView = itemView.findViewById(R.id.app_icon)
