@@ -7,65 +7,119 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/select_pinned_apps"
+    <TextView
+        android:id="@+id/textView7"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select pinned apps"
+        android:layout_marginTop="16dp"
+        android:text="Keyword Blocker"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_config_viewblocker_cheat_hours" />
+
+    <TextView
+        android:id="@+id/textView6"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="VIew Blocker"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_cheat_hours" />
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Launcher Options"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/select_blocked_apps"
+        android:id="@+id/select_pinned_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select blocked apps"
+        android:layout_marginTop="8dp"
+        android:text="Select pinned apps"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView5"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="App Blocker"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/select_pinned_apps" />
 
     <Button
+        android:id="@+id/select_blocked_apps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Select blocked apps"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <Button
         android:id="@+id/select_blocked_keywords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="Add Blocked Keywords"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.465"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/select_blocked_apps" />
+        app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
     <Button
         android:id="@+id/select_cheat_hours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select AppBlocker Cheat Hours"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/select_blocked_keywords" />
-
-    <Button
-        android:id="@+id/btn_config_appblocker_warning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tweak App Blocker Warning"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/select_cheat_hours" />
-
-    <Button
-        android:id="@+id/btn_config_viewblocker_warning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Tweak View Blocker Warning"
+        android:text="Manage Cheat Hours"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_config_appblocker_warning" />
 
     <Button
+        android:id="@+id/btn_config_appblocker_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage Warning Screen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_blocked_apps" />
+
+    <Button
+        android:id="@+id/btn_config_viewblocker_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Manage Warning Screen"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.486"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+    <Button
         android:id="@+id/btn_config_viewblocker_cheat_hours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ViewBlocker Cheat Hours"
+        android:text="Manage Cheat Hours"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_config_viewblocker_warning" />

@@ -42,7 +42,7 @@ class ManageKeywordsActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = keywordAdapter
 
-        binding.confimSelectionKeywords.setOnClickListener {
+        binding.confirmSelectionKeywords.setOnClickListener {
             val resultIntent = intent.apply {
                 putStringArrayListExtra("SELECTED_KEYWORDS", savedKeywordsList)
             }
