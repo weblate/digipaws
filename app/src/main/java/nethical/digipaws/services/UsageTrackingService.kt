@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
@@ -28,13 +29,21 @@ class UsageTrackingService : AccessibilityService() {
     private val usageStatOverlayManager by lazy { UsageStatOverlayManager(this) }
 
     private var userYSwipeEventCounter: Long =
-        0 // basically tracks an estimate of how many pixels did the user scroll
+        0 // basically tracks an estimate of how many TYPE_VIEW_SCROLL event was triggered.
+
+    private var attentionSpanDataList:MutableList<AttentionSpanVideoItem> = mutableListOf()
+
+    private var lastScrolledTime: Float? = null
+    private var lastMaxVideoLength: Float  = 15f
 
     companion object {
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
 
         private val USER_Y_SWIPE_THRESHOLD: Long = 2
+
+
+        const val VIDEO_TYPE_REEL = 1
 
     }
 
@@ -50,7 +59,7 @@ class UsageTrackingService : AccessibilityService() {
     override fun onServiceConnected() {
         serviceInfo = AccessibilityServiceInfo().apply {
             eventTypes =
-                AccessibilityEvent.TYPE_VIEW_SCROLLED or AccessibilityEvent.TYPE_VIEW_CLICKED or AccessibilityEvent.TYPE_GESTURE_DETECTION_START or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+                AccessibilityEvent.TYPE_VIEW_SCROLLED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_GESTURE_DETECTION_START or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.DEFAULT
         }
@@ -127,37 +136,60 @@ class UsageTrackingService : AccessibilityService() {
 
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-
-        Log.d(
-            "youtube",
-            event?.className.toString() + " " + event?.packageName + " " + event?.eventType.toString()
-        )
-
         if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             if (event.source?.className == "androidx.viewpager.widget.ViewPager") {
-                logToReelCounter()
+                takeReelAction(event)
             } else if (event.packageName == "com.google.android.youtube" && event.source?.className == "android.support.v7.widget.RecyclerView") {
                 val reelview = ViewBlocker.findElementById(
                     rootInActiveWindow,
                     "com.google.android.youtube:id/reel_recycler"
                 )
                 if (reelview != null) {
-                    logToReelCounter()
+                    takeReelAction(event)
                 } else {
                     usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
+                    lastScrolledTime = null
                 }
             } else {
                 usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
+                lastScrolledTime = null
             }
         }
+
     }
 
-    private fun logToReelCounter() {
+    private fun trackAttentionSpan(event:AccessibilityEvent?) {
+        if(lastScrolledTime != null){
+            val timeElapsed = (SystemClock.uptimeMillis().toFloat() - lastScrolledTime!!) / 1000
+            Log.d("last Video Data","$timeElapsed / $lastMaxVideoLength")
+            attentionSpanDataList.add(AttentionSpanVideoItem(timeElapsed,lastMaxVideoLength,System.currentTimeMillis()))
+        }
+        if (event?.packageName == "com.instagram.android") {
+            val node =
+                ViewBlocker.findElementById(rootInActiveWindow, "com.instagram.android:id/scrubber")
+            lastMaxVideoLength = if (node != null) {
+                node.rangeInfo.max / 1000
+            } else {
+                // video has no seekbar present
+                15f
+            }
+        } else {
+            lastMaxVideoLength = 21f
+        }
+
+        lastScrolledTime = SystemClock.uptimeMillis().toFloat()
+    }
+
+
+    private fun takeReelAction(event: AccessibilityEvent?) {
         userYSwipeEventCounter++
         if (userYSwipeEventCounter > USER_Y_SWIPE_THRESHOLD) {
             userYSwipeEventCounter = 0
             usageStatOverlayManager.binding?.reelCounter?.visibility = View.VISIBLE
             usageStatOverlayManager.incrementReelScrollCount()
+
+            trackAttentionSpan(event)
+
         }
     }
 
@@ -170,4 +202,6 @@ class UsageTrackingService : AccessibilityService() {
         unregisterReceiver(screenReceiver)
         stopTimeTracking()
     }
+
+    data class AttentionSpanVideoItem(val watched:Float,val total: Float,val timeStamp: Long, val type:Int = VIDEO_TYPE_REEL)
 }
