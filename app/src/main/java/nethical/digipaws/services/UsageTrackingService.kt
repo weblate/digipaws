@@ -2,18 +2,20 @@ package nethical.digipaws.services
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import nethical.digipaws.blockers.ViewBlocker
+import nethical.digipaws.utils.SavedPreferencesLoader
+import nethical.digipaws.utils.Tools
 import nethical.digipaws.utils.UsageStatOverlayManager
 import java.util.concurrent.TimeUnit
 
@@ -22,29 +24,21 @@ class UsageTrackingService : AccessibilityService() {
     private var screenOnTime: Long = 0
     private var accumulatedTime: Long = 0
     private var isScreenOn = false
-    private var lastScreenOffTime: Long = 0
-
     private val handler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
+
     private val usageStatOverlayManager by lazy { UsageStatOverlayManager(this) }
-
-    private var userYSwipeEventCounter: Long =
-        0 // basically tracks an estimate of how many TYPE_VIEW_SCROLL event was triggered.
-
-    private var attentionSpanDataList:MutableList<AttentionSpanVideoItem> = mutableListOf()
-
-    private var lastScrolledTime: Float? = null
-    private var lastMaxVideoLength: Float  = 15f
+    private var userYSwipeEventCounter: Long = 0
+    private var attentionSpanDataList = mutableListOf<AttentionSpanVideoItem>()
+    private var lastVideoViewFoundTime: Float? = null
+    private val savedPreferencesLoader = SavedPreferencesLoader(this)
+    private var reelCountData = mutableMapOf<String, Int>()
 
     companion object {
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
-
-        private val USER_Y_SWIPE_THRESHOLD: Long = 2
-
-
+        private const val USER_Y_SWIPE_THRESHOLD: Long = 2
         const val VIDEO_TYPE_REEL = 1
-
     }
 
     private val screenReceiver = object : BroadcastReceiver() {
@@ -58,21 +52,21 @@ class UsageTrackingService : AccessibilityService() {
 
     override fun onServiceConnected() {
         serviceInfo = AccessibilityServiceInfo().apply {
-            eventTypes =
-                AccessibilityEvent.TYPE_VIEW_SCROLLED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_GESTURE_DETECTION_START or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+            eventTypes = AccessibilityEvent.TYPE_VIEW_SCROLLED or
+                    AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
+                    AccessibilityEvent.TYPE_GESTURE_DETECTION_START or
+                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.DEFAULT
         }
 
-        val filter = IntentFilter().apply {
+        registerReceiver(screenReceiver, IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
-        }
-        registerReceiver(screenReceiver, filter)
+        })
 
-        // Initialize if screen is already on
-        val powerManager = getSystemService(Context.POWER_SERVICE) as android.os.PowerManager
-        if (powerManager.isInteractive) {
+        // Initialize if the screen is already on
+        if ((getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive) {
             handleScreenOn()
         }
 
@@ -82,22 +76,19 @@ class UsageTrackingService : AccessibilityService() {
     private fun handleScreenOn() {
         isScreenOn = true
         screenOnTime = System.currentTimeMillis()
-        lastScreenOffTime = 0 // Reset screen off time
         startTimeTracking()
         Log.d(TAG, "Screen ON - Continuing from: ${formatElapsedTime(accumulatedTime)}")
     }
 
     private fun handleScreenOff() {
         isScreenOn = false
-        lastScreenOffTime = System.currentTimeMillis()
         updateAccumulatedTime()
         stopTimeTracking()
         Log.d(TAG, "Screen OFF - Current accumulated: ${formatElapsedTime(accumulatedTime)}")
     }
 
     private fun startTimeTracking() {
-        stopTimeTracking() // Clear any existing tracking
-
+        stopTimeTracking() // Ensure only one tracker runs
         updateRunnable = object : Runnable {
             override fun run() {
                 if (isScreenOn) {
@@ -119,77 +110,75 @@ class UsageTrackingService : AccessibilityService() {
 
     private fun updateAccumulatedTime() {
         if (isScreenOn) {
-            val currentTime = System.currentTimeMillis()
-            accumulatedTime += (currentTime - screenOnTime)
-            screenOnTime = currentTime
+            accumulatedTime += System.currentTimeMillis() - screenOnTime
+            screenOnTime = System.currentTimeMillis()
         }
     }
 
-    @SuppressLint("DefaultLocale")
     private fun formatElapsedTime(milliseconds: Long): String {
         val hours = TimeUnit.MILLISECONDS.toHours(milliseconds)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) % 60
-
         return String.format("%02d:%02d:%02d", hours, minutes, seconds)
     }
 
-
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            if (event.source?.className == "androidx.viewpager.widget.ViewPager") {
-                takeReelAction(event)
-            } else if (event.packageName == "com.google.android.youtube" && event.source?.className == "android.support.v7.widget.RecyclerView") {
-                val reelview = ViewBlocker.findElementById(
-                    rootInActiveWindow,
-                    "com.google.android.youtube:id/reel_recycler"
-                )
-                if (reelview != null) {
-                    takeReelAction(event)
-                } else {
-                    usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
-                    lastScrolledTime = null
+            when {
+                event.source?.className == "androidx.viewpager.widget.ViewPager" -> takeReelAction()
+                event.packageName == "com.google.android.youtube" &&
+                        event.source?.className == "android.support.v7.widget.RecyclerView" -> {
+                    val reelView = ViewBlocker.findElementById(
+                        rootInActiveWindow,
+                        "com.google.android.youtube:id/reel_recycler"
+                    )
+                    if (reelView != null) takeReelAction() else resetReelTracking()
                 }
-            } else {
-                usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
-                lastScrolledTime = null
+
+                else -> resetReelTracking()
             }
         }
-
     }
 
-    private fun trackAttentionSpan(event:AccessibilityEvent?) {
-        if(lastScrolledTime != null){
-            val timeElapsed = (SystemClock.uptimeMillis().toFloat() - lastScrolledTime!!) / 1000
-            Log.d("last Video Data","$timeElapsed / $lastMaxVideoLength")
-            attentionSpanDataList.add(AttentionSpanVideoItem(timeElapsed,lastMaxVideoLength,System.currentTimeMillis()))
-        }
-        if (event?.packageName == "com.instagram.android") {
-            val node =
-                ViewBlocker.findElementById(rootInActiveWindow, "com.instagram.android:id/scrubber")
-            lastMaxVideoLength = if (node != null) {
-                node.rangeInfo.max / 1000
-            } else {
-                // video has no seekbar present
-                15f
-            }
-        } else {
-            lastMaxVideoLength = 21f
-        }
-
-        lastScrolledTime = SystemClock.uptimeMillis().toFloat()
+    private fun resetReelTracking() {
+        usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
+        lastVideoViewFoundTime = null
     }
 
+    private fun trackAttentionSpan(type: Int = VIDEO_TYPE_REEL) {
+        lastVideoViewFoundTime?.let {
+            val elapsedTime = (SystemClock.uptimeMillis() - it) / 1000f
+            attentionSpanDataList.add(
+                AttentionSpanVideoItem(
+                    elapsedTime,
+                    System.currentTimeMillis(),
+                    type
+                )
+            )
+            savedPreferencesLoader.saveReelsScrolled(usageStatOverlayManager.reelsScrolledThisSession)
+            savedPreferencesLoader.saveUsageHoursAttentionSpanData(attentionSpanDataList)
 
-    private fun takeReelAction(event: AccessibilityEvent?) {
-        userYSwipeEventCounter++
-        if (userYSwipeEventCounter > USER_Y_SWIPE_THRESHOLD) {
+            val avgTime = attentionSpanDataList.sumOf { item -> item.elapsedTime.toDouble() } /
+                    usageStatOverlayManager.reelsScrolledThisSession
+            Log.d("Attention Span", avgTime.toString())
+        }
+        lastVideoViewFoundTime = SystemClock.uptimeMillis().toFloat()
+    }
+
+    private fun takeReelAction() {
+        if (++userYSwipeEventCounter > USER_Y_SWIPE_THRESHOLD) {
             userYSwipeEventCounter = 0
-            usageStatOverlayManager.binding?.reelCounter?.visibility = View.VISIBLE
-            usageStatOverlayManager.incrementReelScrollCount()
+            val date = Tools.getCurrentDate()
+            val newCount = (reelCountData[date] ?: 0) + 1
 
-            trackAttentionSpan(event)
+            reelCountData[date] = newCount
+            usageStatOverlayManager.reelsScrolledThisSession = newCount
+            usageStatOverlayManager.binding?.reelCounter?.apply {
+                visibility = View.VISIBLE
+                text = newCount.toString()
+            }
 
+            trackAttentionSpan()
         }
     }
 
@@ -203,5 +192,9 @@ class UsageTrackingService : AccessibilityService() {
         stopTimeTracking()
     }
 
-    data class AttentionSpanVideoItem(val watched:Float,val total: Float,val timeStamp: Long, val type:Int = VIDEO_TYPE_REEL)
+    data class AttentionSpanVideoItem(
+        val elapsedTime: Float,
+        val timeStamp: Long,
+        val type: Int = VIDEO_TYPE_REEL
+    )
 }

@@ -21,7 +21,7 @@ class UsageStatOverlayManager(private val context: Context) {
     private lateinit var layoutParams: LayoutParams
     private var proceedTimer: CountDownTimer? = null
 
-    private var reelsScrolledThisSession = 0
+    var reelsScrolledThisSession = 0
 
     @SuppressLint("InlinedApi")
     fun startDisplaying() {
@@ -58,12 +58,5 @@ class UsageStatOverlayManager(private val context: Context) {
             overlayView = null
         }
     }
-
-    @SuppressLint("SetTextI18n")
-    fun incrementReelScrollCount() {
-        reelsScrolledThisSession++
-        binding?.reelCounter?.text = reelsScrolledThisSession.toString()
-    }
-
 
 }

@@ -18,6 +18,9 @@
         android:theme="@style/Theme.DigiPaws"
         tools:targetApi="31">
         <activity
+            android:name=".UsageMetricsActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddCheatHoursActivity"
             android:exported="false" />
         <activity
@@ -29,7 +32,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,6 +43,7 @@
             android:name=".LauncherActivity"
             android:exported="true"
             android:launchMode="singleTask" />
+
         <service
             android:name=".services.ViewBlockerService"
             android:exported="true"

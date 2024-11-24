@@ -127,6 +127,10 @@ class MainActivity : AppCompatActivity() {
         binding.btnConfigViewblockerCheatHours.setOnClickListener {
             makeViewBlockerCheatHoursDialog()
         }
+        binding.selectUsageStats.setOnClickListener {
+            val intent = Intent(this, UsageMetricsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun sendRefreshRequest(action: String) {
