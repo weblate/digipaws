@@ -61,7 +61,7 @@ class SelectAppsActivity : AppCompatActivity() {
         }
 
         appItemList.sortBy {
-            it.appInfo.loadLabel(packageManager).toString()
+            it.appInfo.loadLabel(packageManager).toString().lowercase()
         }
         binding.appList.layoutManager = LinearLayoutManager(this)
         binding.appList.adapter = ApplicationAdapter(appItemList, selectedAppList)
