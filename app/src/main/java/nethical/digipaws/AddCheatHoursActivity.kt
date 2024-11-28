@@ -19,7 +19,7 @@ import nethical.digipaws.databinding.ActivityAddCheatHoursActivityBinding
 import nethical.digipaws.databinding.CheatHourItemBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.utils.SavedPreferencesLoader
-import nethical.digipaws.utils.Tools
+import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 
 class AddCheatHoursActivity : AppCompatActivity() {
@@ -89,7 +89,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 this,
                 { _, selectedHour, selectedMinute ->
                     val selectedEndTime =
-                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+                        TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
 
                     // Ensure end time is after start time
                     if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
@@ -119,7 +119,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 this,
                 { _, selectedHour, selectedMinute ->
                     startTimeInMins =
-                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+                        TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
                     dialogAddToCheatHoursBinding.btnSelectStartTime.text =
                         "Start Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
                 },
@@ -187,8 +187,8 @@ class AddCheatHoursActivity : AppCompatActivity() {
 
             fun bind(item: CheatHourItem) {
                 binding.cheatHourTitle.text = item.title
-                val convertedStartTime = Tools.convertMinutesTo24Hour(item.startTime)
-                val convertedEndTIme = Tools.convertMinutesTo24Hour(item.endTime)
+                val convertedStartTime = TimeTools.convertMinutesTo24Hour(item.startTime)
+                val convertedEndTIme = TimeTools.convertMinutesTo24Hour(item.endTime)
 
                 binding.removeCheatHour.setOnClickListener {
                     cheatHoursList.removeAt(layoutPosition)

@@ -152,16 +152,31 @@ class SavedPreferencesLoader(private val context: Context) {
         return gson.fromJson(json, type)
     }
 
-    fun saveReelsScrolled(count: Int) {
-        val sd = context.getSharedPreferences("reel_stats_data", Context.MODE_PRIVATE)
-        sd.edit().putInt("total_count", count).apply()
+    fun saveReelsScrolled(reelsData: MutableMap<String, Int>) {
+        val sharedPreferences =
+            context.getSharedPreferences("attention_span_data", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(reelsData)
+
+        editor.putString("reels_data", json)
+        editor.apply()
     }
 
-    fun getReelsScrolled(): Int {
-        val sd = context.getSharedPreferences("reel_stats_data", Context.MODE_PRIVATE)
-        return sd.getInt("total_count", 0)
-    }
+    fun getReelsScrolled(): MutableMap<String, Int> {
+        val sharedPreferences =
+            context.getSharedPreferences("attention_span_data", Context.MODE_PRIVATE)
+        val gson = Gson()
 
+        val json = sharedPreferences.getString("reels_data", null)
+
+        if (json.isNullOrEmpty()) return mutableMapOf()
+
+        val type =
+            object : TypeToken<MutableMap<String, Int>>() {}.type
+        return gson.fromJson(json, type)
+    }
 
 
 }

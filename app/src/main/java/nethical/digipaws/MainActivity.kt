@@ -22,7 +22,7 @@ import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
-import nethical.digipaws.utils.Tools
+import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -240,8 +240,8 @@ class MainActivity : AppCompatActivity() {
         val isProceedBtnDisabled =
             viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
 
-        val convertedStartTime = Tools.convertMinutesTo24Hour(startTimeInMins)
-        val convertedEndTIme = Tools.convertMinutesTo24Hour(endTimeInMins)
+        val convertedStartTime = TimeTools.convertMinutesTo24Hour(startTimeInMins)
+        val convertedEndTIme = TimeTools.convertMinutesTo24Hour(endTimeInMins)
 
         dialogAddToCheatHoursBinding.btnSelectEndTime.text =
             "Start Time: ${convertedStartTime.first}:${convertedStartTime.second}"
@@ -271,7 +271,7 @@ class MainActivity : AppCompatActivity() {
                 this,
                 { _, selectedHour, selectedMinute ->
                     val selectedEndTime =
-                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+                        TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
 
                     // Ensure end time is after start time
                     if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
@@ -301,7 +301,7 @@ class MainActivity : AppCompatActivity() {
                 this,
                 { _, selectedHour, selectedMinute ->
                     startTimeInMins =
-                        Tools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+                        TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
                     dialogAddToCheatHoursBinding.btnSelectStartTime.text =
                         "Start Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
                 },

@@ -3,7 +3,7 @@ package nethical.digipaws.blockers
 import android.os.SystemClock
 import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
-import nethical.digipaws.utils.Tools
+import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 
 class ViewBlocker : BaseBlocker() {
@@ -78,7 +78,7 @@ class ViewBlocker : BaseBlocker() {
         val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
         val currentMinute = currentTime.get(Calendar.MINUTE)
 
-        val currentMinutes = Tools.convertToMinutesFromMidnight(currentHour, currentMinute)
+        val currentMinutes = TimeTools.convertToMinutesFromMidnight(currentHour, currentMinute)
 
         // If cheat hours are not set, treat as inactive
         if (cheatMinuteStartTime == null || cheatMinutesEndTIme == null || cheatMinuteStartTime == -1 || cheatMinutesEndTIme == -1) {

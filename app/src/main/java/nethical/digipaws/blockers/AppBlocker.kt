@@ -3,7 +3,7 @@ package nethical.digipaws.blockers
 import android.os.SystemClock
 import android.util.Log
 import nethical.digipaws.AddCheatHoursActivity
-import nethical.digipaws.utils.Tools
+import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 
 class AppBlocker:BaseBlocker() {
@@ -51,7 +51,7 @@ class AppBlocker:BaseBlocker() {
         val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
         val currentMinute = currentTime.get(Calendar.MINUTE)
 
-        val currentMinutes = Tools.convertToMinutesFromMidnight(currentHour, currentMinute)
+        val currentMinutes = TimeTools.convertToMinutesFromMidnight(currentHour, currentMinute)
         cheatMinutes[packageName]?.forEach { (startMinutes, endMinutes) ->
             if (currentMinutes in startMinutes until endMinutes) {
                 return true

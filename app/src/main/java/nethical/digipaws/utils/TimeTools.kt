@@ -1,11 +1,9 @@
 package nethical.digipaws.utils
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class Tools {
+class TimeTools {
     companion object {
         fun convertToMinutesFromMidnight(hour: Int, minute: Int): Int {
             return (hour * 60) + minute
@@ -15,7 +13,6 @@ class Tools {
             return Pair(minutes / 60, minutes % 60)
         }
 
-        @RequiresApi(Build.VERSION_CODES.O)
         fun getCurrentDate(): String {
             // Get the current date (without time)
             val currentDate = LocalDate.now()

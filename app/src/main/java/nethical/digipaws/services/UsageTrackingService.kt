@@ -15,7 +15,7 @@ import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.utils.SavedPreferencesLoader
-import nethical.digipaws.utils.Tools
+import nethical.digipaws.utils.TimeTools
 import nethical.digipaws.utils.UsageStatOverlayManager
 import java.util.concurrent.TimeUnit
 
@@ -155,7 +155,7 @@ class UsageTrackingService : AccessibilityService() {
                     type
                 )
             )
-            savedPreferencesLoader.saveReelsScrolled(usageStatOverlayManager.reelsScrolledThisSession)
+            savedPreferencesLoader.saveReelsScrolled(reelCountData)
             savedPreferencesLoader.saveUsageHoursAttentionSpanData(attentionSpanDataList)
 
             val avgTime = attentionSpanDataList.sumOf { item -> item.elapsedTime.toDouble() } /
@@ -168,7 +168,7 @@ class UsageTrackingService : AccessibilityService() {
     private fun takeReelAction() {
         if (++userYSwipeEventCounter > USER_Y_SWIPE_THRESHOLD) {
             userYSwipeEventCounter = 0
-            val date = Tools.getCurrentDate()
+            val date = TimeTools.getCurrentDate()
             val newCount = (reelCountData[date] ?: 0) + 1
 
             reelCountData[date] = newCount
