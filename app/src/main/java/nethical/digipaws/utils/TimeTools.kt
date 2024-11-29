@@ -1,6 +1,10 @@
 package nethical.digipaws.utils
 
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class TimeTools {
@@ -14,13 +18,40 @@ class TimeTools {
         }
 
         fun getCurrentDate(): String {
-            // Get the current date (without time)
             val currentDate = LocalDate.now()
 
-            // Define a formatter for date in "dd MMMM yyyy" format
             val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-            // Convert the date to a human-readable format
             return currentDate.format(formatter)
+        }
+
+        fun getCurrentTime(): String {
+            val currentTime = LocalTime.now()
+
+            val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+
+            return currentTime.format(formatter)
+        }
+
+        fun shortenDate(dateString: String): String {
+            val parts = dateString.split(" ")
+
+            if (parts.size >= 2) {
+                val day = parts[0]
+                val month = parts[1].take(3)
+                return "$day $month"
+            }
+
+            return dateString
+        }
+
+        fun convertMillisToDate(millis: Long): String {
+            val instant = Instant.ofEpochMilli(millis)
+
+            val dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+
+            val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+
+            return dateTime.format(formatter)
         }
 
     }

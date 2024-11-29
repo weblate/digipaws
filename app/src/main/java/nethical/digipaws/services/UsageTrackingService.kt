@@ -29,8 +29,9 @@ class UsageTrackingService : AccessibilityService() {
 
     private val usageStatOverlayManager by lazy { UsageStatOverlayManager(this) }
     private var userYSwipeEventCounter: Long = 0
-    private var attentionSpanDataList = mutableListOf<AttentionSpanVideoItem>()
-    private var lastVideoViewFoundTime: Float? = null
+
+    private var attentionSpanDataList = mutableMapOf<String, MutableList<AttentionSpanVideoItem>>()
+    private var lastVideoViewFoundTime: Long? = null
     private val savedPreferencesLoader = SavedPreferencesLoader(this)
     private var reelCountData = mutableMapOf<String, Int>()
 
@@ -70,6 +71,8 @@ class UsageTrackingService : AccessibilityService() {
             handleScreenOn()
         }
 
+        attentionSpanDataList = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
+        reelCountData = savedPreferencesLoader.getReelsScrolled()
         usageStatOverlayManager.startDisplaying()
     }
 
@@ -148,21 +151,24 @@ class UsageTrackingService : AccessibilityService() {
     private fun trackAttentionSpan(type: Int = VIDEO_TYPE_REEL) {
         lastVideoViewFoundTime?.let {
             val elapsedTime = (SystemClock.uptimeMillis() - it) / 1000f
-            attentionSpanDataList.add(
+
+            val currentDate = TimeTools.getCurrentDate()
+            if (attentionSpanDataList[currentDate] == null) {
+                attentionSpanDataList[currentDate] = mutableListOf()
+            }
+
+            attentionSpanDataList[currentDate]?.add(
                 AttentionSpanVideoItem(
                     elapsedTime,
-                    System.currentTimeMillis(),
+                    TimeTools.getCurrentTime(),
                     type
                 )
             )
             savedPreferencesLoader.saveReelsScrolled(reelCountData)
             savedPreferencesLoader.saveUsageHoursAttentionSpanData(attentionSpanDataList)
 
-            val avgTime = attentionSpanDataList.sumOf { item -> item.elapsedTime.toDouble() } /
-                    usageStatOverlayManager.reelsScrolledThisSession
-            Log.d("Attention Span", avgTime.toString())
         }
-        lastVideoViewFoundTime = SystemClock.uptimeMillis().toFloat()
+        lastVideoViewFoundTime = SystemClock.uptimeMillis()
     }
 
     private fun takeReelAction() {
@@ -194,7 +200,7 @@ class UsageTrackingService : AccessibilityService() {
 
     data class AttentionSpanVideoItem(
         val elapsedTime: Float,
-        val timeStamp: Long,
+        val time: String,
         val type: Int = VIDEO_TYPE_REEL
     )
 }

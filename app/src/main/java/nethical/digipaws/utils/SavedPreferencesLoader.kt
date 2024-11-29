@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import nethical.digipaws.AddCheatHoursActivity
 import nethical.digipaws.MainActivity
 import nethical.digipaws.services.UsageTrackingService
+import nethical.digipaws.services.UsageTrackingService.AttentionSpanVideoItem
 
 class SavedPreferencesLoader(private val context: Context) {
 
@@ -126,29 +127,29 @@ class SavedPreferencesLoader(private val context: Context) {
     }
 
 
-    fun saveUsageHoursAttentionSpanData(attentionSpanVideoItem: MutableList<UsageTrackingService.AttentionSpanVideoItem>) {
+    fun saveUsageHoursAttentionSpanData(attentionSpanListData: MutableMap<String, MutableList<AttentionSpanVideoItem>>) {
         val sharedPreferences =
             context.getSharedPreferences("attention_span_data", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
 
-        val json = gson.toJson(attentionSpanVideoItem)
+        val json = gson.toJson(attentionSpanListData)
 
         editor.putString("attention_data", json)
         editor.apply()
     }
 
-    fun loadUsageHoursAttentionSpanData(): MutableList<UsageTrackingService.AttentionSpanVideoItem> {
+    fun loadUsageHoursAttentionSpanData(): MutableMap<String, MutableList<AttentionSpanVideoItem>> {
         val sharedPreferences =
             context.getSharedPreferences("attention_span_data", Context.MODE_PRIVATE)
         val gson = Gson()
 
         val json = sharedPreferences.getString("attention_data", null)
 
-        if (json.isNullOrEmpty()) return mutableListOf()
+        if (json.isNullOrEmpty()) return mutableMapOf()
 
         val type =
-            object : TypeToken<MutableList<UsageTrackingService.AttentionSpanVideoItem>>() {}.type
+            object : TypeToken<MutableMap<String, MutableList<AttentionSpanVideoItem>>>() {}.type
         return gson.fromJson(json, type)
     }
 
