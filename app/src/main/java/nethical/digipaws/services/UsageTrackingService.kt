@@ -2,10 +2,12 @@ package nethical.digipaws.services
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
@@ -14,6 +16,7 @@ import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import nethical.digipaws.blockers.ViewBlocker
+import nethical.digipaws.services.AppBlockerService.Companion.INTENT_ACTION_REFRESH_APP_BLOCKER
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
 import nethical.digipaws.utils.UsageStatOverlayManager
@@ -35,7 +38,12 @@ class UsageTrackingService : AccessibilityService() {
     private val savedPreferencesLoader = SavedPreferencesLoader(this)
     private var reelCountData = mutableMapOf<String, Int>()
 
+    private var isReelCountToBeDisplayed = true
+    private var isTimeElapsedCounterOn = true
+
     companion object {
+
+        const val INTENT_ACTION_REFRESH_USAGE_TRACKER = "nethical.digipaws.refresh.usage_tracker"
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
         private const val USER_Y_SWIPE_THRESHOLD: Long = 2
@@ -47,10 +55,20 @@ class UsageTrackingService : AccessibilityService() {
             when (intent?.action) {
                 Intent.ACTION_SCREEN_ON -> handleScreenOn()
                 Intent.ACTION_SCREEN_OFF -> handleScreenOff()
+                INTENT_ACTION_REFRESH_USAGE_TRACKER -> setupTracker()
             }
         }
     }
 
+    private val refreshReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                INTENT_ACTION_REFRESH_USAGE_TRACKER -> setupTracker()
+            }
+        }
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onServiceConnected() {
         serviceInfo = AccessibilityServiceInfo().apply {
             eventTypes = AccessibilityEvent.TYPE_VIEW_SCROLLED or
@@ -66,14 +84,42 @@ class UsageTrackingService : AccessibilityService() {
             addAction(Intent.ACTION_SCREEN_OFF)
         })
 
-        // Initialize if the screen is already on
-        if ((getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive) {
-            handleScreenOn()
+
+        val filter = IntentFilter().apply {
+            addAction(INTENT_ACTION_REFRESH_USAGE_TRACKER)
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(refreshReceiver, filter)
+        }
+
+        setupTracker()
 
         attentionSpanDataList = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
         reelCountData = savedPreferencesLoader.getReelsScrolled()
         usageStatOverlayManager.startDisplaying()
+    }
+
+    private fun setupTracker(){
+        val sp = getSharedPreferences("config_tracker",Context.MODE_PRIVATE)
+
+        isReelCountToBeDisplayed = sp.getBoolean("is_reel_counter",true)
+        isTimeElapsedCounterOn = sp.getBoolean("is_time_elapsed",true)
+
+        if(!isTimeElapsedCounterOn) {  // turn off the counter
+            usageStatOverlayManager.binding?.timeElapsedTxt?.visibility = View.GONE
+            handleScreenOff()
+            return
+        }else{
+            usageStatOverlayManager.binding?.timeElapsedTxt?.visibility = View.VISIBLE
+
+            // Initialize if the screen is already on
+            if ((getSystemService(Context.POWER_SERVICE) as PowerManager).isInteractive) {
+                handleScreenOn()
+            }
+        }
+
     }
 
     private fun handleScreenOn() {
@@ -179,9 +225,14 @@ class UsageTrackingService : AccessibilityService() {
 
             reelCountData[date] = newCount
             usageStatOverlayManager.reelsScrolledThisSession = newCount
-            usageStatOverlayManager.binding?.reelCounter?.apply {
-                visibility = View.VISIBLE
-                text = newCount.toString()
+
+            if(isReelCountToBeDisplayed){
+                usageStatOverlayManager.binding?.reelCounter?.apply {
+                    visibility = View.VISIBLE
+                    text = newCount.toString()
+                }
+            }else{
+                usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
             }
 
             trackAttentionSpan()

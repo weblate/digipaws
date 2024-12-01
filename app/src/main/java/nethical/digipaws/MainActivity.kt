@@ -17,9 +17,11 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
+import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.KeywordBlockerService
+import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
@@ -127,10 +129,14 @@ class MainActivity : AppCompatActivity() {
         binding.btnConfigViewblockerCheatHours.setOnClickListener {
             makeViewBlockerCheatHoursDialog()
         }
+        binding.btnConfigTracker.setOnClickListener{
+            makeDialogConfigTracker()
+        }
         binding.selectUsageStats.setOnClickListener {
             val intent = Intent(this, UsageMetricsActivity::class.java)
             startActivity(intent)
         }
+
     }
 
     private fun sendRefreshRequest(action: String) {
@@ -223,6 +229,41 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+
+    private fun makeDialogConfigTracker(){
+        val dialogconfigTracker = DialogConfigTrackerBinding.inflate(layoutInflater)
+
+        val sp = getSharedPreferences("config_tracker",Context.MODE_PRIVATE)
+
+        dialogconfigTracker.cbReelCounter.isChecked = sp.getBoolean("is_reel_counter",true)
+        dialogconfigTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed",true)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Configure Warning Screen")
+            .setView(dialogconfigTracker.root)
+            .setPositiveButton("Save") { dialog, _ ->
+
+                val editor = sp.edit()
+                editor.putBoolean(
+                    "is_reel_counter",
+                    dialogconfigTracker.cbReelCounter.isChecked
+                )
+                editor.putBoolean(
+                    "is_time_elapsed",
+                    dialogconfigTracker.cbTimeElapsed.isChecked
+                )
+
+                editor.commit()
+                sendRefreshRequest(UsageTrackingService.INTENT_ACTION_REFRESH_USAGE_TRACKER)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+
+
+    }
 
     private fun makeViewBlockerCheatHoursDialog() {
 
