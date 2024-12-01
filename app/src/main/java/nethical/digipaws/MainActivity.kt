@@ -1,12 +1,17 @@
 
 package nethical.digipaws
 
+import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.TimePickerDialog
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
@@ -14,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
@@ -25,6 +31,7 @@ import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
+import java.security.Key
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -89,6 +96,8 @@ class MainActivity : AppCompatActivity() {
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
             }
 
+
+
         binding.selectPinnedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -116,7 +125,9 @@ class MainActivity : AppCompatActivity() {
             selectBlockedKeywords.launch(intent)
         }
 
-        binding.selectCheatHours.setOnClickListener {
+        checkAccessibilityPermissions()
+
+        binding.appBlockerSelectCheatHours.setOnClickListener {
             val intent = Intent(this, AddCheatHoursActivity::class.java)
             addCheatHoursActivity.launch(intent)
         }
@@ -139,9 +150,62 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        checkAccessibilityPermissions()
+    }
+
+    private fun checkAccessibilityPermissions(){
+        val isAppBlockerOn = isAccessibilityServiceEnabled(AppBlockerService::class.java)
+        updateChip(isAppBlockerOn,binding.appBlockerStatusChip,binding.appBlockerWarning)
+        binding.selectBlockedApps.isEnabled = isAppBlockerOn
+        binding.btnConfigAppblockerWarning.isEnabled = isAppBlockerOn
+        binding.appBlockerSelectCheatHours.isEnabled = isAppBlockerOn
+
+
+        val isViewBlockerOn = isAccessibilityServiceEnabled(ViewBlockerService::class.java)
+        updateChip(isViewBlockerOn,binding.viewBlockerStatusChip,binding.viewBlockerWarning)
+        binding.btnConfigViewblockerCheatHours.isEnabled = isViewBlockerOn
+        binding.btnConfigViewblockerWarning.isEnabled = isViewBlockerOn
+
+        val isKeywordBlockerOn = isAccessibilityServiceEnabled(KeywordBlockerService::class.java)
+        updateChip(isKeywordBlockerOn,binding.keywordBlockerStatusChip,binding.keywordBlockerWarning)
+        binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
+
+        val isUsageTrackerOn = isAccessibilityServiceEnabled(UsageTrackingService::class.java)
+        updateChip(isUsageTrackerOn,binding.usageTrackerStatusChip,binding.usageTrackerWarning)
+        binding.selectUsageStats.isEnabled = isUsageTrackerOn
+        binding.btnConfigTracker.isEnabled = isUsageTrackerOn
+
+    }
+
+    private fun updateChip(isEnabled: Boolean,statusChip: Chip,warningText:TextView) {
+        if (isEnabled) {
+            statusChip.text = "Enabled"
+            statusChip.chipIcon = null
+            warningText.visibility = View.GONE
+        } else {
+            statusChip.text = "Disabled"
+            statusChip.setChipIconResource(R.drawable.baseline_warning_24)
+            warningText.visibility = View.VISIBLE
+        }
+    }
     private fun sendRefreshRequest(action: String) {
         val intent = Intent(action)
         sendBroadcast(intent)
+    }
+    fun isAccessibilityServiceEnabled(serviceClass: Class<out AccessibilityService>): Boolean {
+        val serviceName = ComponentName(this, serviceClass).flattenToString()
+        val enabledServices = Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        val isAccessibilityEnabled = Settings.Secure.getInt(
+            contentResolver,
+            Settings.Secure.ACCESSIBILITY_ENABLED,
+            0
+        )
+        return isAccessibilityEnabled == 1 && enabledServices.contains(serviceName)
     }
 
     private fun makeTweakAppBlockerWarningIntervalDialog() {
@@ -229,6 +293,17 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    fun openAccessibilitySettings(view: View){
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Enable Accessibility")
+            .setMessage("This app requires Accessibility permissions to function properly.")
+            .setPositiveButton("Open Settings") { _, _ ->
+                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                startActivity(intent)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
     private fun makeDialogConfigTracker(){
         val dialogconfigTracker = DialogConfigTrackerBinding.inflate(layoutInflater)
