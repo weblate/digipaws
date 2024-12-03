@@ -1,21 +1,26 @@
 package nethical.digipaws
 
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.android.material.color.MaterialColors
 import nethical.digipaws.databinding.ActivityUsageMetricsBinding
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
+import kotlin.math.pow
+import kotlin.properties.Delegates
 
 
 class UsageMetricsActivity : AppCompatActivity() {
@@ -23,6 +28,8 @@ class UsageMetricsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityUsageMetricsBinding
     private var savedPreferencesLoader = SavedPreferencesLoader(this)
 
+
+    var primaryColor by Delegates.notNull<Int>()
 
     lateinit var totalReels: Map<String,Int>
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,34 +42,49 @@ class UsageMetricsActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        primaryColor = MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(this, R.color.text_color))
+
         totalReels = savedPreferencesLoader.getReelsScrolled()
-        makeReelStatsChart()
-        makeAverageAttentionSpanChart()
+        makeReelCountStatsChart()
+        makeAverageReelAttentionSpanChart()
+        makeTimeElapsedReelChart()
     }
 
-    private fun setupChart(chart: LineChart, labels:List<String>, lineDataSet: LineDataSet){
+    private fun setupChartUI(chart: LineChart, labels:List<String>, lineDataSet: LineDataSet){
 
-        val xAxis = chart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.granularity = 1f
-        xAxis.setDrawGridLines(false) // Disable vertical grid lines
-        xAxis.valueFormatter = IndexAxisValueFormatter(labels)
-        xAxis.textColor = Color.WHITE
+        chart.xAxis.apply {
+            position = XAxis.XAxisPosition.BOTTOM
+            granularity = 1f
+            setDrawGridLines(false) // Disable vertical grid lines
+            valueFormatter = IndexAxisValueFormatter(labels)
+            textColor = primaryColor
+        }
 
-        val leftAxis = chart.axisLeft
-        leftAxis.setDrawGridLines(false)
-        leftAxis.textColor = Color.WHITE
+        chart.axisLeft.apply {
+            setDrawGridLines(false)
+            textColor = primaryColor
+        }
 
-        chart.axisRight.isEnabled = false
+        chart.apply {
+            axisRight.isEnabled = false
+            legend.isEnabled = false
+            description.isEnabled = false
+            animateY(800, Easing.EaseInCubic)
 
-        chart.data = LineData(lineDataSet)
 
-        chart.legend.isEnabled = false
+            setTouchEnabled(true)
+            isDragEnabled = true
+            setScaleEnabled(false)
+            setPinchZoom(false)
+
+            data = LineData(lineDataSet)
+
+        }
 
         chart.invalidate()
     }
 
-    private fun makeReelStatsChart(){
+    private fun makeReelCountStatsChart(){
         val entries = mutableListOf<Entry>()
         val labels = mutableListOf<String>() // Store labels for X-axis
 
@@ -73,8 +95,8 @@ class UsageMetricsActivity : AppCompatActivity() {
             index += 1f
         }
         val lineDataSet = LineDataSet(entries, "Reel count").apply {
-            color = Color.WHITE
-            valueTextColor = Color.WHITE
+            color = primaryColor
+            valueTextColor = primaryColor
             lineWidth = 3f
             setDrawCircles(false)
             circleRadius = 4f
@@ -84,10 +106,10 @@ class UsageMetricsActivity : AppCompatActivity() {
             cubicIntensity = 0.2f
 
         }
-        setupChart(binding.reelsStats,labels,lineDataSet)
+        setupChartUI(binding.reelsStats,labels,lineDataSet)
     }
 
-    private fun makeAverageAttentionSpanChart(){
+    private fun makeAverageReelAttentionSpanChart(){
 
         val entries = mutableListOf<Entry>()
         val labels = mutableListOf<String>() // Store labels for X-axis
@@ -96,7 +118,13 @@ class UsageMetricsActivity : AppCompatActivity() {
         Log.d("datef", reelsAttentionSpanData.toString())
         for ((date, value) in reelsAttentionSpanData) {
             val totalElapsedTime = value.sumOf { it.elapsedTime.toDouble() }
-            val average = totalElapsedTime / totalReels[date]!!
+            Toast.makeText(this,"totalElapsedTime $totalElapsedTime",Toast.LENGTH_SHORT).show()
+            val reelsCount = totalReels[date]?.toDouble() ?: 0.0
+            val average = if (reelsCount > 0) {
+                totalElapsedTime / reelsCount
+            } else {
+                0.0
+            }
             entries.add(Entry(index, average.toFloat()))
             labels.add(TimeTools.shortenDate(date))
             Log.d("datef",date)
@@ -104,8 +132,8 @@ class UsageMetricsActivity : AppCompatActivity() {
         }
 
         val lineDataSet = LineDataSet(entries, "average attention Span").apply {
-            color = Color.WHITE
-            valueTextColor = Color.WHITE
+            color = primaryColor
+            valueTextColor = primaryColor
             lineWidth = 3f
             setDrawCircles(false)
             circleRadius = 4f
@@ -115,7 +143,38 @@ class UsageMetricsActivity : AppCompatActivity() {
             cubicIntensity = 0.2f
 
         }
-        setupChart(binding.avgAttentionStats,labels,lineDataSet)
+        setupChartUI(binding.avgAttentionStats,labels,lineDataSet)
+    }
 
+
+    private fun makeTimeElapsedReelChart(){
+
+        val entries = mutableListOf<Entry>()
+        val labels = mutableListOf<String>() // Store labels for X-axis
+        val reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
+        var index = 0f // Keep track of index for the x-axis
+
+        for ((date, value) in reelsAttentionSpanData) {
+            val totalElapsedTime = value.sumOf { it.elapsedTime.toDouble() }
+            val totalElapsedTimeInHours = totalElapsedTime / 120
+            entries.add(Entry(index, totalElapsedTimeInHours.toFloat()))
+            labels.add(TimeTools.shortenDate(date))
+            Log.d("datef",date)
+            index += 1f
+        }
+
+        val lineDataSet = LineDataSet(entries, "time elapsed reels").apply {
+            color = primaryColor
+            valueTextColor = primaryColor
+            lineWidth = 3f
+            setDrawCircles(false)
+            circleRadius = 4f
+            setDrawValues(false)
+
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            cubicIntensity = 0.2f
+
+        }
+        setupChartUI(binding.reelTimeStats,labels,lineDataSet)
     }
 }
