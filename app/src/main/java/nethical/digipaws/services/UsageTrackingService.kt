@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import nethical.digipaws.blockers.ViewBlocker
-import nethical.digipaws.services.AppBlockerService.Companion.INTENT_ACTION_REFRESH_APP_BLOCKER
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
 import nethical.digipaws.utils.UsageStatOverlayManager
@@ -52,10 +51,10 @@ class UsageTrackingService : AccessibilityService() {
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            if (!isTimeElapsedCounterOn) return
             when (intent?.action) {
                 Intent.ACTION_SCREEN_ON -> handleScreenOn()
                 Intent.ACTION_SCREEN_OFF -> handleScreenOff()
-                INTENT_ACTION_REFRESH_USAGE_TRACKER -> setupTracker()
             }
         }
     }
@@ -107,10 +106,9 @@ class UsageTrackingService : AccessibilityService() {
         isReelCountToBeDisplayed = sp.getBoolean("is_reel_counter",true)
         isTimeElapsedCounterOn = sp.getBoolean("is_time_elapsed",true)
 
-        if(!isTimeElapsedCounterOn) {  // turn off the counter
+        if (!isTimeElapsedCounterOn) {
             usageStatOverlayManager.binding?.timeElapsedTxt?.visibility = View.GONE
             handleScreenOff()
-            return
         }else{
             usageStatOverlayManager.binding?.timeElapsedTxt?.visibility = View.VISIBLE
 

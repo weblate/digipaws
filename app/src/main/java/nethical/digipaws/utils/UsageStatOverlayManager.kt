@@ -3,7 +3,6 @@ package nethical.digipaws.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PixelFormat
-import android.os.Build
 import android.os.CountDownTimer
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -35,10 +34,7 @@ class UsageStatOverlayManager(private val context: Context) {
         val layoutParams = LayoutParams(
             LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                LayoutParams.TYPE_APPLICATION_OVERLAY // for Android 8.0 and above
-            else
-                LayoutParams.TYPE_PHONE,
+            LayoutParams.TYPE_APPLICATION_OVERLAY,
             LayoutParams.FLAG_NOT_FOCUSABLE or
                     LayoutParams.FLAG_NOT_TOUCHABLE or
                     LayoutParams.FLAG_LAYOUT_IN_SCREEN,

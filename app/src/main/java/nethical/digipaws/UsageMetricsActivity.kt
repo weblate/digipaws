@@ -2,7 +2,6 @@ package nethical.digipaws
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -17,9 +16,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
 import nethical.digipaws.databinding.ActivityUsageMetricsBinding
+import nethical.digipaws.utils.CustomMarkerView
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
-import kotlin.math.pow
 import kotlin.properties.Delegates
 
 
@@ -47,10 +46,30 @@ class UsageMetricsActivity : AppCompatActivity() {
         totalReels = savedPreferencesLoader.getReelsScrolled()
         makeReelCountStatsChart()
         makeAverageReelAttentionSpanChart()
-        makeTimeElapsedReelChart()
     }
 
-    private fun setupChartUI(chart: LineChart, labels:List<String>, lineDataSet: LineDataSet){
+    private fun setupChartUI(
+        chart: LineChart,
+        labels: List<String>,
+        lineDataSet: LineDataSet,
+        chartUnits: String = ""
+    ) {
+
+        lineDataSet.apply {
+            color = primaryColor
+            valueTextColor = primaryColor
+            lineWidth = 3f
+            setDrawCircles(true)
+            setDrawCircleHole(true)
+            circleHoleRadius = 4f
+            circleRadius = 8f
+            setCircleColor(primaryColor)
+
+            setDrawValues(false)
+
+            mode = LineDataSet.Mode.CUBIC_BEZIER
+            cubicIntensity = 0.2f
+        }
 
         chart.xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
@@ -80,7 +99,10 @@ class UsageMetricsActivity : AppCompatActivity() {
             data = LineData(lineDataSet)
 
         }
-
+        val markerView = CustomMarkerView(this, R.layout.custom_marker_view)
+        markerView.chartView = chart
+        markerView.units = chartUnits
+        chart.marker = markerView
         chart.invalidate()
     }
 
@@ -94,19 +116,8 @@ class UsageMetricsActivity : AppCompatActivity() {
             labels.add(TimeTools.shortenDate(date))
             index += 1f
         }
-        val lineDataSet = LineDataSet(entries, "Reel count").apply {
-            color = primaryColor
-            valueTextColor = primaryColor
-            lineWidth = 3f
-            setDrawCircles(false)
-            circleRadius = 4f
-            setDrawValues(false)
-
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            cubicIntensity = 0.2f
-
-        }
-        setupChartUI(binding.reelsStats,labels,lineDataSet)
+        val lineDataSet = LineDataSet(entries, "Reel count")
+        setupChartUI(binding.reelsStats, labels, lineDataSet, "short videos scrolled")
     }
 
     private fun makeAverageReelAttentionSpanChart(){
@@ -118,7 +129,6 @@ class UsageMetricsActivity : AppCompatActivity() {
         Log.d("datef", reelsAttentionSpanData.toString())
         for ((date, value) in reelsAttentionSpanData) {
             val totalElapsedTime = value.sumOf { it.elapsedTime.toDouble() }
-            Toast.makeText(this,"totalElapsedTime $totalElapsedTime",Toast.LENGTH_SHORT).show()
             val reelsCount = totalReels[date]?.toDouble() ?: 0.0
             val average = if (reelsCount > 0) {
                 totalElapsedTime / reelsCount
@@ -131,50 +141,8 @@ class UsageMetricsActivity : AppCompatActivity() {
             index += 1f
         }
 
-        val lineDataSet = LineDataSet(entries, "average attention Span").apply {
-            color = primaryColor
-            valueTextColor = primaryColor
-            lineWidth = 3f
-            setDrawCircles(false)
-            circleRadius = 4f
-            setDrawValues(false)
-
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            cubicIntensity = 0.2f
-
-        }
-        setupChartUI(binding.avgAttentionStats,labels,lineDataSet)
+        val lineDataSet = LineDataSet(entries, "average attention Span")
+        setupChartUI(binding.avgAttentionStats, labels, lineDataSet, "seconds/video")
     }
 
-
-    private fun makeTimeElapsedReelChart(){
-
-        val entries = mutableListOf<Entry>()
-        val labels = mutableListOf<String>() // Store labels for X-axis
-        val reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
-        var index = 0f // Keep track of index for the x-axis
-
-        for ((date, value) in reelsAttentionSpanData) {
-            val totalElapsedTime = value.sumOf { it.elapsedTime.toDouble() }
-            val totalElapsedTimeInHours = totalElapsedTime / 120
-            entries.add(Entry(index, totalElapsedTimeInHours.toFloat()))
-            labels.add(TimeTools.shortenDate(date))
-            Log.d("datef",date)
-            index += 1f
-        }
-
-        val lineDataSet = LineDataSet(entries, "time elapsed reels").apply {
-            color = primaryColor
-            valueTextColor = primaryColor
-            lineWidth = 3f
-            setDrawCircles(false)
-            circleRadius = 4f
-            setDrawValues(false)
-
-            mode = LineDataSet.Mode.CUBIC_BEZIER
-            cubicIntensity = 0.2f
-
-        }
-        setupChartUI(binding.reelTimeStats,labels,lineDataSet)
-    }
 }
