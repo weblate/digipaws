@@ -10,7 +10,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -24,14 +23,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding
+import nethical.digipaws.databinding.DialogFocusModeBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.services.AppBlockerService
+import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
-import java.security.Key
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -41,11 +41,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var selectBlockedAppsLauncher: ActivityResultLauncher<Intent>
 
+    private lateinit var selectFocusModeUnblockedAppsLauncher: ActivityResultLauncher<Intent>
+
     private lateinit var selectBlockedKeywords: ActivityResultLauncher<Intent>
 
     private lateinit var addCheatHoursActivity: ActivityResultLauncher<Intent>
 
     val savedPreferencesLoader = SavedPreferencesLoader(this)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,6 +84,17 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+
+        selectFocusModeUnblockedAppsLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK) {
+                    val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
+                    selectedApps?.let {
+                        savedPreferencesLoader.saveFocusModeUnblockedApps(selectedApps)
+                    }
+                }
+            }
+
         selectBlockedKeywords =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
@@ -91,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
         addCheatHoursActivity =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
@@ -147,6 +162,17 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, UsageMetricsActivity::class.java)
             startActivity(intent)
         }
+        binding.startFocusMode.setOnClickListener {
+            makeStartFocusModeDialog()
+        }
+        binding.selectFocusUnblockedApps.setOnClickListener {
+            val intent = Intent(this, SelectAppsActivity::class.java)
+            intent.putStringArrayListExtra(
+                "PRE_SELECTED_APPS",
+                ArrayList(savedPreferencesLoader.getFocusModeUnblockedApps())
+            )
+            selectFocusModeUnblockedAppsLauncher.launch(intent)
+        }
 
     }
 
@@ -176,6 +202,12 @@ class MainActivity : AppCompatActivity() {
         updateChip(isUsageTrackerOn,binding.usageTrackerStatusChip,binding.usageTrackerWarning)
         binding.selectUsageStats.isEnabled = isUsageTrackerOn
         binding.btnConfigTracker.isEnabled = isUsageTrackerOn
+
+
+        val isGeneralSettingsOn = isAccessibilityServiceEnabled(DigipawsMainService::class.java)
+        updateChip(isGeneralSettingsOn, binding.focusModeStatusChip, binding.focusModeWarning)
+        binding.startFocusMode.isEnabled = isGeneralSettingsOn
+        binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn
 
     }
 
@@ -452,6 +484,26 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+
+    private fun makeStartFocusModeDialog() {
+        val dialogFocusModeBinding = DialogFocusModeBinding.inflate(layoutInflater)
+        dialogFocusModeBinding.focusModeMinsPicker.minValue = 1
+        dialogFocusModeBinding.focusModeMinsPicker.maxValue = 10000
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Start Focus Mode")
+            .setView(dialogFocusModeBinding.root)
+            .setPositiveButton("Start") { _, _ ->
+                savedPreferencesLoader.saveFocusModeData(
+                    DigipawsMainService.FocusModeData(
+                        true,
+                        System.currentTimeMillis() + (dialogFocusModeBinding.focusModeMinsPicker.value * 60000)
+                    )
+                )
+                sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_FOCUS_MODE)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 
     data class WarningData(
         val message: String = "",

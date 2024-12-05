@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import nethical.digipaws.AddCheatHoursActivity
 import nethical.digipaws.MainActivity
-import nethical.digipaws.services.UsageTrackingService
+import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.UsageTrackingService.AttentionSpanVideoItem
 
 class SavedPreferencesLoader(private val context: Context) {
@@ -176,6 +176,60 @@ class SavedPreferencesLoader(private val context: Context) {
 
         val type =
             object : TypeToken<MutableMap<String, Int>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun saveFocusModeData(focusModeData: DigipawsMainService.FocusModeData) {
+        val sharedPreferences =
+            context.getSharedPreferences("focus_mode", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(focusModeData)
+
+        editor.putString("focus_mode", json)
+        editor.apply()
+    }
+
+
+    fun getFocusModeData(): DigipawsMainService.FocusModeData {
+
+        val sharedPreferences =
+            context.getSharedPreferences("focus_mode", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val json = sharedPreferences.getString("focus_mode", null)
+
+        if (json.isNullOrEmpty()) return DigipawsMainService.FocusModeData()
+
+        val type =
+            object : TypeToken<DigipawsMainService.FocusModeData>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun saveFocusModeUnblockedApps(appList: List<String>) {
+        val sharedPreferences =
+            context.getSharedPreferences("focus_mode", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(appList)
+
+        editor.putString("unblocked_apps", json)
+        editor.apply()
+    }
+
+    fun getFocusModeUnblockedApps(): List<String> {
+        val sharedPreferences =
+            context.getSharedPreferences("focus_mode", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val json = sharedPreferences.getString("unblocked_apps", null)
+
+        if (json.isNullOrEmpty()) return listOf()
+
+        val type =
+            object : TypeToken<List<String>>() {}.type
         return gson.fromJson(json, type)
     }
 
