@@ -30,6 +30,7 @@ import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.services.ViewBlockerService
+import nethical.digipaws.utils.NotificationTimerManager
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
@@ -493,13 +494,16 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Start Focus Mode")
             .setView(dialogFocusModeBinding.root)
             .setPositiveButton("Start") { _, _ ->
+                val totalMillis = dialogFocusModeBinding.focusModeMinsPicker.value * 60000
                 savedPreferencesLoader.saveFocusModeData(
                     DigipawsMainService.FocusModeData(
                         true,
-                        System.currentTimeMillis() + (dialogFocusModeBinding.focusModeMinsPicker.value * 60000)
+                        System.currentTimeMillis() + totalMillis
                     )
                 )
                 sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_FOCUS_MODE)
+                val timer = NotificationTimerManager(this)
+                timer.startTimer(totalMillis.toLong())
             }
             .setNegativeButton("Cancel", null)
             .show()
