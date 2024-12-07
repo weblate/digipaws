@@ -175,6 +175,10 @@ class MainActivity : AppCompatActivity() {
             selectFocusModeUnblockedAppsLauncher.launch(intent)
         }
 
+        binding.antiUninstallCardChip.setOnClickListener {
+            val intent = Intent(this, SetupAntiUninstallActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {
@@ -503,6 +507,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_FOCUS_MODE)
                 val timer = NotificationTimerManager(this)
+                // TODO: add permission check
                 timer.startTimer(totalMillis.toLong())
             }
             .setNegativeButton("Cancel", null)

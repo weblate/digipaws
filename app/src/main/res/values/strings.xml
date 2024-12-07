@@ -108,6 +108,8 @@
     <string name="description">description</string>
     <string name="shorts_allow_first_shorts_title">let me open reels but block them when I scroll (Experimental)</string>
     <string name="enter_safe_mode_title">Press "minutes" ten times to force quit focus mode.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>
