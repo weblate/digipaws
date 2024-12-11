@@ -517,6 +517,17 @@
                     android:enabled="false"
                     android:text="Remove Anti-Uninstall" />
 
+
+                <TextView
+                    android:id="@+id/anti_uninstall_warning"
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Enable Geneal Accessibility Service to access this option"
+                    android:textAlignment="center"
+                    android:textColor="?attr/colorError" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

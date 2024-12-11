@@ -4,6 +4,7 @@ package nethical.digipaws
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.TimePickerDialog
+import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -27,6 +28,7 @@ import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
 import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
+import nethical.digipaws.receivers.AdminReceiver
 import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.KeywordBlockerService
@@ -52,7 +54,8 @@ class MainActivity : AppCompatActivity() {
 
     val savedPreferencesLoader = SavedPreferencesLoader(this)
 
-
+    private var isDeviceAdminOn = false
+    private var isAntiUninstallOn = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -181,8 +184,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.antiUninstallCardChip.setOnClickListener {
-            val intent = Intent(this, SetupAntiUninstallActivity::class.java)
-            startActivity(intent)
+            if (!isDeviceAdminOn) {
+                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+                val componentName = ComponentName(this, AdminReceiver::class.java)
+                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
+                intent.putExtra(
+                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                    "Enable admin to enable anti uninstall."
+                )
+                startActivity(intent)
+            } else {
+                if (binding.antiUninstallWarning.visibility == View.GONE) {
+                    val intent = Intent(this, SetupAntiUninstallActivity::class.java)
+                    startActivity(intent)
+                } else {
+                    openAccessibilitySettings(binding.btnUnlockAntiUninstall)
+                }
+            }
         }
     }
 
@@ -220,9 +238,39 @@ class MainActivity : AppCompatActivity() {
         binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn
 
 
+        val devicePolicyManager =
+            getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+        val componentName = ComponentName(this, AdminReceiver::class.java)
+        // Check if Device Admin is active
+        isDeviceAdminOn = devicePolicyManager.isAdminActive(componentName)
+
+
         val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
-        binding.btnUnlockAntiUninstall.isEnabled =
+        isAntiUninstallOn =
             antiUninstallInfo.getBoolean("is_anti_uninstall_on", false)
+        binding.btnUnlockAntiUninstall.isEnabled = isAntiUninstallOn
+
+        if (!isDeviceAdminOn) {
+            binding.antiUninstallWarning.text = "Please enable device admin"
+        } else {
+            if (!isGeneralSettingsOn) {
+                binding.antiUninstallWarning.text =
+                    "Please enable General features accessibility service"
+            }
+        }
+        if (isAntiUninstallOn) {
+        }
+        if (isDeviceAdminOn && isGeneralSettingsOn) {
+            updateChip(true, binding.antiUninstallCardChip, binding.antiUninstallWarning)
+
+            if (isAntiUninstallOn) {
+                binding.antiUninstallCardChip.isEnabled = false
+            } else {
+                binding.antiUninstallCardChip.text = "Enter Setup"
+                binding.antiUninstallCardChip.isEnabled = true
+            }
+        }
+
 
     }
 
@@ -579,10 +627,22 @@ class MainActivity : AppCompatActivity() {
                             antiUninstallInfo.edit().putBoolean("is_anti_uninstall_on", false)
                                 .commit()
                             sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
+
+                            Snackbar.make(
+                                binding.root,
+                                "Anti Uninstall removed",
+                                Snackbar.LENGTH_SHORT
+                            )
+                                .show()
+
+                            checkAccessibilityPermissions()
                         } else {
                             Snackbar.make(
                                 binding.root,
-                                "Incorrect password. Please try again. ",
+                                "Incorrect password. Please try again. " + antiUninstallInfo.getString(
+                                    "password",
+                                    "pass"
+                                ),
                                 Snackbar.LENGTH_SHORT
                             )
                                 .setAction("Retry") {
