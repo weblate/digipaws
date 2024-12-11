@@ -41,6 +41,8 @@ class SetupPasswordModeFragment : Fragment() {
             val intent = Intent(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
             activity?.sendBroadcast(intent)
 
+            activity?.finish()
+
         }
 
     }

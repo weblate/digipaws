@@ -527,32 +527,75 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("ApplySharedPref")
     private fun makeRemoveAntiUninstallDialog() {
         val dialogRemoveAntiUninstall = DialogRemoveAntiUninstallBinding.inflate(layoutInflater)
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Remove Anti-Uninstall")
-            .setView(dialogRemoveAntiUninstall.root)
-            .setPositiveButton("Remove") { _, _ ->
-                val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
-                if (antiUninstallInfo.getString(
-                        "password",
-                        "pass"
-                    ) == dialogRemoveAntiUninstall.password.text.toString()
-                ) {
-                    antiUninstallInfo.edit().putBoolean("is_anti_uninstall_on", false).commit()
-                    sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
-                } else {
+        val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
+        val mode = antiUninstallInfo.getInt("mode", -1)
+        when (mode) {
+
+            Constants.ANTI_UNINSTALL_TIMED_MODE -> {
+                val dateString = antiUninstallInfo.getString("date", null)
+                val parts: List<String> = dateString!!.split("/")
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(
+                    Integer.parseInt(parts[2]),  // Year
+                    Integer.parseInt(parts[0]) - 1,  // Month (0-based)
+                    Integer.parseInt(parts[1])  // Day
+                );
+
+
+                val today = Calendar.getInstance()
+                if (selectedDate.before(today)) {
                     Snackbar.make(
                         binding.root,
-                        "Incorrect password. Please try again. ",
+                        "Anti Uninstall removed",
                         Snackbar.LENGTH_SHORT
                     )
-                        .setAction("Retry") {
-                            makeRemoveAntiUninstallDialog()
-                        }
+                        .show()
+                    antiUninstallInfo.edit().putBoolean("is_anti_uninstall_on", false).commit()
+                    sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
+
+                } else {
+                    val daysDiff =
+                        (selectedDate.timeInMillis - today.timeInMillis) / (1000 * 60 * 60 * 24)
+
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Failed")
+                        .setMessage("You still have $daysDiff days to go before unlocking anti-uninstall")
+                        .setPositiveButton("Ok", null)
                         .show()
                 }
+
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+
+            Constants.ANTI_UNINSTALL_PASSWORD_MODE -> {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Remove Anti-Uninstall")
+                    .setView(dialogRemoveAntiUninstall.root)
+                    .setPositiveButton("Remove") { _, _ ->
+                        if (antiUninstallInfo.getString(
+                                "password",
+                                "pass"
+                            ) == dialogRemoveAntiUninstall.password.text.toString()
+                        ) {
+                            antiUninstallInfo.edit().putBoolean("is_anti_uninstall_on", false)
+                                .commit()
+                            sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
+                        } else {
+                            Snackbar.make(
+                                binding.root,
+                                "Incorrect password. Please try again. ",
+                                Snackbar.LENGTH_SHORT
+                            )
+                                .setAction("Retry") {
+                                    makeRemoveAntiUninstallDialog()
+                                }
+                                .show()
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        }
+
     }
 
     data class WarningData(

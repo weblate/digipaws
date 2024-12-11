@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".fragments.anti_uninstall.SetupTimedModeFragment">
 
-    <NumberPicker
-        android:id="@+id/numberPicker"
+    <CalendarView
+        android:id="@+id/calendarView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -15,11 +15,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/turn_on_timed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Turn on Anti Uninstall"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/numberPicker" />
+        app:layout_constraintTop_toBottomOf="@+id/calendarView" />
 </androidx.constraintlayout.widget.ConstraintLayout>
