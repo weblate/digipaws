@@ -20,10 +20,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
+import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.DigipawsMainService
@@ -166,6 +168,9 @@ class MainActivity : AppCompatActivity() {
         binding.startFocusMode.setOnClickListener {
             makeStartFocusModeDialog()
         }
+        binding.btnUnlockAntiUninstall.setOnClickListener {
+            makeRemoveAntiUninstallDialog()
+        }
         binding.selectFocusUnblockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -213,6 +218,11 @@ class MainActivity : AppCompatActivity() {
         updateChip(isGeneralSettingsOn, binding.focusModeStatusChip, binding.focusModeWarning)
         binding.startFocusMode.isEnabled = isGeneralSettingsOn
         binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn
+
+
+        val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
+        binding.btnUnlockAntiUninstall.isEnabled =
+            antiUninstallInfo.getBoolean("is_anti_uninstall_on", false)
 
     }
 
@@ -509,6 +519,37 @@ class MainActivity : AppCompatActivity() {
                 val timer = NotificationTimerManager(this)
                 // TODO: add permission check
                 timer.startTimer(totalMillis.toLong())
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    @SuppressLint("ApplySharedPref")
+    private fun makeRemoveAntiUninstallDialog() {
+        val dialogRemoveAntiUninstall = DialogRemoveAntiUninstallBinding.inflate(layoutInflater)
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Remove Anti-Uninstall")
+            .setView(dialogRemoveAntiUninstall.root)
+            .setPositiveButton("Remove") { _, _ ->
+                val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
+                if (antiUninstallInfo.getString(
+                        "password",
+                        "pass"
+                    ) == dialogRemoveAntiUninstall.password.text.toString()
+                ) {
+                    antiUninstallInfo.edit().putBoolean("is_anti_uninstall_on", false).commit()
+                    sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        "Incorrect password. Please try again. ",
+                        Snackbar.LENGTH_SHORT
+                    )
+                        .setAction("Retry") {
+                            makeRemoveAntiUninstallDialog()
+                        }
+                        .show()
+                }
             }
             .setNegativeButton("Cancel", null)
             .show()

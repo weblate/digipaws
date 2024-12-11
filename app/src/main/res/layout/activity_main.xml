@@ -513,6 +513,15 @@
                     android:layout_height="wrap_content"
                     android:text="Days Remaining: 69" />
 
+                <Button
+                    android:id="@+id/btn_unlock_anti_uninstall"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:enabled="false"
+                    android:text="Remove Anti-Uninstall" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
