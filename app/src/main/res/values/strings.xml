@@ -92,7 +92,8 @@
     <string name="aura_earned_1">You earned 1 Aura coin</string>
     <string name="tac">By continuing, you agree to our Terms and Conditions</string>
 
-    <string name="accessibility_perm_desc_main">DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game. This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.
+    <string name="accessibility_perm_desc_main">bloktxt
+        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game. This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.
     \n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
     </string>
@@ -108,8 +109,6 @@
     <string name="description">description</string>
     <string name="shorts_allow_first_shorts_title">let me open reels but block them when I scroll (Experimental)</string>
     <string name="enter_safe_mode_title">Press "minutes" ten times to force quit focus mode.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

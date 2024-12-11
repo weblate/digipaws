@@ -93,7 +93,7 @@ class UsageMetricsActivity : AppCompatActivity() {
 
             setTouchEnabled(true)
             isDragEnabled = true
-            setScaleEnabled(false)
+            setScaleEnabled(true)
             setPinchZoom(false)
 
             data = LineData(lineDataSet)

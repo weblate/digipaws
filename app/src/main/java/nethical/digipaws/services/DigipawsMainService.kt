@@ -7,15 +7,22 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+import java.util.Locale
 
 class DigipawsMainService : BaseBlockingService() {
     companion object {
         const val INTENT_ACTION_REFRESH_FOCUS_MODE = "nethical.digipaws.refresh.focus_mode"
+        const val INTENT_ACTION_REFRESH_ANTI_UNINSTALL = "nethical.digipaws.refresh.anti_uninstall"
     }
 
     private var focusModeData = FocusModeData()
     private var allowedAppList: HashSet<String> = hashSetOf()
+
+    private var isAntiUninstallOn = true
+
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         super.onAccessibilityEvent(event)
@@ -28,6 +35,13 @@ class DigipawsMainService : BaseBlockingService() {
                 focusModeData.isTurnedOn = false
             }
         }
+
+        if (isAntiUninstallOn) {
+            Log.d("package name", event?.packageName.toString())
+            if (event?.packageName == "com.android.settings") {
+                traverseNodesForKeywords(rootInActiveWindow)
+            }
+        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -36,6 +50,7 @@ class DigipawsMainService : BaseBlockingService() {
 
         val filter = IntentFilter().apply {
             addAction(INTENT_ACTION_REFRESH_FOCUS_MODE)
+            addAction(INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
@@ -43,15 +58,17 @@ class DigipawsMainService : BaseBlockingService() {
             registerReceiver(refreshReceiver, filter)
         }
         setupFocusMode()
-
+        setupAntiUninstall()
     }
 
     private val refreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
-            if (intent != null && intent.action == INTENT_ACTION_REFRESH_FOCUS_MODE) {
-                setupFocusMode()
-
+            if (intent != null) {
+                when (intent.action) {
+                    INTENT_ACTION_REFRESH_FOCUS_MODE -> setupFocusMode()
+                    INTENT_ACTION_REFRESH_ANTI_UNINSTALL -> setupAntiUninstall()
+                }
             }
         }
     }
@@ -63,6 +80,11 @@ class DigipawsMainService : BaseBlockingService() {
         focusModeData = savedPreferencesLoader.getFocusModeData()
     }
 
+    fun setupAntiUninstall() {
+        val info = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
+        isAntiUninstallOn = info.getBoolean("is_anti_uninstall_on", false)
+    }
+
     private fun getDefaultLauncherPackageName(): String? {
         val packageManager: PackageManager = packageManager
         val intent = Intent(Intent.ACTION_MAIN).apply {
@@ -71,6 +93,29 @@ class DigipawsMainService : BaseBlockingService() {
 
         val resolveInfo = packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
         return resolveInfo?.activityInfo?.packageName
+    }
+
+
+    private fun traverseNodesForKeywords(
+        node: AccessibilityNodeInfo?
+    ) {
+        if (node == null) {
+            return
+        }
+        if (node.className != null && node.className == "android.widget.TextView") {
+            val nodeText = node.text
+            if (nodeText != null) {
+                val editTextContent = nodeText.toString().lowercase(Locale.getDefault())
+                if (editTextContent.lowercase(Locale.getDefault()).contains("digipaws")) {
+                    pressHome()
+                }
+            }
+        }
+
+        for (i in 0 until node.childCount) {
+            val childNode = node.getChild(i)
+            traverseNodesForKeywords(childNode)
+        }
     }
 
     data class FocusModeData(
