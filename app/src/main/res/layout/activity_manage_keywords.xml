@@ -20,7 +20,7 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/confirm_selection_keywords"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,9 +28,10 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/baseline_done_24" />
+        android:text="Save"
+        app:icon="@drawable/baseline_done_24" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/btn_add_keyword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,5 +39,6 @@
         android:clickable="true"
         app:layout_constraintBottom_toTopOf="@+id/confirm_selection_keywords"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/baseline_add_24" />
+        android:text="Add"
+        app:icon="@drawable/baseline_add_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>

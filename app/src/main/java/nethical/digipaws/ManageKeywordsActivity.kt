@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -19,7 +20,7 @@ import nethical.digipaws.databinding.DialogAddKeywordBinding
 class ManageKeywordsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityManageKeywordsBinding
-    private lateinit var savedKeywordsList: ArrayList<String>
+    lateinit var savedKeywordsList: ArrayList<String>
     private lateinit var keywordAdapter: KeywordAdapter
 
 
@@ -50,6 +51,7 @@ class ManageKeywordsActivity : AppCompatActivity() {
             finish()
         }
         binding.btnAddKeyword.setOnClickListener { makeAddKeywordDialog() }
+
     }
 
     private fun makeAddKeywordDialog() {
@@ -72,11 +74,12 @@ class ManageKeywordsActivity : AppCompatActivity() {
             .show()
     }
 
-    class KeywordAdapter(private val keywords: ArrayList<String>) :
+    inner class KeywordAdapter(private val keywords: ArrayList<String>) :
         RecyclerView.Adapter<KeywordAdapter.KeywordViewHolder>() {
 
-        class KeywordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        inner class KeywordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val keywordTextView: TextView = itemView.findViewById(R.id.keyword_txt)
+            val removeBtn: Button = itemView.findViewById(R.id.btn_remove_keyword)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): KeywordViewHolder {
@@ -87,6 +90,10 @@ class ManageKeywordsActivity : AppCompatActivity() {
 
         override fun onBindViewHolder(holder: KeywordViewHolder, position: Int) {
             holder.keywordTextView.text = keywords[position]
+            holder.removeBtn.setOnClickListener {
+                savedKeywordsList.removeAt(position)
+                notifyItemRemoved(position)
+            }
         }
 
         override fun getItemCount(): Int = keywords.size
