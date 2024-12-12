@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:padding="8dp"
-    tools:context=".LauncherActivity">
+    tools:context=".ui.activity.LauncherActivity">
 
     <ImageView
         android:id="@+id/app_icon"

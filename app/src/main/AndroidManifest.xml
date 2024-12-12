@@ -19,22 +19,22 @@
         android:theme="@style/Theme.DigiPaws"
         tools:targetApi="31">
         <activity
-            android:name=".SetupAntiUninstallActivity"
+            android:name=".ui.activity.SetupAntiUninstallActivity"
             android:exported="false" />
         <activity
-            android:name=".UsageMetricsActivity"
+            android:name=".ui.activity.UsageMetricsActivity"
             android:exported="false" />
         <activity
-            android:name=".AddCheatHoursActivity"
+            android:name=".ui.activity.AddCheatHoursActivity"
             android:exported="false" />
         <activity
-            android:name=".ManageKeywordsActivity"
+            android:name=".ui.activity.ManageKeywordsActivity"
             android:exported="false" />
         <activity
-            android:name=".SelectAppsActivity"
+            android:name=".ui.activity.SelectAppsActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,7 +44,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LauncherActivity"
+            android:name=".ui.activity.LauncherActivity"
             android:exported="true"
             android:launchMode="singleTask" />
 

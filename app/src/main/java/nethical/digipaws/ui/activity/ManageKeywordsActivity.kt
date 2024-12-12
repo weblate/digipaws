@@ -1,4 +1,4 @@
-package nethical.digipaws
+package nethical.digipaws.ui.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityManageKeywordsBinding
 import nethical.digipaws.databinding.DialogAddKeywordBinding
 

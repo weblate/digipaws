@@ -2,7 +2,7 @@ package nethical.digipaws.blockers
 
 import android.os.SystemClock
 import android.util.Log
-import nethical.digipaws.AddCheatHoursActivity
+import nethical.digipaws.ui.activity.AddCheatHoursActivity
 import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 

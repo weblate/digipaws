@@ -1,4 +1,4 @@
-package nethical.digipaws
+package nethical.digipaws.ui.activity
 
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivitySelectAppsBinding
 
 class SelectAppsActivity : AppCompatActivity() {

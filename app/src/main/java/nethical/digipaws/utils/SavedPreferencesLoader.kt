@@ -3,10 +3,10 @@ package nethical.digipaws.utils
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import nethical.digipaws.AddCheatHoursActivity
-import nethical.digipaws.MainActivity
 import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.UsageTrackingService.AttentionSpanVideoItem
+import nethical.digipaws.ui.activity.AddCheatHoursActivity
+import nethical.digipaws.ui.activity.MainActivity
 
 class SavedPreferencesLoader(private val context: Context) {
 

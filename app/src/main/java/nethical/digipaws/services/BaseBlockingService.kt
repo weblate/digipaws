@@ -3,8 +3,8 @@ package nethical.digipaws.services
 import android.accessibilityservice.AccessibilityService
 import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
+import nethical.digipaws.ui.overlay.WarningOverlayManager
 import nethical.digipaws.utils.SavedPreferencesLoader
-import nethical.digipaws.utils.WarningOverlayManager
 
 open class BaseBlockingService : AccessibilityService() {
     val savedPreferencesLoader: SavedPreferencesLoader by lazy {

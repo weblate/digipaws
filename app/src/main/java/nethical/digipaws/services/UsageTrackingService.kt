@@ -16,9 +16,9 @@ import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import nethical.digipaws.blockers.ViewBlocker
+import nethical.digipaws.ui.overlay.UsageStatOverlayManager
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
-import nethical.digipaws.utils.UsageStatOverlayManager
 import java.util.concurrent.TimeUnit
 
 class UsageTrackingService : AccessibilityService() {

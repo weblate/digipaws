@@ -1,5 +1,4 @@
-
-package nethical.digipaws
+package nethical.digipaws.ui.activity
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
@@ -22,6 +21,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import nethical.digipaws.Constants
+import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding

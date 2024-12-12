@@ -1,4 +1,4 @@
-package nethical.digipaws.utils
+package nethical.digipaws.views
 
 import android.content.Context
 import android.widget.TextView

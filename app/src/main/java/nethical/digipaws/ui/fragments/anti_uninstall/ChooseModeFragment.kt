@@ -1,4 +1,4 @@
-package nethical.digipaws.fragments.anti_uninstall
+package nethical.digipaws.ui.fragments.anti_uninstall
 
 import android.os.Bundle
 import android.view.LayoutInflater

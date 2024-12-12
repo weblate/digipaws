@@ -1,4 +1,4 @@
-package nethical.digipaws
+package nethical.digipaws.ui.activity
 
 import android.os.Bundle
 import android.util.Log
@@ -16,11 +16,12 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
+import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityUsageMetricsBinding
 import nethical.digipaws.services.UsageTrackingService
-import nethical.digipaws.utils.CustomMarkerView
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
+import nethical.digipaws.views.CustomMarkerView
 import kotlin.properties.Delegates
 
 
@@ -45,7 +46,12 @@ class UsageMetricsActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        primaryColor = MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(this, R.color.text_color))
+        primaryColor = MaterialColors.getColor(
+            this, com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(
+                this,
+                R.color.text_color
+            )
+        )
 
         totalReels = savedPreferencesLoader.getReelsScrolled()
         reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()

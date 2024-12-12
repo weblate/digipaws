@@ -1,4 +1,4 @@
-package nethical.digipaws.utils
+package nethical.digipaws.ui.overlay
 
 import android.annotation.SuppressLint
 import android.content.Context

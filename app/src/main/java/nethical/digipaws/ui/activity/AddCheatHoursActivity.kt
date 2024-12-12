@@ -1,4 +1,4 @@
-package nethical.digipaws
+package nethical.digipaws.ui.activity
 
 import android.app.TimePickerDialog
 import android.content.Intent
@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityAddCheatHoursActivityBinding
 import nethical.digipaws.databinding.CheatHourItemBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
