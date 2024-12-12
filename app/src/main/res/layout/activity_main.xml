@@ -13,7 +13,6 @@
         android:paddingBottom="32dp"
         tools:context=".MainActivity">
 
-
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/launcher_card"
             android:layout_width="0dp"
@@ -42,6 +41,7 @@
                         android:layout_height="wrap_content"
                         android:text="Launcher Options"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/launcher_status_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -110,6 +110,7 @@
                         android:layout_height="wrap_content"
                         android:text="Focus Mode"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/focus_mode_status_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -186,6 +187,7 @@
                         android:layout_height="wrap_content"
                         android:text="App Blocker"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/app_blocker_status_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -270,6 +272,7 @@
                         android:layout_height="wrap_content"
                         android:text="View/Reel Blocker"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/view_blocker_status_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -345,6 +348,7 @@
                         android:layout_height="wrap_content"
                         android:text="Keyword Blocker"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/keyword_blocker_status_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -413,6 +417,7 @@
                         android:layout_height="wrap_content"
                         android:text="Usage Tracker"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/usage_tracker_status_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -491,6 +496,7 @@
                         android:layout_height="wrap_content"
                         android:text="Anti Uninstall"
                         android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/anti_uninstall_card_chip"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"

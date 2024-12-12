@@ -74,6 +74,7 @@ class UsageMetricsActivity : AppCompatActivity() {
         chart.xAxis.apply {
             position = XAxis.XAxisPosition.BOTTOM
             granularity = 1f
+            labelCount = 5
             setDrawGridLines(false) // Disable vertical grid lines
             valueFormatter = IndexAxisValueFormatter(labels)
             textColor = primaryColor
@@ -94,6 +95,7 @@ class UsageMetricsActivity : AppCompatActivity() {
             setTouchEnabled(true)
             isDragEnabled = true
             setScaleEnabled(true)
+
             setPinchZoom(false)
 
             data = LineData(lineDataSet)
