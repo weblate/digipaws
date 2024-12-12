@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -16,6 +17,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityUsageMetricsBinding
 import nethical.digipaws.services.UsageTrackingService
@@ -56,16 +60,24 @@ class UsageMetricsActivity : AppCompatActivity() {
         totalReels = savedPreferencesLoader.getReelsScrolled()
         reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
 
-        makeReelCountStatsChart()
-        makeAverageReelAttentionSpanChart()
 
-        val date = TimeTools.getCurrentDate()
-        binding.statsTodayReels.text = "You scrolled ${totalReels[date]} reels"
+        lifecycleScope.launch {
+            // Get the current date and update UI elements
 
-        val average = reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
-        val rounded = "%.2f".format(average).toFloat()
-        binding.statsAttentionSpanToday.text = "You had an attention span of $rounded seconds/video"
+            makeReelCountStatsChart()
+            makeAverageReelAttentionSpanChart()
 
+            val date = TimeTools.getCurrentDate()
+            binding.statsTodayReels.text = "You scrolled ${totalReels[date]} reels"
+
+            val average = withContext(Dispatchers.Default) {
+                reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
+            }
+
+            val rounded = "%.2f".format(average).toFloat()
+            binding.statsAttentionSpanToday.text =
+                "You had an attention span of $rounded seconds/video"
+        }
         binding.btnDigiWelbeing.setOnClickListener {
             val packageName = "com.google.android.apps.wellbeing"
             val intent = packageManager.getLaunchIntentForPackage(packageName)
@@ -143,36 +155,48 @@ class UsageMetricsActivity : AppCompatActivity() {
         chart.invalidate()
     }
 
-    private fun makeReelCountStatsChart(){
-        val entries = mutableListOf<Entry>()
-        val labels = mutableListOf<String>() // Store labels for X-axis
 
-        var index = 0f // Keep track of index for the x-axis
-        for ((date, value) in totalReels) {
-            entries.add(Entry(index, value.toFloat()))
-            labels.add(TimeTools.shortenDate(date))
-            index += 1f
+    private suspend fun makeReelCountStatsChart() {
+        withContext(Dispatchers.Default) {
+            val entries = mutableListOf<Entry>()
+            val labels = mutableListOf<String>() // Store labels for X-axis
+
+            var index = 0f // Keep track of index for the x-axis
+            for ((date, value) in totalReels) {
+                entries.add(Entry(index, value.toFloat()))
+                labels.add(TimeTools.shortenDate(date))
+                index += 1f
+            }
+
+            val lineDataSet = LineDataSet(entries, "Reel count")
+            // Switch back to the main thread to update the UI
+            withContext(Dispatchers.Main) {
+                setupChartUI(binding.reelsStats, labels, lineDataSet, "short videos scrolled")
+            }
         }
-        val lineDataSet = LineDataSet(entries, "Reel count")
-        setupChartUI(binding.reelsStats, labels, lineDataSet, "short videos scrolled")
     }
 
-    private fun makeAverageReelAttentionSpanChart(){
+    private suspend fun makeAverageReelAttentionSpanChart() {
+        withContext(Dispatchers.Default) {
+            val entries = mutableListOf<Entry>()
+            val labels = mutableListOf<String>() // Store labels for X-axis
+            var index = 0f // Keep track of index for the x-axis
 
-        val entries = mutableListOf<Entry>()
-        val labels = mutableListOf<String>() // Store labels for X-axis
-        var index = 0f // Keep track of index for the x-axis
-        Log.d("datef", reelsAttentionSpanData.toString())
-        for ((date, value) in reelsAttentionSpanData) {
-            val average = calculateAverageAttentionSpan(value, date)
-            entries.add(Entry(index, average.toFloat()))
-            labels.add(TimeTools.shortenDate(date))
-            Log.d("datef",date)
-            index += 1f
+            Log.d("datef", reelsAttentionSpanData.toString())
+            for ((date, value) in reelsAttentionSpanData) {
+                val average = calculateAverageAttentionSpan(value, date)
+                entries.add(Entry(index, average.toFloat()))
+                labels.add(TimeTools.shortenDate(date))
+                Log.d("datef", date)
+                index += 1f
+            }
+
+            val lineDataSet = LineDataSet(entries, "average attention Span")
+            // Switch back to the main thread to update the UI
+            withContext(Dispatchers.Main) {
+                setupChartUI(binding.avgAttentionStats, labels, lineDataSet, "seconds/video")
+            }
         }
-
-        val lineDataSet = LineDataSet(entries, "average attention Span")
-        setupChartUI(binding.avgAttentionStats, labels, lineDataSet, "seconds/video")
     }
 
     private fun calculateAverageAttentionSpan(

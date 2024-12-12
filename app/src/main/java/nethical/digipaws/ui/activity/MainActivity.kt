@@ -18,9 +18,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nethical.digipaws.Constants
 import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityMainBinding
@@ -54,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addCheatHoursActivity: ActivityResultLauncher<Intent>
 
-    val savedPreferencesLoader = SavedPreferencesLoader(this)
+    private val savedPreferencesLoader = SavedPreferencesLoader(this)
 
     private var isDeviceAdminOn = false
     private var isAntiUninstallOn = false
@@ -70,7 +74,16 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        setupActivityLaunchers()
+        setupClickListeners()
+    }
 
+    override fun onResume() {
+        super.onResume()
+        checkPermissions()
+    }
+
+    private fun setupActivityLaunchers() {
 
         selectPinnedAppsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -118,8 +131,9 @@ class MainActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
             }
+    }
 
-
+    private fun setupClickListeners() {
 
         binding.selectPinnedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
@@ -147,8 +161,6 @@ class MainActivity : AppCompatActivity() {
             )
             selectBlockedKeywords.launch(intent)
         }
-
-        checkAccessibilityPermissions()
 
         binding.appBlockerSelectCheatHours.setOnClickListener {
             val intent = Intent(this, AddCheatHoursActivity::class.java)
@@ -203,82 +215,100 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, SetupAntiUninstallActivity::class.java)
                     startActivity(intent)
                 } else {
-                    openAccessibilitySettings(binding.btnUnlockAntiUninstall)
+                    openAccessibilitySettings(binding.root)
                 }
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        checkAccessibilityPermissions()
-    }
+    private fun checkPermissions() {
+        lifecycleScope.launch {
+            val isAppBlockerOn =
+                withContext(Dispatchers.IO) { isAccessibilityServiceEnabled(AppBlockerService::class.java) }
+            val isViewBlockerOn =
+                withContext(Dispatchers.IO) { isAccessibilityServiceEnabled(ViewBlockerService::class.java) }
+            val isKeywordBlockerOn =
+                withContext(Dispatchers.IO) { isAccessibilityServiceEnabled(KeywordBlockerService::class.java) }
+            val isUsageTrackerOn =
+                withContext(Dispatchers.IO) { isAccessibilityServiceEnabled(UsageTrackingService::class.java) }
+            val isGeneralSettingsOn =
+                withContext(Dispatchers.IO) { isAccessibilityServiceEnabled(DigipawsMainService::class.java) }
 
-    private fun checkAccessibilityPermissions(){
-        val isAppBlockerOn = isAccessibilityServiceEnabled(AppBlockerService::class.java)
-        updateChip(isAppBlockerOn,binding.appBlockerStatusChip,binding.appBlockerWarning)
-        binding.selectBlockedApps.isEnabled = isAppBlockerOn
-        binding.btnConfigAppblockerWarning.isEnabled = isAppBlockerOn
-        binding.appBlockerSelectCheatHours.isEnabled = isAppBlockerOn
+            val devicePolicyManager =
+                getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val componentName = ComponentName(applicationContext, AdminReceiver::class.java)
 
+            // Check if Device Admin is active
+            isDeviceAdminOn = devicePolicyManager.isAdminActive(componentName)
 
-        val isViewBlockerOn = isAccessibilityServiceEnabled(ViewBlockerService::class.java)
-        updateChip(isViewBlockerOn,binding.viewBlockerStatusChip,binding.viewBlockerWarning)
-        binding.btnConfigViewblockerCheatHours.isEnabled = isViewBlockerOn
-        binding.btnConfigViewblockerWarning.isEnabled = isViewBlockerOn
+            val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
+            isAntiUninstallOn = antiUninstallInfo.getBoolean("is_anti_uninstall_on", false)
 
-        val isKeywordBlockerOn = isAccessibilityServiceEnabled(KeywordBlockerService::class.java)
-        updateChip(isKeywordBlockerOn,binding.keywordBlockerStatusChip,binding.keywordBlockerWarning)
-        binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
-        binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
+            withContext(Dispatchers.Main) {
+                // App Blocker
+                updateChip(isAppBlockerOn, binding.appBlockerStatusChip, binding.appBlockerWarning)
+                binding.selectBlockedApps.isEnabled = isAppBlockerOn
+                binding.btnConfigAppblockerWarning.isEnabled = isAppBlockerOn
+                binding.appBlockerSelectCheatHours.isEnabled = isAppBlockerOn
 
-        val isUsageTrackerOn = isAccessibilityServiceEnabled(UsageTrackingService::class.java)
-        updateChip(isUsageTrackerOn,binding.usageTrackerStatusChip,binding.usageTrackerWarning)
-        binding.selectUsageStats.isEnabled = isUsageTrackerOn
-        binding.btnConfigTracker.isEnabled = isUsageTrackerOn
+                // View Blocker
+                updateChip(
+                    isViewBlockerOn,
+                    binding.viewBlockerStatusChip,
+                    binding.viewBlockerWarning
+                )
+                binding.btnConfigViewblockerCheatHours.isEnabled = isViewBlockerOn
+                binding.btnConfigViewblockerWarning.isEnabled = isViewBlockerOn
 
+                // Keyword Blocker
+                updateChip(
+                    isKeywordBlockerOn,
+                    binding.keywordBlockerStatusChip,
+                    binding.keywordBlockerWarning
+                )
+                binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
+                binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
 
-        val isGeneralSettingsOn = isAccessibilityServiceEnabled(DigipawsMainService::class.java)
-        updateChip(isGeneralSettingsOn, binding.focusModeStatusChip, binding.focusModeWarning)
-        binding.startFocusMode.isEnabled = isGeneralSettingsOn
-        binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn
+                // Usage Tracker
+                updateChip(
+                    isUsageTrackerOn,
+                    binding.usageTrackerStatusChip,
+                    binding.usageTrackerWarning
+                )
+                binding.selectUsageStats.isEnabled = isUsageTrackerOn
+                binding.btnConfigTracker.isEnabled = isUsageTrackerOn
 
+                // General Settings
+                updateChip(
+                    isGeneralSettingsOn,
+                    binding.focusModeStatusChip,
+                    binding.focusModeWarning
+                )
+                binding.startFocusMode.isEnabled = isGeneralSettingsOn
+                binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn
 
-        val devicePolicyManager =
-            getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-        val componentName = ComponentName(this, AdminReceiver::class.java)
-        // Check if Device Admin is active
-        isDeviceAdminOn = devicePolicyManager.isAdminActive(componentName)
+                // Anti-Uninstall settings
+                binding.btnUnlockAntiUninstall.isEnabled = isAntiUninstallOn
 
+                // Update Anti-Uninstall warning
+                if (!isDeviceAdminOn) {
+                    binding.antiUninstallWarning.text = "Please enable device admin"
+                } else if (!isGeneralSettingsOn) {
+                    binding.antiUninstallWarning.text =
+                        "Please enable General features accessibility service"
+                }
 
-        val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
-        isAntiUninstallOn =
-            antiUninstallInfo.getBoolean("is_anti_uninstall_on", false)
-        binding.btnUnlockAntiUninstall.isEnabled = isAntiUninstallOn
-
-        if (!isDeviceAdminOn) {
-            binding.antiUninstallWarning.text = "Please enable device admin"
-        } else {
-            if (!isGeneralSettingsOn) {
-                binding.antiUninstallWarning.text =
-                    "Please enable General features accessibility service"
+                // Handle anti-uninstall UI changes
+                if (isDeviceAdminOn && isGeneralSettingsOn) {
+                    updateChip(true, binding.antiUninstallCardChip, binding.antiUninstallWarning)
+                    binding.antiUninstallCardChip.isEnabled = !isAntiUninstallOn
+                    binding.antiUninstallCardChip.text =
+                        if (isAntiUninstallOn) "Setup Complete" else "Enter Setup"
+                }
             }
         }
-        if (isAntiUninstallOn) {
-        }
-        if (isDeviceAdminOn && isGeneralSettingsOn) {
-            updateChip(true, binding.antiUninstallCardChip, binding.antiUninstallWarning)
-
-            if (isAntiUninstallOn) {
-                binding.antiUninstallCardChip.isEnabled = false
-            } else {
-                binding.antiUninstallCardChip.text = "Enter Setup"
-                binding.antiUninstallCardChip.isEnabled = true
-            }
-        }
-
-
     }
+
 
     private fun updateChip(isEnabled: Boolean,statusChip: Chip,warningText:TextView) {
         if (isEnabled) {
@@ -295,7 +325,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(action)
         sendBroadcast(intent)
     }
-    fun isAccessibilityServiceEnabled(serviceClass: Class<out AccessibilityService>): Boolean {
+    private fun isAccessibilityServiceEnabled(serviceClass: Class<out AccessibilityService>): Boolean {
         val serviceName = ComponentName(this, serviceClass).flattenToString()
         val enabledServices = Settings.Secure.getString(
             contentResolver,
@@ -315,9 +345,9 @@ class MainActivity : AppCompatActivity() {
         tweakAppBlockerWarningBinding.selectMins.minValue = 1
         tweakAppBlockerWarningBinding.selectMins.maxValue = 240
 
-        val prevdata = savedPreferencesLoader.loadAppBlockerWarningInfo()
-        tweakAppBlockerWarningBinding.selectMins.value = prevdata.timeInterval / 60000
-        tweakAppBlockerWarningBinding.warningMsgEdit.setText(prevdata.message)
+        val previousData = savedPreferencesLoader.loadAppBlockerWarningInfo()
+        tweakAppBlockerWarningBinding.selectMins.value = previousData.timeInterval / 60000
+        tweakAppBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
         MaterialAlertDialogBuilder(this)
             .setTitle("Configure Warning Screen")
             .setView(tweakAppBlockerWarningBinding.root)
@@ -341,47 +371,47 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("ApplySharedPref")
     private fun makeTweakViewBlockerWarningIntervalDialog() {
-        val tweakViewlockerWarningBinding: DialogTweakBlockerWarningBinding =
+        val tweakViewBlockerWarningBinding: DialogTweakBlockerWarningBinding =
             DialogTweakBlockerWarningBinding.inflate(layoutInflater)
-        tweakViewlockerWarningBinding.selectMins.minValue = 1
-        tweakViewlockerWarningBinding.selectMins.maxValue = 240
+        tweakViewBlockerWarningBinding.selectMins.minValue = 1
+        tweakViewBlockerWarningBinding.selectMins.maxValue = 240
 
-        tweakViewlockerWarningBinding.cbFirstReel.visibility = View.VISIBLE
-        tweakViewlockerWarningBinding.cbReelInbox.visibility = View.VISIBLE
+        tweakViewBlockerWarningBinding.cbFirstReel.visibility = View.VISIBLE
+        tweakViewBlockerWarningBinding.cbReelInbox.visibility = View.VISIBLE
 
 
-        val prevdata = savedPreferencesLoader.loadViewBlockerWarningInfo()
-        tweakViewlockerWarningBinding.selectMins.value = prevdata.timeInterval / 60000
-        tweakViewlockerWarningBinding.warningMsgEdit.setText(prevdata.message)
-        tweakViewlockerWarningBinding.cbDynamicWarning.isChecked =
-            prevdata.isDynamicIntervalSettingAllowed
+        val previousData = savedPreferencesLoader.loadViewBlockerWarningInfo()
+        tweakViewBlockerWarningBinding.selectMins.value = previousData.timeInterval / 60000
+        tweakViewBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
+        tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked =
+            previousData.isDynamicIntervalSettingAllowed
 
         val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
-        tweakViewlockerWarningBinding.cbReelInbox.isChecked =
+        tweakViewBlockerWarningBinding.cbReelInbox.isChecked =
             addReelData.getBoolean("is_reel_inbox", false)
-        tweakViewlockerWarningBinding.cbFirstReel.isChecked =
+        tweakViewBlockerWarningBinding.cbFirstReel.isChecked =
             addReelData.getBoolean("is_reel_first", false)
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Configure Warning Screen")
-            .setView(tweakViewlockerWarningBinding.root)
+            .setView(tweakViewBlockerWarningBinding.root)
             .setPositiveButton("Save") { dialog, _ ->
-                val selectedMinInMs = tweakViewlockerWarningBinding.selectMins.value * 60000
+                val selectedMinInMs = tweakViewBlockerWarningBinding.selectMins.value * 60000
                 savedPreferencesLoader.saveViewBlockerWarningInfo(
                     WarningData(
-                        tweakViewlockerWarningBinding.warningMsgEdit.text.toString(),
+                        tweakViewBlockerWarningBinding.warningMsgEdit.text.toString(),
                         selectedMinInMs,
-                        tweakViewlockerWarningBinding.cbDynamicWarning.isChecked
+                        tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked
                     )
                 )
                 val editor = addReelData.edit()
                 editor.putBoolean(
                     "is_reel_inbox",
-                    tweakViewlockerWarningBinding.cbReelInbox.isChecked
+                    tweakViewBlockerWarningBinding.cbReelInbox.isChecked
                 )
                 editor.putBoolean(
                     "is_reel_first",
-                    tweakViewlockerWarningBinding.cbFirstReel.isChecked
+                    tweakViewBlockerWarningBinding.cbFirstReel.isChecked
                 )
 
                 editor.commit()
@@ -394,7 +424,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    fun openAccessibilitySettings(view: View){
+    fun openAccessibilitySettings(view: View) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Enable Accessibility")
             .setMessage("This app requires Accessibility permissions to function properly.")
@@ -406,27 +436,28 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    @SuppressLint("ApplySharedPref")
     private fun makeDialogConfigTracker(){
-        val dialogconfigTracker = DialogConfigTrackerBinding.inflate(layoutInflater)
+        val dialogConfigurationTracker = DialogConfigTrackerBinding.inflate(layoutInflater)
 
         val sp = getSharedPreferences("config_tracker",Context.MODE_PRIVATE)
 
-        dialogconfigTracker.cbReelCounter.isChecked = sp.getBoolean("is_reel_counter",true)
-        dialogconfigTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed",true)
+        dialogConfigurationTracker.cbReelCounter.isChecked = sp.getBoolean("is_reel_counter", true)
+        dialogConfigurationTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed", true)
 
         MaterialAlertDialogBuilder(this)
             .setTitle("Configure Warning Screen")
-            .setView(dialogconfigTracker.root)
+            .setView(dialogConfigurationTracker.root)
             .setPositiveButton("Save") { dialog, _ ->
 
                 val editor = sp.edit()
                 editor.putBoolean(
                     "is_reel_counter",
-                    dialogconfigTracker.cbReelCounter.isChecked
+                    dialogConfigurationTracker.cbReelCounter.isChecked
                 )
                 editor.putBoolean(
                     "is_time_elapsed",
-                    dialogconfigTracker.cbTimeElapsed.isChecked
+                    dialogConfigurationTracker.cbTimeElapsed.isChecked
                 )
 
                 editor.commit()
@@ -441,6 +472,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    @SuppressLint("DefaultLocale")
     private fun makeViewBlockerCheatHoursDialog() {
 
         val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
@@ -451,14 +483,14 @@ class MainActivity : AppCompatActivity() {
 
 
         val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
-        var endTimeInMins =
+        var endTimeInMinutes =
             viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
-        var startTimeInMins = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
+        var startTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
         val isProceedBtnDisabled =
             viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
 
-        val convertedStartTime = TimeTools.convertMinutesTo24Hour(startTimeInMins)
-        val convertedEndTIme = TimeTools.convertMinutesTo24Hour(endTimeInMins)
+        val convertedStartTime = TimeTools.convertMinutesTo24Hour(startTimeInMinutes)
+        val convertedEndTIme = TimeTools.convertMinutesTo24Hour(endTimeInMinutes)
 
         dialogAddToCheatHoursBinding.btnSelectEndTime.text =
             "Start Time: ${convertedStartTime.first}:${convertedStartTime.second}"
@@ -471,14 +503,6 @@ class MainActivity : AppCompatActivity() {
 
 
         dialogAddToCheatHoursBinding.btnSelectEndTime.setOnClickListener {
-            if (startTimeInMins == null) {
-                Toast.makeText(
-                    this,
-                    "Please Specify Start Time first",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
 
             val calendar = Calendar.getInstance()
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -491,14 +515,14 @@ class MainActivity : AppCompatActivity() {
                         TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
 
                     // Ensure end time is after start time
-                    if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
+                    if (selectedEndTime <= startTimeInMinutes) {
                         Toast.makeText(
                             this,
                             "End time must be after start time!",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
-                        endTimeInMins = selectedEndTime
+                        endTimeInMinutes = selectedEndTime
                         dialogAddToCheatHoursBinding.btnSelectEndTime.text =
                             "End Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
                     }
@@ -517,7 +541,7 @@ class MainActivity : AppCompatActivity() {
             val timePickerDialog = TimePickerDialog(
                 this,
                 { _, selectedHour, selectedMinute ->
-                    startTimeInMins =
+                    startTimeInMinutes =
                         TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
                     dialogAddToCheatHoursBinding.btnSelectStartTime.text =
                         "Start Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
@@ -532,19 +556,13 @@ class MainActivity : AppCompatActivity() {
             .setTitle("Specify Cheat Hours")
             .setView(dialogAddToCheatHoursBinding.root)
             .setPositiveButton("Save") { dialog, _ ->
-                if (startTimeInMins == null) {
-                    Toast.makeText(this, "Please Select a start time", Toast.LENGTH_SHORT).show()
-                } else if (endTimeInMins == null) {
-                    Toast.makeText(this, "Please Select an end time", Toast.LENGTH_SHORT).show()
-                } else {
-                    savedPreferencesLoader.saveCheatHoursForViewBlocker(
-                        startTimeInMins!!,
-                        endTimeInMins!!,
-                        dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
-                    )
-                    sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
-                    dialog.dismiss()
-                }
+                savedPreferencesLoader.saveCheatHoursForViewBlocker(
+                    startTimeInMinutes,
+                    endTimeInMinutes,
+                    dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
+                )
+                sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
+                dialog.dismiss()
 
             }
             .setNegativeButton("Cancel") { dialog, _ ->
@@ -578,6 +596,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    @SuppressLint("ApplySharedPref")
     private fun manageKeywordPackDialog() {
         val dialogManageKeywordPacks = DialogKeywordPackageBinding.inflate(layoutInflater)
 
@@ -608,7 +627,7 @@ class MainActivity : AppCompatActivity() {
                     Integer.parseInt(parts[2]),  // Year
                     Integer.parseInt(parts[0]) - 1,  // Month (0-based)
                     Integer.parseInt(parts[1])  // Day
-                );
+                )
 
 
                 val today = Calendar.getInstance()
@@ -658,7 +677,7 @@ class MainActivity : AppCompatActivity() {
                             )
                                 .show()
 
-                            checkAccessibilityPermissions()
+                            checkPermissions()
                         } else {
                             Snackbar.make(
                                 binding.root,
