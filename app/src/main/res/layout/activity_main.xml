@@ -373,7 +373,16 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:enabled="false"
-                    android:text="Add Blocked Keywords" />
+                    android:text="Add Custom Keywords" />
+
+                <Button
+                    android:id="@+id/btn_manage_preinstalled_keywords"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:enabled="false"
+                    android:text="Manage Keyword Packs" />
 
                 <TextView
                     android:id="@+id/keyword_blocker_warning"

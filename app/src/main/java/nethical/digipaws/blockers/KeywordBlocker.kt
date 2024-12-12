@@ -3,9 +3,7 @@ package nethical.digipaws.blockers
 import android.view.accessibility.AccessibilityNodeInfo
 
 class KeywordBlocker : BaseBlocker() {
-    var blockedKeyword = hashSetOf(
-        "porn"
-    )
+    lateinit var blockedKeyword: HashSet<String>
 
     private fun containsBlockedKeyword(text: String): String? {
         // Split text by whitespace to get individual words and check each word

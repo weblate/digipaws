@@ -11,6 +11,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
 import nethical.digipaws.blockers.KeywordBlocker
+import nethical.digipaws.data.blockers.KeywordPacks
 
 class KeywordBlockerService : BaseBlockingService() {
 
@@ -78,7 +79,13 @@ class KeywordBlockerService : BaseBlockingService() {
 
 
     private fun setupBlockers() {
-        keywordBlocker.blockedKeyword = savedPreferencesLoader.loadBlockedKeywords().toHashSet()
+        val keywords = savedPreferencesLoader.loadBlockedKeywords().toMutableSet()
+        val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
+        val isAdultBlockerOn = sp.getBoolean("adult_blocker", false)
+        if (isAdultBlockerOn) {
+            keywords.addAll(KeywordPacks.adultKeywords)
+        }
+        keywordBlocker.blockedKeyword = keywords.toHashSet()
     }
 
 

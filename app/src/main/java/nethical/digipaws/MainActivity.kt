@@ -26,6 +26,7 @@ import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
+import nethical.digipaws.databinding.DialogKeywordPackageBinding
 import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.receivers.AdminReceiver
@@ -174,6 +175,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnUnlockAntiUninstall.setOnClickListener {
             makeRemoveAntiUninstallDialog()
         }
+        binding.btnManagePreinstalledKeywords.setOnClickListener {
+            manageKeywordPackDialog()
+        }
         binding.selectFocusUnblockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -225,6 +229,7 @@ class MainActivity : AppCompatActivity() {
         val isKeywordBlockerOn = isAccessibilityServiceEnabled(KeywordBlockerService::class.java)
         updateChip(isKeywordBlockerOn,binding.keywordBlockerStatusChip,binding.keywordBlockerWarning)
         binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
+        binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
 
         val isUsageTrackerOn = isAccessibilityServiceEnabled(UsageTrackingService::class.java)
         updateChip(isUsageTrackerOn,binding.usageTrackerStatusChip,binding.usageTrackerWarning)
@@ -572,9 +577,24 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun manageKeywordPackDialog() {
+        val dialogManageKeywordPacks = DialogKeywordPackageBinding.inflate(layoutInflater)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Manage Keyword Blockers")
+            .setView(dialogManageKeywordPacks.root)
+            .setPositiveButton("Ok") { _, _ ->
+                val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
+                sp.edit()
+                    .putBoolean("adult_blocker", dialogManageKeywordPacks.cbAdultKeywords.isChecked)
+                    .commit()
+                sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
+            }
+            .show()
+    }
+
     @SuppressLint("ApplySharedPref")
     private fun makeRemoveAntiUninstallDialog() {
-        val dialogRemoveAntiUninstall = DialogRemoveAntiUninstallBinding.inflate(layoutInflater)
         val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
         val mode = antiUninstallInfo.getInt("mode", -1)
         when (mode) {
@@ -615,6 +635,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             Constants.ANTI_UNINSTALL_PASSWORD_MODE -> {
+                val dialogRemoveAntiUninstall =
+                    DialogRemoveAntiUninstallBinding.inflate(layoutInflater)
                 MaterialAlertDialogBuilder(this)
                     .setTitle("Remove Anti-Uninstall")
                     .setView(dialogRemoveAntiUninstall.root)
