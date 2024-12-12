@@ -13,6 +13,59 @@
         android:padding="16dp"
         tools:context=".UsageMetricsActivity">
 
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/TextAppearance.Material3.TitleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="16dp"
+                    android:text="Todays Stats"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stats_today_reels"
+                    style="@style/MaterialAlertDialog.Material3.Body.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:text="You scrolled 6969 reels" />
+
+                <TextView
+                    android:id="@+id/stats_attention_span_today"
+                    style="@style/MaterialAlertDialog.Material3.Body.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:text="Your average attention span was 70 mins" />
+
+                <Button
+                    android:id="@+id/btn_digi_welbeing"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="View More" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

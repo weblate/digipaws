@@ -15,7 +15,9 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.snackbar.Snackbar
 import nethical.digipaws.databinding.ActivityUsageMetricsBinding
+import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.utils.CustomMarkerView
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
@@ -31,6 +33,8 @@ class UsageMetricsActivity : AppCompatActivity() {
     var primaryColor by Delegates.notNull<Int>()
 
     lateinit var totalReels: Map<String,Int>
+    lateinit var reelsAttentionSpanData: MutableMap<String, MutableList<UsageTrackingService.AttentionSpanVideoItem>>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -44,9 +48,34 @@ class UsageMetricsActivity : AppCompatActivity() {
         primaryColor = MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary, ContextCompat.getColor(this, R.color.text_color))
 
         totalReels = savedPreferencesLoader.getReelsScrolled()
+        reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
+
         makeReelCountStatsChart()
         makeAverageReelAttentionSpanChart()
+
+        val date = TimeTools.getCurrentDate()
+        binding.statsTodayReels.text = "You scrolled ${totalReels[date]} reels"
+
+        val average = reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
+        val rounded = "%.2f".format(average).toFloat()
+        binding.statsAttentionSpanToday.text = "You had an attention span of $rounded seconds/video"
+
+        binding.btnDigiWelbeing.setOnClickListener {
+            val packageName = "com.google.android.apps.wellbeing"
+            val intent = packageManager.getLaunchIntentForPackage(packageName)
+
+            if (intent != null) {
+                startActivity(intent)
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    "Digital Wellbeing app not found",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
+
 
     private fun setupChartUI(
         chart: LineChart,
@@ -126,17 +155,10 @@ class UsageMetricsActivity : AppCompatActivity() {
 
         val entries = mutableListOf<Entry>()
         val labels = mutableListOf<String>() // Store labels for X-axis
-        val reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
         var index = 0f // Keep track of index for the x-axis
         Log.d("datef", reelsAttentionSpanData.toString())
         for ((date, value) in reelsAttentionSpanData) {
-            val totalElapsedTime = value.sumOf { it.elapsedTime.toDouble() }
-            val reelsCount = totalReels[date]?.toDouble() ?: 0.0
-            val average = if (reelsCount > 0) {
-                totalElapsedTime / reelsCount
-            } else {
-                0.0
-            }
+            val average = calculateAverageAttentionSpan(value, date)
             entries.add(Entry(index, average.toFloat()))
             labels.add(TimeTools.shortenDate(date))
             Log.d("datef",date)
@@ -145,6 +167,19 @@ class UsageMetricsActivity : AppCompatActivity() {
 
         val lineDataSet = LineDataSet(entries, "average attention Span")
         setupChartUI(binding.avgAttentionStats, labels, lineDataSet, "seconds/video")
+    }
+
+    private fun calculateAverageAttentionSpan(
+        value: MutableList<UsageTrackingService.AttentionSpanVideoItem>,
+        date: String
+    ): Double {
+        val totalElapsedTime = value.sumOf { it.elapsedTime.toDouble() }
+        val reelsCount = totalReels[date]?.toDouble() ?: 0.0
+        return if (reelsCount > 0) {
+            totalElapsedTime / reelsCount
+        } else {
+            0.0
+        }
     }
 
 }
