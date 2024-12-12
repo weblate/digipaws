@@ -15,7 +15,7 @@
             android:id="@+id/cheat_hour_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title" />
+            android:hint="@string/title" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Select Start Time"
+        android:text="@string/select_start_time"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
@@ -31,7 +31,7 @@
         android:id="@+id/btn_select_end_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select End Time"
+        android:text="@string/select_end_time"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_select_start_time" />
 
@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Select Apps to unblock"
+        android:text="@string/select_apps_to_unblock"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_select_end_time" />
 
@@ -48,7 +48,7 @@
         android:id="@+id/cb_disable_proceed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Disable Proceed Button"
+        android:text="@string/disable_proceed_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_select_unblocked_apps" />
 

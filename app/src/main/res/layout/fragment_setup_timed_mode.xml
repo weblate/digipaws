@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Timed Mode"
+        android:text="@string/timed_mode"
         android:textSize="24sp" />
 
     <TextView
@@ -26,7 +26,7 @@
         android:gravity="center"
         android:padding="8dp"
         android:paddingBottom="8dp"
-        android:text="How long do you want to keep anti-uninstall turned on?" />
+        android:text="@string/timed_mode_desc" />
 
     <CalendarView
         android:id="@+id/calendarView"
@@ -38,5 +38,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Turn on Anti Uninstall" />
+        android:text="@string/turn_on_anti_uninstall" />
 </LinearLayout>

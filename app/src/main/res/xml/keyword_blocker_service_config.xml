@@ -4,5 +4,5 @@
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="true"
-    android:description="@string/accessibility_perm_desc_main"
+    android:description="@string/accessibility_permission_keyword_blocker"
     android:label="Keyword Blocker" />

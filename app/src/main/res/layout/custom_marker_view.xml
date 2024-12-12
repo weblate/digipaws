@@ -16,7 +16,6 @@
             android:id="@+id/tvContent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Marker"
             android:textSize="12sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

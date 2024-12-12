@@ -1,114 +1,106 @@
 <resources>
-    <string name="app_name">DigiPaws</string>
+    <string name="app_name" translatable="false">DigiPaws</string>
+    <string name="launcher_options">Launcher Options</string>
+    <string name="focus_mode">Focus Mode</string>
+    <string name="app_blocker">App Blocker</string>
+    <string name="view_reel_blocker">View/Reel Blocker</string>
+    <string name="keyword_blocker">Keyword Blocker</string>
+    <string name="anti_uninstall">Anti Uninstall</string>
+    <string name="usage_tracker">Usage Tracker</string>
+    <string name="disabled">Disabled</string>
+    <string name="select_pinned_apps">Select pinned apps</string>
+    <string name="warning_launcher_settings">Set Digipaws as the default launcher to access this option</string>
+    <string name="select_unblocked_apps">Select unblocked apps</string>
+    <string name="start_focus_mode">Start focus mode</string>
+    <string name="warning_general_settings">Enable General Accessibility Service to access this option</string>
+    <string name="select_blocked_apps">Select blocked apps</string>
+    <string name="manage_warning_screen">Manage Warning Screen</string>
+    <string name="manage_cheat_hours">Manage Cheat Hours</string>
+    <string name="warning_app_blocker_settings">Enable App Blocker Accessibility Service to manage app blocking</string>
+    <string name="warning_view_blocker_settings">Enable View Blocker Accessibility Service to manage view blocking</string>
+    <string name="add_custom_keywords">Add Custom Keywords</string>
+    <string name="manage_keyword_packs">Manage Keyword Packs</string>
+    <string name="warning_keywords_settings">Enable Keyword Blocker Accessibility Service to manage blocked keywords</string>
+    <string name="usage_stats">Usage Stats</string>
+    <string name="manage_trackers">Manage Trackers</string>
+    <string name="warning_usage_tracker_settings">Enable Usage Tracker Accessibility Service to manage trackers</string>
+    <string name="remove_anti_uninstall">Remove Anti-Uninstall</string>
+    <string name="add_cheat_hours">Add Cheat Hours</string>
+    <string name="add">Add</string>
+    <string name="save">Save</string>
+    <string name="todays_stats">Todays Stats</string>
+    <string name="you_scrolled_2_d_reels">You scrolled %2$d reels</string>
+    <string name="your_average_attention_span_was_2_d_mins">Your average attention span was %2$d mins</string>
+    <string name="view_more">View More</string>
+    <string name="number_of_reels_scrolled">Number of Reels Scrolled</string>
+    <string name="average_attention_span">Average Attention Span</string>
+    <string name="apps">Apps:</string>
+    <string name="remove">Remove</string>
+    <string name="write_down_a_keyword">Write down a keyword</string>
+    <string name="select_start_time">Select Start Time</string>
+    <string name="select_end_time">Select End Time</string>
+    <string name="select_apps_to_unblock">Select Apps to unblock</string>
+    <string name="disable_proceed_button">Disable Proceed Button</string>
+    <string name="display_time_elapsed">Display Time Elapsed</string>
+    <string name="display_number_of_reels_scrolled">Display number of reels scrolled</string>
+    <string name="specify_duration_of_focus_mode_in_mins">Specify duration of focus mode in mins</string>
+    <string name="block_adult_keywords">Block Adult Keywords</string>
+    <string name="password">Password</string>
+    <string name="specify_cooldown_interval_in_minutes">Specify cooldown interval in minutes</string>
+    <string name="warning_message">Warning Message</string>
+    <string name="allow_viewing_instagram_reels_sent_in_instagram_inbox">Allow viewing instagram reels sent in Instagram inbox</string>
+    <string name="allow_opening_the_first_reel_in_feed">Allow opening the first reel in feed</string>
+    <string name="in_warning_changeable_cooldown">in-warning changeable cooldown</string>
+    <string name="timed_mode">Timed Mode</string>
+    <string name="block_all_uninstall_attempts_for_a_set_amount_of_days">Block all uninstall attempts for a specified number of days.</string>
+    <string name="password_mode">Password Mode</string>
+    <string name="block_all_uninstall_attempts_until_you_remove_anti_uninstall_with_a_password">Block all uninstall attempts until the anti-uninstall protection is removed with a password</string>
+    <string name="next">Next</string>
+    <string name="password_mode_desc">Make sure not to forget this password. You may not be able to exit anti-uninstall without it.</string>
+    <string name="turn_on">Turn On</string>
+    <string name="timed_mode_desc">How long would you like to keep anti-uninstall enabled?</string>
+    <string name="turn_on_anti_uninstall">Turn on Anti Uninstall</string>
+    <string name="minutes">minutes</string>
+    <string name="app_icon">app_icon</string>
 
-    <string name="start">Start</string>
-    <string name="stop">Stop</string>
-    <string name="missing_permission">Permission Missing</string>
-
-    <string name="settings">Settings</string>
-    <string name="info">Info</string>
-    <string name="close">Close</string>
-    <string name="proceed">Proceed</string>
-    <string name="buy_20_mins">Purchase 20 minutes</string>
-    <string name="desc_sd_overlay">Do you want to buy a 20 minute time-waster for 1 Aura? This purchase will lift off all restrictions from this app or item for the next 20 minutes.</string>
-
-    <string name="no_coins_title">Insufficient Aura</string>
-    <string name="desc_no_coins_overlay">You have 0 Aura to waste time, perform a quest to earn Aura now!</string>
-
-    <string name="desc_ex_overlay">Are you sure you want to continue wasting your time?</string>
-
-
-    <string name="breathe">Take a deep breath!!!</string>
-    <string name="warning_title">Are you sure?</string>
-
-    <string name="notification_accessibility_permission">Accessibilty Services required to run blockers.</string>
-    <string name="notification_overlay_permission">This app requires overlay permission to display warning screen each time when a blocked item is found on screen. Your data always remains on your device and we do not store any of it on our servers</string>
-    <string name="notification_notif_permission">Notification permission required to receive quest updates.</string>
-    <string name="notification_location_permission">Precise Location permission required to track location for this quest. Your data always remains on your device and we do not store any of it on our servers</string>
-    <string name="notification_camera_permission">Camera permission required to track position and count reps for this quest. Your data always remains on your device and we do not store any of it on our servers.</string>
-
-
-    <string name="notification_marathon_title">Marathon Quest in running</string>
-
-
-    <string name="select_quest">Select Quest</string>
-    <string name="welcome">Welcome</string>
-    <string name="app_desc">DigiPaws is an open-source Android productivity utility designed to help users reduce screen addiction by regulating app usage through a gamified experience. The application offers three distinct modes—Easy, Adventure, and Hard—each with unique features and challenges to promote healthy screen time habits.</string>
-
-    <string name="easy_mode">Easy Mode</string>
-    <string name="easy_mode_desc">In Easy Mode, DigiPaws provides gentle reminders to help you manage your screen time. When you attempt to access a blocked app, a warning screen appears. If you choose to proceed, a cooldown period starts. After the cooldown, another warning is displayed to remind you of your usage.</string>
-
-    <string name="adventure_mode">Adventure Mode (Experimental)</string>
-    <string name="adventure_mode_desc">Adventure Mode introduces a gamified experience to control screen time. To access a blocked app, you need Aura. These can be earned by completing quests such as a quick 1 km walk. Each Aura grants 20 minutes of usage time for any blocked app, encouraging physical activity and mindful screen use. With every quests you perform, the  difficulty rises.</string>
-
-    <string name="hard_mode">Hard Mode</string>
-    <string name="hard_mode_desc">Hard Mode offers the most stringent control over app usage. In this mode, when you try to open a blocked app, the back button is automatically pressed without any warning or cooldown, preventing access entirely.</string>
-
-    <string name="block_vb_title">What do you wish to block?</string>
-    <string name="block_shorts_cb">Block Shorts</string>
-    <string name="block_comments_cb">Block Comments (Experimental)</string>
-    <string name="block_porn_cb">Block Explicit Keywords (Experimental)</string>
-    <string name="block_vb_desc">Supported Platforms: Youtube, Instagram, Revanced, Tiktok.</string>
-
-    <string name="anti_uninstall_title">#TechRehab</string>
-    <string name="anti_uninstall_cb">Enable Device Admin</string>
-    <string name="anti_reboot_cb">Prevent Force-Closing device (Experimental)</string>
-    <string name="anti_uninstall_desc">#TechRehab is a 3-week productivity challenge designed to help you break free from screen addiction. During this time, you won’t be able to modify the app or uninstall DigiPaws. To join the challenge, check the box labeled "Enable Device Admin" above.This step is optional. You can skip this step and enable it anytime in the future.</string>
-    <string name="anti_uninstall_desc_day">days strong!!!</string>
-
-
-    <string name="choose_mode_title">Mode</string>
-    <string name="choose_mode">Choose Mode</string>
-    <string name="loading">Loading</string>
-
-
-    <string name="choose_delay_title">How often?</string>
-    <string name="choose_delay_desc">Specify a custom cooldown between each warning. This is unavailable for Adventure mode</string>
-
-    <string name="acc_desc">Please turn off and re-enable if service malfunctions. To apply any configuration changes, turn off and on.</string>
-
-    <string name="choose_blocked_apps_title">App Blocker Configuration</string>
-    <string name="choose_blocked_apps_desc">Select the apps you wish to block or receive usage warnings for.</string>
-
-    <string name="choose_whitelist_apps">White Listed Apps</string>
-    <string name="choose_whitelist_apps_desc">Select the apps you wish to use during focus mode. Focus mode is a quest where one cannot access any non-whitelisted application for a desired time period. This quest cannot be stopped once started. </string>
-
-    <string name="perm_quest_manager_label">Digipaws Quests</string>
-    <string name="perm_quest_manager_desc">act as a quest and modify Aura count?</string>
-
-
-    <string name="pref_category_key_camera" translatable="false">pckc</string>
-    <string name="pref_category_title_camera" translatable="false">Camera</string>
-    <string name="pref_key_rear_camera_preview_size" translatable="false">rcpvs</string>
-    <string name="pref_key_rear_camera_picture_size" translatable="false">rcpts</string>
-    <string name="pref_key_front_camera_preview_size" translatable="false">fcpvs</string>
-    <string name="pref_key_front_camera_picture_size" translatable="false">fcpts</string>
-
-    <string name="marathon_desc">Move out of the above red zone to win this quest. There is no penalty for failing this quest. Do not forget to carry your phone!</string>
-    <string name="squats_desc">Simply perform $valuex squats to earn 1 Aura point. You are free to perform this quest in sets of any.Make sure your entire body is visible on camera above. Not working?</string>
-    <string name="pushups_desc">Simply perform $valuex pushups to earn 1 Aura point. You are free to perform this quest in sets of any. Make sure your entire body is visible on camera above. Not working?</string>
-    <string name="focus_desc">Focus or survival mode blocks all apps except basic needs like calling and SMS for the next 90 minutes. Once focus mode is turned on, it CANNOT be turned off until the timer goes off. Completing this quest brings 1 Aura coin.</string>
-
-    <string name="aura_earned_1">You earned 1 Aura coin</string>
-    <string name="tac">By continuing, you agree to our Terms and Conditions</string>
-
-    <string name="accessibility_perm_desc_main">bloktxt
-        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game. This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.
-    \n\n
+    <string name="accessibility_permission_app_blocker">
+        Enabling this would unlock the following in DigiPaws:\n1. App Blocking\n\n
+        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
+        This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
+        \n\n bloktxt
+    </string>
+    <string name="accessibility_permission_view_blocker">
+        Enabling this would unlock the following in DigiPaws:\n1. App Blocking\n\n
+        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
+        This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
+        Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
+        \n\n bloktxt
+    </string>
+    <string name="accessibility_permission_usage_tracker">
+        Enabling this would unlock the following in DigiPaws:\n1. Count number of reels scrolled\n2. Calculate average attention span watching those reels\n3. A floating overlay that shows time elapsed\n\n
+        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
+        This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
+        Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
+        \n\n bloktxt
+    </string>
+    <string name="accessibility_permission_keyword_blocker">
+        Enabling this would unlock the following in DigiPaws:\n1. Block custom keywords\n2. Block content like adult material\n\n
+        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
+        This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
+        Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
+        \n\n bloktxt
     </string>
 
-    <string name="choose_msg_title">Warning Screen</string>
-
-    <string name="battery_optimisation_title">Disable Battery Optimization</string>
-    <string name="battery_optimisation_desc">To ensure this app works properly, please disable battery optimization for this app. This helps us gently remind you of your screen time, keeping you mindful and focused without being intrusive.</string>
-
-    <string name="congratulate_text_challenge_comp">Congrats on conquering #TechRehab! Your 21 days of commitment are truly inspiring. Keep shining! 🌟</string>
-    <string name="congratulate_text_challenge_incomp">You are doing amazing on your #TechRehab journey! Keep going strong — every step counts! 🫵👑</string>
+    <string name="accessibility_permission_general_features">
+        Enabling this would unlock the following in DigiPaws:\n1. Focus Mode: block distraction until a set period of time.\n2. Anti-Uninstall (Setup required to run)\n\n
+        DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
+        This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
+        Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
+        \n\n bloktxt
+    </string>
+    <string name="admin_permission_desc">Anti-Uninstall | bloktxt</string>
     <string name="title">Title</string>
-    <string name="description">description</string>
-    <string name="shorts_allow_first_shorts_title">let me open reels but block them when I scroll (Experimental)</string>
-    <string name="enter_safe_mode_title">Press "minutes" ten times to force quit focus mode.</string>
-
-
+    <string name="close">Close</string>
+    <string name="proceed">Proceed</string>
 </resources>

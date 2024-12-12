@@ -30,15 +30,15 @@
             android:id="@+id/cooldown_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="8dp" />
+            android:layout_marginEnd="8dp" />
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="minutes"
+            android:text="@string/minutes"
             android:textColor="#000000" />
     </LinearLayout>
 

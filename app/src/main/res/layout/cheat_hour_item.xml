@@ -10,7 +10,6 @@
         style="@style/MaterialAlertDialog.Material3.Title.Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -19,7 +18,7 @@
         android:id="@+id/cheat_timings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Apps:"
+        android:text="@string/apps"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cheat_hour_title" />
 
@@ -27,7 +26,6 @@
         android:id="@+id/selected_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cheat_timings" />
 
@@ -35,7 +33,7 @@
         android:id="@+id/remove_cheat_hour"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remove"
+        android:text="@string/remove"
         app:icon="@drawable/baseline_delete_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="16dp"
-                    android:text="Todays Stats"
+                    android:text="@string/todays_stats"
                     android:textStyle="bold" />
 
                 <TextView
@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="8dp"
-                    android:text="You scrolled 6969 reels" />
+                    android:text="@string/you_scrolled_2_d_reels" />
 
                 <TextView
                     android:id="@+id/stats_attention_span_today"
@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="8dp"
-                    android:text="Your average attention span was 70 mins" />
+                    android:text="@string/your_average_attention_span_was_2_d_mins" />
 
                 <Button
                     android:id="@+id/btn_digi_welbeing"
@@ -60,7 +60,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="View More" />
+                    android:text="@string/view_more" />
 
             </LinearLayout>
 
@@ -87,7 +87,7 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="16dp"
                     android:layout_gravity="center"
-                    android:text="Number of Reels Scrolled" />
+                    android:text="@string/number_of_reels_scrolled" />
 
 
                 <com.github.mikephil.charting.charts.LineChart
@@ -121,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="16dp"
-                    android:text="Average Attention Span"
+                    android:text="@string/average_attention_span"
                     android:textStyle="bold" />
 
                 <com.github.mikephil.charting.charts.LineChart
