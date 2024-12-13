@@ -59,9 +59,9 @@ class ManageKeywordsActivity : AppCompatActivity() {
         val dialogBinding = DialogAddKeywordBinding.inflate(layoutInflater)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("Add New Keyword")
+            .setTitle(getString(R.string.add_a_new_keyword))
             .setView(dialogBinding.root)
-            .setPositiveButton("Add") { dialog, _ ->
+            .setPositiveButton(getString(R.string.add)) { dialog, _ ->
                 val keyword = dialogBinding.keywordInput.text.toString().trim()
                 if (keyword.isNotEmpty()) {
                     savedKeywordsList.add(keyword)
@@ -69,7 +69,7 @@ class ManageKeywordsActivity : AppCompatActivity() {
                 }
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()

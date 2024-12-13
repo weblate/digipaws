@@ -68,15 +68,14 @@ class UsageMetricsActivity : AppCompatActivity() {
             makeAverageReelAttentionSpanChart()
 
             val date = TimeTools.getCurrentDate()
-            binding.statsTodayReels.text = "You scrolled ${totalReels[date]} reels"
+            binding.statsTodayReels.text = getString(R.string.you_scrolled_reels, totalReels[date])
 
             val average = withContext(Dispatchers.Default) {
                 reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
             }
 
-            val rounded = "%.2f".format(average).toFloat()
             binding.statsAttentionSpanToday.text =
-                "You had an attention span of $rounded seconds/video"
+                getString(R.string.you_had_an_attention_span_of_seconds_video, average)
         }
         binding.btnDigiWelbeing.setOnClickListener {
             val packageName = "com.google.android.apps.wellbeing"
@@ -87,7 +86,7 @@ class UsageMetricsActivity : AppCompatActivity() {
             } else {
                 Snackbar.make(
                     binding.root,
-                    "Digital Wellbeing app not found",
+                    getString(R.string.failed_to_launch_system_digital_wellbeing),
                     Snackbar.LENGTH_SHORT
                 ).show()
             }
@@ -99,7 +98,8 @@ class UsageMetricsActivity : AppCompatActivity() {
         chart: LineChart,
         labels: List<String>,
         lineDataSet: LineDataSet,
-        chartUnits: String = ""
+        chartUnits: String = "",
+        showDecimal: Boolean = true
     ) {
 
         lineDataSet.apply {
@@ -151,6 +151,7 @@ class UsageMetricsActivity : AppCompatActivity() {
         val markerView = CustomMarkerView(this, R.layout.custom_marker_view)
         markerView.chartView = chart
         markerView.units = chartUnits
+        markerView.showDecimal = showDecimal
         chart.marker = markerView
         chart.invalidate()
     }
@@ -168,10 +169,13 @@ class UsageMetricsActivity : AppCompatActivity() {
                 index += 1f
             }
 
-            val lineDataSet = LineDataSet(entries, "Reel count")
+            val lineDataSet = LineDataSet(entries, getString(R.string.reel_count))
             // Switch back to the main thread to update the UI
             withContext(Dispatchers.Main) {
-                setupChartUI(binding.reelsStats, labels, lineDataSet, "short videos scrolled")
+                setupChartUI(
+                    binding.reelsStats, labels, lineDataSet,
+                    getString(R.string.short_videos_scrolled), false
+                )
             }
         }
     }
@@ -191,10 +195,13 @@ class UsageMetricsActivity : AppCompatActivity() {
                 index += 1f
             }
 
-            val lineDataSet = LineDataSet(entries, "average attention Span")
+            val lineDataSet = LineDataSet(entries, getString(R.string.average_attention_span))
             // Switch back to the main thread to update the UI
             withContext(Dispatchers.Main) {
-                setupChartUI(binding.avgAttentionStats, labels, lineDataSet, "seconds/video")
+                setupChartUI(
+                    binding.avgAttentionStats, labels, lineDataSet,
+                    getString(R.string.seconds_video)
+                )
             }
         }
     }

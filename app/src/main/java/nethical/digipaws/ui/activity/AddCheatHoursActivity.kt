@@ -1,5 +1,6 @@
 package nethical.digipaws.ui.activity
 
+import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -54,7 +55,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                     selectedApps?.let {
                         selectedUnblockedApps = selectedApps
                         dialogAddToCheatHoursBinding.btnSelectUnblockedApps.text =
-                            "${selectedApps.size} app(s) selected"
+                            getString(R.string.app_s_selected, selectedApps.size)
                     }
                 }
             }
@@ -76,7 +77,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
             if (startTimeInMins == null) {
                 Toast.makeText(
                     this,
-                    "Please Specify Start Time first",
+                    getString(R.string.please_specify_start_time_first),
                     Toast.LENGTH_SHORT
                 ).show()
                 return@setOnClickListener
@@ -96,13 +97,13 @@ class AddCheatHoursActivity : AppCompatActivity() {
                     if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
                         Toast.makeText(
                             this,
-                            "End time must be after start time!",
+                            getString(R.string.end_time_must_be_after_start_time_has_passed),
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
                         endTimeInMins = selectedEndTime
                         dialogAddToCheatHoursBinding.btnSelectEndTime.text =
-                            "End Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                            getString(R.string.end_time, selectedHour, selectedMinute)
                     }
                 },
                 hour,
@@ -122,7 +123,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                     startTimeInMins =
                         TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
                     dialogAddToCheatHoursBinding.btnSelectStartTime.text =
-                        "Start Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                        getString(R.string.start_time_02d_02d, selectedHour, selectedMinute)
                 },
                 hour,
                 minute,
@@ -143,18 +144,31 @@ class AddCheatHoursActivity : AppCompatActivity() {
             selectUnblockedAppsLauncher.launch(intent)
         }
         MaterialAlertDialogBuilder(this)
-            .setTitle("Specify Cheat Hours")
+            .setTitle(getString(R.string.specify_cheat_hours))
             .setView(dialogAddToCheatHoursBinding.root)
-            .setPositiveButton("Add") { dialog, _ ->
+            .setPositiveButton(getString(R.string.add)) { dialog, _ ->
                 if (dialogAddToCheatHoursBinding.cheatHourTitle.text?.isEmpty() == true) {
-                    Toast.makeText(this, "Please type a title", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.please_type_a_title),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 if (startTimeInMins == null) {
-                    Toast.makeText(this, "Please Select a start time", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.please_select_a_start_time), Toast.LENGTH_SHORT
+                    ).show()
                 } else if (endTimeInMins == null) {
-                    Toast.makeText(this, "Please Select an end time", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        getString(R.string.please_select_an_end_time), Toast.LENGTH_SHORT
+                    ).show()
                 } else if (selectedUnblockedApps?.isEmpty() == true) {
-                    Toast.makeText(this, "Please Select a few apps to block", Toast.LENGTH_SHORT)
+                    Toast.makeText(
+                        this,
+                        getString(R.string.please_select_a_few_apps_to_block), Toast.LENGTH_SHORT
+                    )
                         .show()
                 } else {
                     cheatHoursList.add(
@@ -172,7 +186,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 }
 
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
@@ -186,6 +200,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
         inner class CheatHourViewHolder(private val binding: CheatHourItemBinding) :
             RecyclerView.ViewHolder(binding.root) {
 
+            @SuppressLint("SetTextI18n")
             fun bind(item: CheatHourItem) {
                 binding.cheatHourTitle.text = item.title
                 val convertedStartTime = TimeTools.convertMinutesTo24Hour(item.startTime)
@@ -198,7 +213,13 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 }
 
                 binding.cheatTimings.text =
-                    "${convertedStartTime.first}:${convertedStartTime.second} to ${convertedEndTIme.first}:${convertedEndTIme.second}"
+                    getString(
+                        R.string.cheat_timings,
+                        convertedStartTime.first,
+                        convertedStartTime.second,
+                        convertedEndTIme.first,
+                        convertedEndTIme.second
+                    )
                 item.packages.forEach { packageName ->
                     binding.selectedApps.text =
                         binding.selectedApps.text.toString() + " " + packageName

@@ -292,10 +292,10 @@ class MainActivity : AppCompatActivity() {
 
                 // Update Anti-Uninstall warning
                 if (!isDeviceAdminOn) {
-                    binding.antiUninstallWarning.text = "Please enable device admin"
-                } else if (!isGeneralSettingsOn) {
                     binding.antiUninstallWarning.text =
-                        "Please enable General features accessibility service"
+                        getString(R.string.please_enable_device_admin)
+                } else if (!isGeneralSettingsOn) {
+                    binding.antiUninstallWarning.text = getString(R.string.warning_general_settings)
                 }
 
                 // Handle anti-uninstall UI changes
@@ -303,7 +303,7 @@ class MainActivity : AppCompatActivity() {
                     updateChip(true, binding.antiUninstallCardChip, binding.antiUninstallWarning)
                     binding.antiUninstallCardChip.isEnabled = !isAntiUninstallOn
                     binding.antiUninstallCardChip.text =
-                        if (isAntiUninstallOn) "Setup Complete" else "Enter Setup"
+                        if (isAntiUninstallOn) getString(R.string.setup_complete) else getString(R.string.enter_setup)
                 }
             }
         }
@@ -312,11 +312,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateChip(isEnabled: Boolean,statusChip: Chip,warningText:TextView) {
         if (isEnabled) {
-            statusChip.text = "Enabled"
+            statusChip.text = getString(R.string.enabled)
             statusChip.chipIcon = null
             warningText.visibility = View.GONE
         } else {
-            statusChip.text = "Disabled"
+            statusChip.text = getString(R.string.disabled)
             statusChip.setChipIconResource(R.drawable.baseline_warning_24)
             warningText.visibility = View.VISIBLE
         }
@@ -464,7 +464,7 @@ class MainActivity : AppCompatActivity() {
                 sendRefreshRequest(UsageTrackingService.INTENT_ACTION_REFRESH_USAGE_TRACKER)
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
@@ -472,7 +472,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    @SuppressLint("DefaultLocale")
     private fun makeViewBlockerCheatHoursDialog() {
 
         val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
@@ -493,10 +492,10 @@ class MainActivity : AppCompatActivity() {
         val convertedEndTIme = TimeTools.convertMinutesTo24Hour(endTimeInMinutes)
 
         dialogAddToCheatHoursBinding.btnSelectEndTime.text =
-            "Start Time: ${convertedStartTime.first}:${convertedStartTime.second}"
+            getString(R.string.start_time, convertedStartTime.first, convertedStartTime.second)
 
         dialogAddToCheatHoursBinding.btnSelectStartTime.text =
-            "End Time: ${convertedEndTIme.first}:${convertedEndTIme.second}"
+            getString(R.string.end_time, convertedEndTIme.first, convertedEndTIme.second)
 
 
         dialogAddToCheatHoursBinding.cbDisableProceed.isChecked = isProceedBtnDisabled
@@ -518,13 +517,13 @@ class MainActivity : AppCompatActivity() {
                     if (selectedEndTime <= startTimeInMinutes) {
                         Toast.makeText(
                             this,
-                            "End time must be after start time!",
+                            getString(R.string.end_time_must_be_after_start_time_has_passed),
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
                         endTimeInMinutes = selectedEndTime
                         dialogAddToCheatHoursBinding.btnSelectEndTime.text =
-                            "End Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                            getString(R.string.end_time, selectedHour, selectedMinute)
                     }
                 },
                 hour,
@@ -544,7 +543,7 @@ class MainActivity : AppCompatActivity() {
                     startTimeInMinutes =
                         TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
                     dialogAddToCheatHoursBinding.btnSelectStartTime.text =
-                        "Start Time: " + String.format("%02d:%02d", selectedHour, selectedMinute)
+                        getString(R.string.start_time_02d_02d, selectedHour, selectedMinute)
                 },
                 hour,
                 minute,
@@ -553,9 +552,9 @@ class MainActivity : AppCompatActivity() {
             timePickerDialog.show()
         }
         MaterialAlertDialogBuilder(this)
-            .setTitle("Specify Cheat Hours")
+            .setTitle(getString(R.string.specify_cheat_hours))
             .setView(dialogAddToCheatHoursBinding.root)
-            .setPositiveButton("Save") { dialog, _ ->
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
                 savedPreferencesLoader.saveCheatHoursForViewBlocker(
                     startTimeInMinutes,
                     endTimeInMinutes,
@@ -565,7 +564,7 @@ class MainActivity : AppCompatActivity() {
                 dialog.dismiss()
 
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
@@ -577,9 +576,9 @@ class MainActivity : AppCompatActivity() {
         dialogFocusModeBinding.focusModeMinsPicker.minValue = 1
         dialogFocusModeBinding.focusModeMinsPicker.maxValue = 10000
         MaterialAlertDialogBuilder(this)
-            .setTitle("Start Focus Mode")
+            .setTitle(getString(R.string.start_focus_mode))
             .setView(dialogFocusModeBinding.root)
-            .setPositiveButton("Start") { _, _ ->
+            .setPositiveButton(getString(R.string.start)) { _, _ ->
                 val totalMillis = dialogFocusModeBinding.focusModeMinsPicker.value * 60000
                 savedPreferencesLoader.saveFocusModeData(
                     DigipawsMainService.FocusModeData(
@@ -592,7 +591,7 @@ class MainActivity : AppCompatActivity() {
                 // TODO: add permission check
                 timer.startTimer(totalMillis.toLong())
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
@@ -601,9 +600,9 @@ class MainActivity : AppCompatActivity() {
         val dialogManageKeywordPacks = DialogKeywordPackageBinding.inflate(layoutInflater)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("Manage Keyword Blockers")
+            .setTitle(getString(R.string.manage_keyword_blockers))
             .setView(dialogManageKeywordPacks.root)
-            .setPositiveButton("Ok") { _, _ ->
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
                 val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
                 sp.edit()
                     .putBoolean("adult_blocker", dialogManageKeywordPacks.cbAdultKeywords.isChecked)
@@ -634,7 +633,7 @@ class MainActivity : AppCompatActivity() {
                 if (selectedDate.before(today)) {
                     Snackbar.make(
                         binding.root,
-                        "Anti Uninstall removed",
+                        getString(R.string.anti_uninstall_removed),
                         Snackbar.LENGTH_SHORT
                     )
                         .show()
@@ -646,8 +645,8 @@ class MainActivity : AppCompatActivity() {
                         (selectedDate.timeInMillis - today.timeInMillis) / (1000 * 60 * 60 * 24)
 
                     MaterialAlertDialogBuilder(this)
-                        .setTitle("Failed")
-                        .setMessage("You still have $daysDiff days to go before unlocking anti-uninstall")
+                        .setTitle(getString(R.string.failed))
+                        .setMessage(getString(R.string.remaining_time_anti_uninstall, daysDiff))
                         .setPositiveButton("Ok", null)
                         .show()
                 }
@@ -658,9 +657,9 @@ class MainActivity : AppCompatActivity() {
                 val dialogRemoveAntiUninstall =
                     DialogRemoveAntiUninstallBinding.inflate(layoutInflater)
                 MaterialAlertDialogBuilder(this)
-                    .setTitle("Remove Anti-Uninstall")
+                    .setTitle(getString(R.string.remove_anti_uninstall))
                     .setView(dialogRemoveAntiUninstall.root)
-                    .setPositiveButton("Remove") { _, _ ->
+                    .setPositiveButton(R.string.remove) { _, _ ->
                         if (antiUninstallInfo.getString(
                                 "password",
                                 "pass"
@@ -681,19 +680,19 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             Snackbar.make(
                                 binding.root,
-                                "Incorrect password. Please try again. " + antiUninstallInfo.getString(
+                                getString(R.string.incorrect_password_please_try_again) + antiUninstallInfo.getString(
                                     "password",
                                     "pass"
                                 ),
                                 Snackbar.LENGTH_SHORT
                             )
-                                .setAction("Retry") {
+                                .setAction(getString(R.string.retry)) {
                                     makeRemoveAntiUninstallDialog()
                                 }
                                 .show()
                         }
                     }
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(getString(R.string.cancel), null)
                     .show()
             }
         }
