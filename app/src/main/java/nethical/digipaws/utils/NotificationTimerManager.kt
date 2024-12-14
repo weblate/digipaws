@@ -4,7 +4,6 @@ package nethical.digipaws.utils
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
 import android.os.CountDownTimer
 import androidx.core.app.NotificationCompat
 
@@ -25,18 +24,16 @@ class NotificationTimerManager(private val context: Context) {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Timer Notifications",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = "Timer progress notifications"
-                setSound(null, null)
-                enableVibration(false)
-            }
-            notificationManager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            "Timer Notifications",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Timer progress notifications"
+            setSound(null, null)
+            enableVibration(false)
         }
+        notificationManager.createNotificationChannel(channel)
     }
 
     fun startTimer(

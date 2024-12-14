@@ -43,8 +43,7 @@ class KeywordBlockerService : BaseBlockingService() {
         super.onServiceConnected()
         setupBlockers()
         val info = AccessibilityServiceInfo().apply {
-            eventTypes =
-                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+            eventTypes = AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT

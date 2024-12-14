@@ -25,7 +25,7 @@ open class BaseBlockingService : AccessibilityService() {
     }
 
     fun isDelayOver(): Boolean {
-        return isDelayOver(500)
+        return isDelayOver(1000)
     }
 
     fun isDelayOver(delay: Int): Boolean {

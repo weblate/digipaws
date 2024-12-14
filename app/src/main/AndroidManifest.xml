@@ -19,6 +19,12 @@
         android:theme="@style/Theme.DigiPaws"
         tools:targetApi="31">
         <activity
+            android:name=".ui.activity.WarningActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.Digipaws.TransparentDialog" />
+        <activity
             android:name=".ui.activity.SetupAntiUninstallActivity"
             android:exported="false" />
         <activity
@@ -113,7 +119,6 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/keyword_blocker_service_config" />
         </service>
-
 
         <receiver
             android:name=".receivers.AdminReceiver"

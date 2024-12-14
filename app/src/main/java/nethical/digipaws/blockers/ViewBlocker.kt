@@ -14,13 +14,9 @@ class ViewBlocker : BaseBlocker() {
         "app.revanced.android.youtube:id/reel_recycler"
     )
 
-    var isProceedBtnDisabled = false
 
     var isIGInboxReelAllowed = false
     var isFirstReelInFeedAllowed = false
-
-    var typeEventScrollCounter: Int =
-        0 //required for ignoring a few scroll events to allow viewing the first reel. resets to 0 after 3 scroll events
 
     var cheatMinuteStartTime: Int? = null
     var cheatMinutesEndTIme: Int? = null

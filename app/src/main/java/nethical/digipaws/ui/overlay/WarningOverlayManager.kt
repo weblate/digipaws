@@ -118,4 +118,5 @@ class WarningOverlayManager(private val context: Context) {
     fun getSelectedCooldownMins(): Int? {
         return binding?.cooldownPicker?.value
     }
+
 }
