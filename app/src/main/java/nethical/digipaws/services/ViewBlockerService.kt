@@ -20,7 +20,7 @@ class ViewBlockerService : BaseBlockingService() {
 
     companion object {
         const val INTENT_ACTION_REFRESH_VIEW_BLOCKER = "nethical.digipaws.refresh.viewblocker"
-        const val INTENT_ACTION_VIEW_BLOCKER_COOLDOWN =
+        const val INTENT_ACTION_REFRESH_VIEW_BLOCKER_COOLDOWN =
             "nethical.digipaws.refresh.viewblocker.cooldown"
     }
 
@@ -54,7 +54,7 @@ class ViewBlockerService : BaseBlockingService() {
         val dialogIntent = Intent(this, WarningActivity::class.java)
         dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         dialogIntent.putExtra("warning_message", warningMessage)
-        dialogIntent.putExtra("mode", Constants.VIEW_BLOCKER_WARNING_MODE)
+        dialogIntent.putExtra("mode", Constants.WARNING_SCREEN_MODE_VIEW_BLOCKER)
         dialogIntent.putExtra("is_dynamic_timing", isDynamicCooldownAllowed)
         dialogIntent.putExtra("result_id", result.viewId)
         dialogIntent.putExtra("default_cooldown", cooldownIntervalInMillis / 60000)
@@ -70,13 +70,8 @@ class ViewBlockerService : BaseBlockingService() {
             when (intent.action) {
                 INTENT_ACTION_REFRESH_VIEW_BLOCKER -> setupBlocker()
 
-                INTENT_ACTION_VIEW_BLOCKER_COOLDOWN -> {
-                    lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-                    val interval = if (warningOverlayManager.isDynamicCooldownALlowed) {
-                        intent.getIntExtra("selected_time", cooldownIntervalInMillis)
-                    } else {
-                        cooldownIntervalInMillis
-                    }
+                INTENT_ACTION_REFRESH_VIEW_BLOCKER_COOLDOWN -> {
+                    val interval = intent.getIntExtra("selected_time", cooldownIntervalInMillis)
                     viewBlocker.applyCooldown(
                         intent.getStringExtra("result_id") ?: "xxxxxxxxxxxxxx",
                         SystemClock.uptimeMillis() + interval
@@ -126,7 +121,7 @@ class ViewBlockerService : BaseBlockingService() {
 
         val filter = IntentFilter().apply {
             addAction(INTENT_ACTION_REFRESH_VIEW_BLOCKER)
-            addAction(INTENT_ACTION_VIEW_BLOCKER_COOLDOWN)
+            addAction(INTENT_ACTION_REFRESH_VIEW_BLOCKER_COOLDOWN)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)

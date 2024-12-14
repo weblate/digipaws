@@ -9,6 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.Constants
 import nethical.digipaws.R
 import nethical.digipaws.databinding.DialogWarningOverlayBinding
+import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.ViewBlockerService
 
 
@@ -20,6 +21,8 @@ class WarningActivity : AppCompatActivity() {
 
         val mode = intent.getIntExtra("mode", 0)
         val binding = DialogWarningOverlayBinding.inflate(layoutInflater)
+        val isDialogCancelable = mode != Constants.WARNING_SCREEN_MODE_APP_BLOCKER
+
         if (intent.getBooleanExtra("is_proceed_disabled", false)) {
             binding.btnProceed.visibility = View.GONE
             binding.proceedSeconds.visibility = View.GONE
@@ -47,20 +50,38 @@ class WarningActivity : AppCompatActivity() {
         // Show a dialog immediately when the activity starts
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(binding.root)
+            .setCancelable(isDialogCancelable)
             .show()
         binding.warningMsg.text = intent.getStringExtra("warning_message")
         binding.minsPicker.setValue(intent.getIntExtra("default_cooldown", 1))
         binding.btnCancel.setOnClickListener {
             dialog.dismiss()
+            if (mode == Constants.WARNING_SCREEN_MODE_APP_BLOCKER) {
+                val intent = Intent(Intent.ACTION_MAIN)
+                intent.addCategory(Intent.CATEGORY_HOME)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
             finishActivity(0)
         }
         binding.btnProceed.setOnClickListener {
-            if (mode == Constants.VIEW_BLOCKER_WARNING_MODE) {
+            if (mode == Constants.WARNING_SCREEN_MODE_VIEW_BLOCKER) {
                 intent.getStringExtra("result_id")
                     ?.let { it1 ->
                         sendRefreshRequest(
                             it1,
-                            ViewBlockerService.INTENT_ACTION_VIEW_BLOCKER_COOLDOWN,
+                            ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER_COOLDOWN,
+                            binding.minsPicker.getValue()
+                        )
+                    }
+            }
+
+            if (mode == Constants.WARNING_SCREEN_MODE_APP_BLOCKER) {
+                intent.getStringExtra("result_id")
+                    ?.let { it1 ->
+                        sendRefreshRequest(
+                            it1,
+                            AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER_COOLDOWN,
                             binding.minsPicker.getValue()
                         )
                     }
