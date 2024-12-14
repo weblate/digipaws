@@ -144,7 +144,6 @@ class AddCheatHoursActivity : AppCompatActivity() {
             selectUnblockedAppsLauncher.launch(intent)
         }
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.specify_cheat_hours))
             .setView(dialogAddToCheatHoursBinding.root)
             .setPositiveButton(getString(R.string.add)) { dialog, _ ->
                 if (dialogAddToCheatHoursBinding.cheatHourTitle.text?.isEmpty() == true) {

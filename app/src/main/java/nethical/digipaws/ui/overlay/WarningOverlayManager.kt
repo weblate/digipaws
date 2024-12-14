@@ -76,7 +76,7 @@ class WarningOverlayManager(private val context: Context) {
         windowManager?.addView(overlayView, layoutParams)
     }
 
-    fun removeOverlay() {
+    private fun removeOverlay() {
         if (overlayView != null) {
             windowManager?.removeView(overlayView)
             binding = null
@@ -98,7 +98,7 @@ class WarningOverlayManager(private val context: Context) {
         proceedTimer = object : CountDownTimer(15000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 binding?.overlayProceedBtn?.let { button ->
-                    button.text = "Proceed in ${millisUntilFinished / 1000}"
+                    button.text = context.getString(R.string.proceed_in, millisUntilFinished / 1000)
                 }
             }
 

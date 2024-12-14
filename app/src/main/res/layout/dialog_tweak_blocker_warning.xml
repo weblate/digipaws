@@ -1,43 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/specify_cooldown_interval_in_minutes"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center"
+        android:padding="8dp"
+        android:text="@string/configure_warning_screen"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
-    <NumberPicker
+    <nethical.digipaws.views.HorizontalNumberPicker
         android:id="@+id/select_mins"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="@string/warning_message"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/select_mins">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/warning_msg_edit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_gravity="center" />
 
     <CheckBox
         android:id="@+id/cb_reel_inbox"
@@ -47,8 +30,6 @@
         android:enabled="true"
         android:text="@string/allow_viewing_instagram_reels_sent_in_instagram_inbox"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2"
         tools:visibility="visible" />
 
     <CheckBox
@@ -58,18 +39,25 @@
         android:enabled="false"
         android:text="@string/allow_opening_the_first_reel_in_feed"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_reel_inbox"
         tools:visibility="visible" />
 
     <CheckBox
         android:id="@+id/cb_dynamic_warning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/in_warning_changeable_cooldown"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_first_reel"
-        tools:visibility="visible" />
+        android:text="@string/in_warning_changeable_cooldown" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/warning_message">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/warning_msg_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

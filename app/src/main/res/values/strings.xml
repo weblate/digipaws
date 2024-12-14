@@ -40,7 +40,7 @@
     <string name="select_start_time">Select Start Time</string>
     <string name="select_end_time">Select End Time</string>
     <string name="select_apps_to_unblock">Select Apps to unblock</string>
-    <string name="disable_proceed_button">Disable Proceed Button</string>
+    <string name="disable_proceed_button">Disable Proceed Button </string>
     <string name="display_time_elapsed">Display Time Elapsed</string>
     <string name="display_number_of_reels_scrolled">Display number of reels scrolled</string>
     <string name="specify_duration_of_focus_mode_in_mins">Specify duration of focus mode in mins</string>
@@ -68,28 +68,28 @@
         DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
         This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
-        \n\n bloktxt
+        \n\n
     </string>
     <string name="accessibility_permission_view_blocker">
         Enabling this would unlock the following in DigiPaws:\n1. App Blocking\n\n
         DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
         This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
-        \n\n bloktxt
+        \n\n
     </string>
     <string name="accessibility_permission_usage_tracker">
         Enabling this would unlock the following in DigiPaws:\n1. Count number of reels scrolled\n2. Calculate average attention span watching those reels\n3. A floating overlay that shows time elapsed\n\n
         DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
         This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
-        \n\n bloktxt
+        \n\n
     </string>
     <string name="accessibility_permission_keyword_blocker">
         Enabling this would unlock the following in DigiPaws:\n1. Block custom keywords\n2. Block content like adult material\n\n
         DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
         This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
-        \n\n bloktxt
+        \n\n %bloktxt%
     </string>
 
     <string name="accessibility_permission_general_features">
@@ -97,9 +97,9 @@
         DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
         This lets DigiPaws block those features for you based on your preferences, helendping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.
-        \n\n bloktxt
+        \n\n
     </string>
-    <string name="admin_permission_desc">Anti-Uninstall | bloktxt</string>
+    <string name="admin_permission_desc">Anti-Uninstall | %bloktxt%</string>
     <string name="title">Title</string>
     <string name="close">Close</string>
     <string name="proceed">Proceed</string>
@@ -135,4 +135,6 @@
     <string name="please_select_an_end_time">Please Select an end time</string>
     <string name="please_select_a_few_apps_to_block">Please Select a few apps to block</string>
     <string name="cheat_timings">%1$d:%2$d to %3$d:%4$d</string>
+    <string name="configure_warning_screen">Warning Screen</string>
+    <string name="proceed_in">Proceed in %1$d</string>
 </resources>

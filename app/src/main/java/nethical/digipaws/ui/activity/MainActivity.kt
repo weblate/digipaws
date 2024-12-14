@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private var isDeviceAdminOn = false
     private var isAntiUninstallOn = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -247,9 +248,11 @@ class MainActivity : AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 // App Blocker
                 updateChip(isAppBlockerOn, binding.appBlockerStatusChip, binding.appBlockerWarning)
-                binding.selectBlockedApps.isEnabled = isAppBlockerOn
-                binding.btnConfigAppblockerWarning.isEnabled = isAppBlockerOn
-                binding.appBlockerSelectCheatHours.isEnabled = isAppBlockerOn
+                binding.apply {
+                    selectBlockedApps.isEnabled = isAppBlockerOn
+                    btnConfigAppblockerWarning.isEnabled = isAppBlockerOn
+                    appBlockerSelectCheatHours.isEnabled = isAppBlockerOn
+                }
 
                 // View Blocker
                 updateChip(
@@ -346,13 +349,12 @@ class MainActivity : AppCompatActivity() {
         tweakAppBlockerWarningBinding.selectMins.maxValue = 240
 
         val previousData = savedPreferencesLoader.loadAppBlockerWarningInfo()
-        tweakAppBlockerWarningBinding.selectMins.value = previousData.timeInterval / 60000
+        tweakAppBlockerWarningBinding.selectMins.setValue(previousData.timeInterval / 60000)
         tweakAppBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
         MaterialAlertDialogBuilder(this)
-            .setTitle("Configure Warning Screen")
             .setView(tweakAppBlockerWarningBinding.root)
-            .setPositiveButton("Save") { dialog, _ ->
-                val selectedMinInMs = tweakAppBlockerWarningBinding.selectMins.value * 60000
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
+                val selectedMinInMs = tweakAppBlockerWarningBinding.selectMins.getValue() * 60000
                 savedPreferencesLoader.saveAppBlockerWarningInfo(
                     WarningData(
                         tweakAppBlockerWarningBinding.warningMsgEdit.text.toString(),
@@ -363,7 +365,7 @@ class MainActivity : AppCompatActivity() {
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
@@ -381,7 +383,7 @@ class MainActivity : AppCompatActivity() {
 
 
         val previousData = savedPreferencesLoader.loadViewBlockerWarningInfo()
-        tweakViewBlockerWarningBinding.selectMins.value = previousData.timeInterval / 60000
+        tweakViewBlockerWarningBinding.selectMins.setValue(previousData.timeInterval / 60000)
         tweakViewBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
         tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked =
             previousData.isDynamicIntervalSettingAllowed
@@ -393,10 +395,9 @@ class MainActivity : AppCompatActivity() {
             addReelData.getBoolean("is_reel_first", false)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("Configure Warning Screen")
             .setView(tweakViewBlockerWarningBinding.root)
-            .setPositiveButton("Save") { dialog, _ ->
-                val selectedMinInMs = tweakViewBlockerWarningBinding.selectMins.value * 60000
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
+                val selectedMinInMs = tweakViewBlockerWarningBinding.selectMins.getValue() * 60000
                 savedPreferencesLoader.saveViewBlockerWarningInfo(
                     WarningData(
                         tweakViewBlockerWarningBinding.warningMsgEdit.text.toString(),
@@ -418,7 +419,7 @@ class MainActivity : AppCompatActivity() {
                 sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.dismiss()
             }
             .show()
@@ -446,9 +447,8 @@ class MainActivity : AppCompatActivity() {
         dialogConfigurationTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed", true)
 
         MaterialAlertDialogBuilder(this)
-            .setTitle("Configure Warning Screen")
             .setView(dialogConfigurationTracker.root)
-            .setPositiveButton("Save") { dialog, _ ->
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
 
                 val editor = sp.edit()
                 editor.putBoolean(
@@ -552,7 +552,6 @@ class MainActivity : AppCompatActivity() {
             timePickerDialog.show()
         }
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.specify_cheat_hours))
             .setView(dialogAddToCheatHoursBinding.root)
             .setPositiveButton(getString(R.string.save)) { dialog, _ ->
                 savedPreferencesLoader.saveCheatHoursForViewBlocker(
@@ -573,13 +572,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun makeStartFocusModeDialog() {
         val dialogFocusModeBinding = DialogFocusModeBinding.inflate(layoutInflater)
-        dialogFocusModeBinding.focusModeMinsPicker.minValue = 1
-        dialogFocusModeBinding.focusModeMinsPicker.maxValue = 10000
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.start_focus_mode))
             .setView(dialogFocusModeBinding.root)
             .setPositiveButton(getString(R.string.start)) { _, _ ->
-                val totalMillis = dialogFocusModeBinding.focusModeMinsPicker.value * 60000
+                val totalMillis = dialogFocusModeBinding.focusModeMinsPicker.getValue() * 60000
                 savedPreferencesLoader.saveFocusModeData(
                     DigipawsMainService.FocusModeData(
                         true,
@@ -588,7 +584,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_FOCUS_MODE)
                 val timer = NotificationTimerManager(this)
-                // TODO: add permission check
+                // TODO: add notification permission check
                 timer.startTimer(totalMillis.toLong())
             }
             .setNegativeButton(getString(R.string.cancel), null)
