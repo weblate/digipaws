@@ -75,6 +75,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
         dialogAddToCheatHoursBinding.picker.startTime = TimeRangePicker.Time(6, 30)
         dialogAddToCheatHoursBinding.picker.endTime = TimeRangePicker.Time(22, 0)
 
+        dialogAddToCheatHoursBinding.picker.hourFormat = TimeRangePicker.HourFormat.FORMAT_24
         var endTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.endTimeMinutes
         var startTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.startTimeMinutes
 

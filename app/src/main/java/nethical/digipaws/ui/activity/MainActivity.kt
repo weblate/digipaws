@@ -479,11 +479,12 @@ class MainActivity : AppCompatActivity() {
         dialogAddToCheatHoursBinding.btnSelectUnblockedApps.visibility = View.GONE
         dialogAddToCheatHoursBinding.cheatHourTitle.visibility = View.GONE
 
+        dialogAddToCheatHoursBinding.picker.hourFormat = TimeRangePicker.HourFormat.FORMAT_24
 
         val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val savedEndTimeInMinutes =
-            viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
-        val savedStartTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
+            viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
+        val savedStartTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
         val isProceedBtnDisabled =
             viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
         dialogAddToCheatHoursBinding.cbDisableProceed.isChecked = isProceedBtnDisabled
@@ -492,12 +493,10 @@ class MainActivity : AppCompatActivity() {
         var startTimeInMins: Int? = null
 
         if (savedStartTimeInMinutes != -1 || savedEndTimeInMinutes != -1) {
-            dialogAddToCheatHoursBinding.picker.startTime =
-                TimeRangePicker.Time(savedStartTimeInMinutes)
-            dialogAddToCheatHoursBinding.picker.endTime =
-                TimeRangePicker.Time(savedEndTimeInMinutes)
-            startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
-            endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
+            dialogAddToCheatHoursBinding.picker.startTimeMinutes = savedStartTimeInMinutes
+            dialogAddToCheatHoursBinding.picker.endTimeMinutes = savedEndTimeInMinutes
+            startTimeInMins = savedStartTimeInMinutes
+            endTimeInMins = savedStartTimeInMinutes
         } else {
             dialogAddToCheatHoursBinding.picker.startTimeMinutes = 0
             dialogAddToCheatHoursBinding.picker.endTimeMinutes = 0
@@ -513,11 +512,13 @@ class MainActivity : AppCompatActivity() {
                 dialogAddToCheatHoursBinding.fromTime.text =
                     dialogAddToCheatHoursBinding.picker.startTime.toString()
                 startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
+                endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
             }
 
             override fun onEndTimeChange(endTime: TimeRangePicker.Time) {
                 dialogAddToCheatHoursBinding.endTime.text =
                     dialogAddToCheatHoursBinding.picker.endTime.toString()
+                startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
                 endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
             }
 

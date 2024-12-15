@@ -1,5 +1,6 @@
 package nethical.digipaws.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -105,6 +106,7 @@ class SavedPreferencesLoader(private val context: Context) {
         editor.apply()
     }
 
+    @SuppressLint("ApplySharedPref")
     fun saveCheatHoursForViewBlocker(startTime: Int, endTime: Int, isProceedDisabled: Boolean) {
         val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val edit = sharedPreferences.edit()
