@@ -8,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     private var isDeviceAdminOn = false
     private var isAntiUninstallOn = false
-
+    private var isDisplayOverOtherAppsOn = false
     val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -252,7 +253,11 @@ class MainActivity : AppCompatActivity() {
             makeAccessibilityInfoDialog("View Blocker", ViewBlockerService::class.java)
         }
         binding.usageTrackerStatusChip.setOnClickListener {
-            makeAccessibilityInfoDialog("Usage Tracker", UsageTrackingService::class.java)
+            if (!isDisplayOverOtherAppsOn) {
+                makeDrawOverOtherAppsDialog()
+            } else {
+                makeAccessibilityInfoDialog("Usage Tracker", UsageTrackingService::class.java)
+            }
         }
         binding.keywordBlockerStatusChip.setOnClickListener {
             makeAccessibilityInfoDialog("Keyword Blocker", KeywordBlockerService::class.java)
@@ -260,6 +265,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
+
+        isDisplayOverOtherAppsOn = Settings.canDrawOverlays(this)
         lifecycleScope.launch {
             val isAppBlockerOn =
                 withContext(Dispatchers.IO) { isAccessibilityServiceEnabled(AppBlockerService::class.java) }
@@ -281,6 +288,7 @@ class MainActivity : AppCompatActivity() {
 
             val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
             isAntiUninstallOn = antiUninstallInfo.getBoolean("is_anti_uninstall_on", false)
+
 
             withContext(Dispatchers.Main) {
                 // App Blocker
@@ -310,13 +318,23 @@ class MainActivity : AppCompatActivity() {
                 binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
 
                 // Usage Tracker
-                updateChip(
-                    isUsageTrackerOn,
-                    binding.usageTrackerStatusChip,
-                    binding.usageTrackerWarning
-                )
-                binding.selectUsageStats.isEnabled = isUsageTrackerOn
-                binding.btnConfigTracker.isEnabled = isUsageTrackerOn
+                if (!isDisplayOverOtherAppsOn) {
+                    binding.usageTrackerWarning.text =
+                        getString(R.string.please_provide_display_over_other_apps_permission_to_access_this_feature)
+                } else if (!isGeneralSettingsOn) {
+                    binding.usageTrackerWarning.text =
+                        getString(R.string.warning_usage_tracker_settings)
+                }
+                if (isUsageTrackerOn && isDisplayOverOtherAppsOn) {
+                    updateChip(
+                        true,
+                        binding.usageTrackerStatusChip,
+                        binding.usageTrackerWarning
+                    )
+                    binding.selectUsageStats.isEnabled = true
+                    binding.btnConfigTracker.isEnabled = true
+                }
+
 
                 // General Settings
                 updateChip(
@@ -462,7 +480,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    fun makeDeviceAdminPermissionDialog() {
+    private fun makeDeviceAdminPermissionDialog() {
         val dialogDeviceAdmin =
             DialogPermissionInfoBinding.inflate(layoutInflater)
         dialogDeviceAdmin.title.text = getString(R.string.enable_2, "Device Admin")
@@ -492,7 +510,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun makeAccessibilityInfoDialog(title: String, cls: Class<*>) {
+    private fun makeDrawOverOtherAppsDialog() {
+        val dialogDisplayOverOtherApps =
+            DialogPermissionInfoBinding.inflate(layoutInflater)
+        dialogDisplayOverOtherApps.title.text =
+            getString(R.string.enable_2, "Display Over Other Apps")
+        dialogDisplayOverOtherApps.desc.text = getString(R.string.device_perm_draw_over_other_apps)
+        dialogDisplayOverOtherApps.point1.text = getString(R.string.show_time_elapsed_on_phone)
+        dialogDisplayOverOtherApps.point2.text =
+            getString(R.string.calculate_how_many_reels_tiktok_short_videos_you_scroll_per_day)
+        dialogDisplayOverOtherApps.point4.text = getString(R.string.plan_a_robbery)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogDisplayOverOtherApps.root)
+            .setCancelable(false)
+            .show()
+
+        dialogDisplayOverOtherApps.btnReject.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogDisplayOverOtherApps.btnAccept.setOnClickListener {
+            dialog.dismiss()
+            Toast.makeText(this, "Find Digipaws and press enable", Toast.LENGTH_LONG).show()
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            startActivity(intent)
+
+        }
+    }
+
+    private fun makeAccessibilityInfoDialog(title: String, cls: Class<*>) {
         val dialogAccessibilityServiceInfoBinding =
             DialogPermissionInfoBinding.inflate(layoutInflater)
         dialogAccessibilityServiceInfoBinding.title.text = getString(R.string.enable_2, title)

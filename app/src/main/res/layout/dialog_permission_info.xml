@@ -81,7 +81,7 @@
             app:drawableTintMode="src_in" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView16"
+            android:id="@+id/point4"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

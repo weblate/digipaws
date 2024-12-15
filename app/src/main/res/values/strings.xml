@@ -152,4 +152,10 @@
     <string name="enable_2">"Enable %1$s"</string>
     <string name="device_admin_perm">DigiPaws uses Device Admin permission to enhance security and block uninstalling digipaws until a specific period. All data remains securely stored on your device and is never shared externally.</string>
     <string name="prevent_uninstallation_attempts_until_a_set_condition_is_met">Prevent uninstallation attempts until a set condition is met</string>
+
+    <string name="device_perm_draw_over_other_apps">DigiPaws uses the "Display over other apps" permission to show a small floating overlay on the screen. This overlay tracks the number of reels watched and the time spent, helping users be more aware of their usage in real time.</string>
+    <string name="show_time_elapsed_on_phone">Show time elapsed on phone</string>
+    <string name="calculate_how_many_reels_tiktok_short_videos_you_scroll_per_day">Calculate how many reels/ tiktok/ short videos you scroll per day</string>
+    <string name="plan_a_robbery">Plan a robbery</string>
+    <string name="please_provide_display_over_other_apps_permission_to_access_this_feature">Please provide display over other apps permission to access this feature</string>
 </resources>
