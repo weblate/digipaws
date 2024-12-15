@@ -14,7 +14,6 @@ import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.Constants
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.ui.activity.WarningActivity
-import nethical.digipaws.utils.WarningNotification
 
 class ViewBlockerService : BaseBlockingService() {
 
@@ -30,8 +29,6 @@ class ViewBlockerService : BaseBlockingService() {
     private var warningMessage = ""
     private var isDynamicCooldownAllowed = false
     private var isProceedBtnDisabled = false
-
-    private lateinit var warningNotification: WarningNotification
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if(!isDelayOver()){
@@ -61,7 +58,6 @@ class ViewBlockerService : BaseBlockingService() {
         dialogIntent.putExtra("is_proceed_disabled", isProceedBtnDisabled)
         startActivity(dialogIntent)
 
-        warningNotification.sendNotification("Blocked", "Reel Tab was blocked")
     }
 
     private val refreshReceiver = object : BroadcastReceiver() {
@@ -117,7 +113,6 @@ class ViewBlockerService : BaseBlockingService() {
 
         }
         serviceInfo = info
-        warningNotification = WarningNotification(this)
 
         val filter = IntentFilter().apply {
             addAction(INTENT_ACTION_REFRESH_VIEW_BLOCKER)

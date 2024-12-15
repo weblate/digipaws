@@ -18,7 +18,7 @@
         tools:text="Enable App Blocker" />
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/desc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
@@ -39,7 +39,7 @@
             android:text="@string/this_will_allow_digipaws_to" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView11"
+            android:id="@+id/point1"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,7 +53,7 @@
             app:drawableTintMode="src_in" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView14"
+            android:id="@+id/point2"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
             app:drawableTintMode="src_in" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView15"
+            android:id="@+id/point3"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

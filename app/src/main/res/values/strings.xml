@@ -150,4 +150,6 @@
     <string name="read_content_on_screen">Read content on screen</string>
     <string name="this_will_allow_digipaws_to">This will allow digipaws to:</string>
     <string name="enable_2">"Enable %1$s"</string>
+    <string name="device_admin_perm">DigiPaws uses Device Admin permission to enhance security and block uninstalling digipaws until a specific period. All data remains securely stored on your device and is never shared externally.</string>
+    <string name="prevent_uninstallation_attempts_until_a_set_condition_is_met">Prevent uninstallation attempts until a set condition is met</string>
 </resources>

@@ -27,11 +27,11 @@ import kotlinx.coroutines.withContext
 import nethical.digipaws.Constants
 import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityMainBinding
-import nethical.digipaws.databinding.DialogAccessibilityServiceInfoBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
 import nethical.digipaws.databinding.DialogKeywordPackageBinding
+import nethical.digipaws.databinding.DialogPermissionInfoBinding
 import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.receivers.AdminReceiver
@@ -203,14 +203,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.antiUninstallCardChip.setOnClickListener {
             if (!isDeviceAdminOn) {
-                val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-                val componentName = ComponentName(this, AdminReceiver::class.java)
-                intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
-                intent.putExtra(
-                    DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                    "Enable admin to enable anti uninstall."
-                )
-                startActivity(intent)
+                makeDeviceAdminPermissionDialog()
             } else {
                 if (binding.antiUninstallWarning.visibility == View.GONE) {
                     val intent = Intent(this, SetupAntiUninstallActivity::class.java)
@@ -441,9 +434,39 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    fun makeDeviceAdminPermissionDialog() {
+        val dialogDeviceAdmin =
+            DialogPermissionInfoBinding.inflate(layoutInflater)
+        dialogDeviceAdmin.title.text = getString(R.string.enable_2, "Device Admin")
+        dialogDeviceAdmin.desc.text = getString(R.string.device_admin_perm)
+        dialogDeviceAdmin.point1.text =
+            getString(R.string.prevent_uninstallation_attempts_until_a_set_condition_is_met)
+        dialogDeviceAdmin.point2.visibility = View.GONE
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogDeviceAdmin.root)
+            .setCancelable(false)
+            .show()
+
+        dialogDeviceAdmin.btnReject.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogDeviceAdmin.btnAccept.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+            val componentName = ComponentName(this, AdminReceiver::class.java)
+            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName)
+            intent.putExtra(
+                DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                "Enable admin to enable anti uninstall."
+            )
+            startActivity(intent)
+
+        }
+    }
+
     fun makeAccessibilityInfoDialog(title: String, cls: Class<*>) {
         val dialogAccessibilityServiceInfoBinding =
-            DialogAccessibilityServiceInfoBinding.inflate(layoutInflater)
+            DialogPermissionInfoBinding.inflate(layoutInflater)
         dialogAccessibilityServiceInfoBinding.title.text = getString(R.string.enable_2, title)
 
         val dialog = MaterialAlertDialogBuilder(this)
