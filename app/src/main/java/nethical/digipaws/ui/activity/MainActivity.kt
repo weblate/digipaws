@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 import nethical.digipaws.Constants
 import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityMainBinding
+import nethical.digipaws.databinding.DialogAccessibilityServiceInfoBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
@@ -215,9 +216,25 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, SetupAntiUninstallActivity::class.java)
                     startActivity(intent)
                 } else {
-                    openAccessibilitySettings(binding.root)
+                    makeAccessibilityInfoDialog("General Features", DigipawsMainService::class.java)
                 }
             }
+        }
+
+        binding.focusModeStatusChip.setOnClickListener {
+            makeAccessibilityInfoDialog("General Features", DigipawsMainService::class.java)
+        }
+        binding.appBlockerStatusChip.setOnClickListener {
+            makeAccessibilityInfoDialog("App Blocker", AppBlockerService::class.java)
+        }
+        binding.viewBlockerStatusChip.setOnClickListener {
+            makeAccessibilityInfoDialog("View Blocker", ViewBlockerService::class.java)
+        }
+        binding.usageTrackerStatusChip.setOnClickListener {
+            makeAccessibilityInfoDialog("Usage Tracker", UsageTrackingService::class.java)
+        }
+        binding.keywordBlockerStatusChip.setOnClickListener {
+            makeAccessibilityInfoDialog("Keyword Blocker", KeywordBlockerService::class.java)
         }
     }
 
@@ -424,16 +441,39 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    fun openAccessibilitySettings(view: View) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Enable Accessibility")
-            .setMessage("This app requires Accessibility permissions to function properly.")
-            .setPositiveButton("Open Settings") { _, _ ->
-                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                startActivity(intent)
-            }
-            .setNegativeButton("Cancel", null)
+    fun makeAccessibilityInfoDialog(title: String, cls: Class<*>) {
+        val dialogAccessibilityServiceInfoBinding =
+            DialogAccessibilityServiceInfoBinding.inflate(layoutInflater)
+        dialogAccessibilityServiceInfoBinding.title.text = getString(R.string.enable_2, title)
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogAccessibilityServiceInfoBinding.root)
+            .setCancelable(false)
             .show()
+
+        dialogAccessibilityServiceInfoBinding.btnReject.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialogAccessibilityServiceInfoBinding.btnAccept.setOnClickListener {
+            Toast.makeText(this, "Find '$title' and press enable", Toast.LENGTH_LONG).show()
+            openAccessibilityServiceScreen(cls)
+            dialog.dismiss()
+        }
+    }
+
+
+    fun openAccessibilityServiceScreen(cls: Class<*>) {
+        try {
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            val componentName = ComponentName(this, cls)
+
+            intent.putExtra(":settings:fragment_args_key", componentName.flattenToString())
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Fallback to general Accessibility Settings
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
     }
 
     @SuppressLint("ApplySharedPref")
