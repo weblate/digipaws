@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,7 +41,7 @@ import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.NotificationTimerManager
 import nethical.digipaws.utils.SavedPreferencesLoader
-import nethical.digipaws.utils.TimeTools
+import nl.joery.timerangepicker.TimeRangePicker
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -480,21 +481,64 @@ class MainActivity : AppCompatActivity() {
 
 
         val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
-        var endTimeInMinutes =
+        val savedEndTimeInMinutes =
             viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
-        var startTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
+        val savedStartTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
         val isProceedBtnDisabled =
             viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
+        dialogAddToCheatHoursBinding.cbDisableProceed.isChecked = isProceedBtnDisabled
 
-        val convertedStartTime = TimeTools.convertMinutesTo24Hour(startTimeInMinutes)
-        val convertedEndTIme = TimeTools.convertMinutesTo24Hour(endTimeInMinutes)
+        var endTimeInMins: Int? = null
+        var startTimeInMins: Int? = null
+
+        if (savedStartTimeInMinutes != -1 || savedEndTimeInMinutes != -1) {
+            dialogAddToCheatHoursBinding.picker.startTime =
+                TimeRangePicker.Time(savedStartTimeInMinutes)
+            dialogAddToCheatHoursBinding.picker.endTime =
+                TimeRangePicker.Time(savedEndTimeInMinutes)
+            startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
+            endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
+        } else {
+            dialogAddToCheatHoursBinding.picker.startTimeMinutes = 0
+            dialogAddToCheatHoursBinding.picker.endTimeMinutes = 0
+            dialogAddToCheatHoursBinding.fromTime.text = getString(R.string.from)
+            dialogAddToCheatHoursBinding.endTime.text = getString(R.string.end)
+        }
+
+
+
+        dialogAddToCheatHoursBinding.picker.setOnTimeChangeListener(object :
+            TimeRangePicker.OnTimeChangeListener {
+            override fun onStartTimeChange(startTime: TimeRangePicker.Time) {
+                dialogAddToCheatHoursBinding.fromTime.text =
+                    dialogAddToCheatHoursBinding.picker.startTime.toString()
+                startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
+            }
+
+            override fun onEndTimeChange(endTime: TimeRangePicker.Time) {
+                dialogAddToCheatHoursBinding.endTime.text =
+                    dialogAddToCheatHoursBinding.picker.endTime.toString()
+                endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
+            }
+
+            override fun onDurationChange(duration: TimeRangePicker.TimeDuration) {
+            }
+        })
 
         MaterialAlertDialogBuilder(this)
             .setView(dialogAddToCheatHoursBinding.root)
             .setPositiveButton(getString(R.string.save)) { dialog, _ ->
+                if (startTimeInMins == null || endTimeInMins == null) {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.please_specify_time),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setPositiveButton
+                }
                 savedPreferencesLoader.saveCheatHoursForViewBlocker(
-                    startTimeInMinutes,
-                    endTimeInMinutes,
+                    savedStartTimeInMinutes,
+                    savedEndTimeInMinutes,
                     dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
                 )
                 sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)

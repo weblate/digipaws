@@ -138,4 +138,7 @@
     <string name="configure_warning_screen">Warning Screen</string>
     <string name="proceed_in">Please wait %1$d seconds before pressing proceed</string>
     <string name="to">To</string>
+    <string name="please_specify_time">Please specify time</string>
+    <string name="from">From</string>
+    <string name="end">End</string>
 </resources>
