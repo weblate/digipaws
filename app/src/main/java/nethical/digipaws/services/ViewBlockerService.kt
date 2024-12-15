@@ -21,6 +21,7 @@ class ViewBlockerService : BaseBlockingService() {
         const val INTENT_ACTION_REFRESH_VIEW_BLOCKER = "nethical.digipaws.refresh.viewblocker"
         const val INTENT_ACTION_REFRESH_VIEW_BLOCKER_COOLDOWN =
             "nethical.digipaws.refresh.viewblocker.cooldown"
+
     }
 
     private val viewBlocker = ViewBlocker()
@@ -36,7 +37,12 @@ class ViewBlockerService : BaseBlockingService() {
         }
         val rootNode: AccessibilityNodeInfo? = rootInActiveWindow
 
-        handleViewBlockerResult(rootNode?.let { viewBlocker.doesViewNeedToBeBlocked(it) })
+        handleViewBlockerResult(rootNode?.let {
+            viewBlocker.doesViewNeedToBeBlocked(
+                it,
+                event?.packageName.toString()
+            )
+        })
     }
 
     override fun onInterrupt() {
@@ -47,7 +53,6 @@ class ViewBlockerService : BaseBlockingService() {
     private fun handleViewBlockerResult(result: ViewBlocker.ViewBlockerResult?) {
         if (result == null || !result.isBlocked) return
         pressBack()
-
         val dialogIntent = Intent(this, WarningActivity::class.java)
         dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         dialogIntent.putExtra("warning_message", warningMessage)
@@ -56,6 +61,7 @@ class ViewBlockerService : BaseBlockingService() {
         dialogIntent.putExtra("result_id", result.viewId)
         dialogIntent.putExtra("default_cooldown", cooldownIntervalInMillis / 60000)
         dialogIntent.putExtra("is_proceed_disabled", isProceedBtnDisabled)
+        dialogIntent.putExtra("is_press_home", result.requestHomePressInstead)
         startActivity(dialogIntent)
 
     }

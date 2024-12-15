@@ -1,11 +1,14 @@
 package nethical.digipaws.ui.activity
 
+import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -15,6 +18,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -63,6 +67,18 @@ class MainActivity : AppCompatActivity() {
     private var isDeviceAdminOn = false
     private var isAntiUninstallOn = false
 
+    val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                // Permission granted, show notifications
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+                makeStartFocusModeDialog()
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+
+            }
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -77,6 +93,8 @@ class MainActivity : AppCompatActivity() {
         }
         setupActivityLaunchers()
         setupClickListeners()
+
+
     }
 
     override fun onResume() {
@@ -184,6 +202,16 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.startFocusMode.setOnClickListener {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ActivityCompat.checkSelfPermission(
+                        this, Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    return@setOnClickListener
+                }
+            }
             makeStartFocusModeDialog()
         }
         binding.btnUnlockAntiUninstall.setOnClickListener {

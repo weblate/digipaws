@@ -6,6 +6,24 @@ import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 
 class ViewBlocker : BaseBlocker() {
+    companion object {
+        fun findElementById(node: AccessibilityNodeInfo?, id: String?): AccessibilityNodeInfo? {
+            if (node == null) return null
+            var targetNode: AccessibilityNodeInfo? = null
+            try {
+                targetNode = node.findAccessibilityNodeInfosByViewId(id!!)[0]
+            } catch (e: Exception) {
+                //	e.printStackTrace();
+            }
+            return targetNode
+        }
+
+        val TIKTOK_PACKAGE_NAMES = hashSetOf(
+            "com.ss.android.ugc.trill",
+            "com.zhiliaoapp.musically",
+            "com.ss.android.ugc.aweme"
+        )
+    }
     private val cooldownViewIdsList = mutableMapOf<String, Long>()
     private val blockedViewIdsList = mutableListOf(
         "com.instagram.android:id/root_clips_layout",
@@ -20,9 +38,26 @@ class ViewBlocker : BaseBlocker() {
     var cheatMinuteStartTime: Int? = null
     var cheatMinutesEndTIme: Int? = null
 
-    fun doesViewNeedToBeBlocked(node: AccessibilityNodeInfo): ViewBlockerResult? {
+    fun doesViewNeedToBeBlocked(
+        node: AccessibilityNodeInfo,
+        packageName: String
+    ): ViewBlockerResult? {
         if (isCheatHourActive()) {
             return null
+        }
+        if (TIKTOK_PACKAGE_NAMES.contains(packageName)) {
+            if (isCooldownActive(packageName)) {
+                return ViewBlockerResult(
+                    isReelFoundInCooldownState = true,
+                    viewId = packageName,
+                    requestHomePressInstead = true
+                )
+            }
+            return ViewBlockerResult(
+                isBlocked = true,
+                viewId = packageName,
+                requestHomePressInstead = true
+            )
         }
 
         if (isIGInboxReelAllowed && isViewOpened(
@@ -32,7 +67,6 @@ class ViewBlocker : BaseBlocker() {
         ) {
             return null
         }
-
 
 
         blockedViewIdsList.forEach { viewId ->
@@ -88,22 +122,9 @@ class ViewBlocker : BaseBlocker() {
     }
     data class ViewBlockerResult(
         val isBlocked: Boolean = false,
+        val requestHomePressInstead: Boolean = false,
         val isReelFoundInCooldownState: Boolean = false,
         val viewId: String = ""
     )
-
-    companion object {
-
-        fun findElementById(node: AccessibilityNodeInfo?, id: String?): AccessibilityNodeInfo? {
-            if (node == null) return null
-            var targetNode: AccessibilityNodeInfo? = null
-            try {
-                targetNode = node.findAccessibilityNodeInfosByViewId(id!!)[0]
-            } catch (e: Exception) {
-                //	e.printStackTrace();
-            }
-            return targetNode
-        }
-    }
 
 }

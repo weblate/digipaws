@@ -46,7 +46,15 @@ class UsageTrackingService : AccessibilityService() {
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
         private const val USER_Y_SWIPE_THRESHOLD: Long = 2
+
         const val VIDEO_TYPE_REEL = 1
+
+        val REEL_APPS_THAT_USE_VIEWPAGER = hashSetOf(
+            "com.instagram.android",
+            "com.ss.android.ugc.trill",
+            "com.zhiliaoapp.musically",
+            "com.ss.android.ugc.aweme"
+        )
     }
 
     private val screenReceiver = object : BroadcastReceiver() {
@@ -169,8 +177,11 @@ class UsageTrackingService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             when {
-                event.source?.className == "androidx.viewpager.widget.ViewPager" -> takeReelAction()
-                event.packageName == "com.google.android.youtube" &&
+                event.source?.className == "androidx.viewpager.widget.ViewPager" && REEL_APPS_THAT_USE_VIEWPAGER.contains(
+                    event.packageName
+                ) -> takeReelAction()
+
+                (event.packageName == "com.google.android.youtube" || event.packageName == "app.revanced.android.youtube") &&
                         event.source?.className == "android.support.v7.widget.RecyclerView" -> {
                     val reelView = ViewBlocker.findElementById(
                         rootInActiveWindow,
@@ -212,8 +223,8 @@ class UsageTrackingService : AccessibilityService() {
         lastVideoViewFoundTime = SystemClock.uptimeMillis()
     }
 
-    private fun takeReelAction() {
-        if (++userYSwipeEventCounter > USER_Y_SWIPE_THRESHOLD) {
+    private fun takeReelAction(yThreshold: Long = USER_Y_SWIPE_THRESHOLD) {
+        if (++userYSwipeEventCounter > yThreshold) {
             userYSwipeEventCounter = 0
             val date = TimeTools.getCurrentDate()
             val newCount = (reelCountData[date] ?: 0) + 1

@@ -21,7 +21,9 @@ class WarningActivity : AppCompatActivity() {
 
         val mode = intent.getIntExtra("mode", 0)
         val binding = DialogWarningOverlayBinding.inflate(layoutInflater)
-        val isDialogCancelable = mode != Constants.WARNING_SCREEN_MODE_APP_BLOCKER
+        val isHomePressRequested = intent.getBooleanExtra("is_press_home", false)
+        val isDialogCancelable =
+            mode != Constants.WARNING_SCREEN_MODE_APP_BLOCKER || isHomePressRequested
 
         if (intent.getBooleanExtra("is_proceed_disabled", false)) {
             binding.btnProceed.visibility = View.GONE
@@ -56,7 +58,7 @@ class WarningActivity : AppCompatActivity() {
         binding.minsPicker.setValue(intent.getIntExtra("default_cooldown", 1))
         binding.btnCancel.setOnClickListener {
             dialog.dismiss()
-            if (mode == Constants.WARNING_SCREEN_MODE_APP_BLOCKER) {
+            if (mode == Constants.WARNING_SCREEN_MODE_APP_BLOCKER || isHomePressRequested) {
                 val intent = Intent(Intent.ACTION_MAIN)
                 intent.addCategory(Intent.CATEGORY_HOME)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
