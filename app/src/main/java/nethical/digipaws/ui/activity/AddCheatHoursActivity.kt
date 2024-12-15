@@ -34,10 +34,11 @@ class AddCheatHoursActivity : AppCompatActivity() {
     private var selectedUnblockedApps: ArrayList<String>? = arrayListOf()
 
     private lateinit var dialogAddToCheatHoursBinding: DialogAddToCheatHoursBinding
-
+    var addToCheatHourDialog: MaterialAlertDialogBuilder? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         binding = ActivityAddCheatHoursActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -46,7 +47,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
+
         cheatHoursList = savedPreferencesLoader.loadCheatHoursList()
         selectUnblockedAppsLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -62,6 +63,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
 
         binding.recyclerView2.layoutManager = LinearLayoutManager(this)
         binding.recyclerView2.adapter = CheatHourAdapter(cheatHoursList)
+
         binding.button.setOnClickListener {
             makeCheatHoursDialog()
         }
@@ -69,10 +71,10 @@ class AddCheatHoursActivity : AppCompatActivity() {
 
     private fun makeCheatHoursDialog() {
 
-
         var endTimeInMins: Int? = null
         var startTimeInMins: Int? = null
 
+        dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
         dialogAddToCheatHoursBinding.btnSelectEndTime.setOnClickListener {
             if (startTimeInMins == null) {
                 Toast.makeText(
