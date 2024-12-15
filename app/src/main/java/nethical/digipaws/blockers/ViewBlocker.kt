@@ -1,7 +1,6 @@
 package nethical.digipaws.blockers
 
 import android.os.SystemClock
-import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
@@ -63,8 +62,6 @@ class ViewBlocker : BaseBlocker() {
     private fun isViewOpened(rootNode: AccessibilityNodeInfo, viewId: String): Boolean {
         val viewNode =
             findElementById(rootNode, viewId)
-        // view found
-        Log.d("viewfound", viewId)
         return viewNode != null
     }
 
@@ -81,8 +78,13 @@ class ViewBlocker : BaseBlocker() {
             return false
         }
 
-
-        return currentMinutes in cheatMinuteStartTime!!..cheatMinutesEndTIme!!
+        return if (cheatMinuteStartTime!! <= cheatMinutesEndTIme!!) {
+            // Regular case: start time is before or equal to end time
+            currentMinutes in cheatMinuteStartTime!!..cheatMinutesEndTIme!!
+        } else {
+            // Wraparound case: time range spans midnight
+            currentMinutes in cheatMinuteStartTime!!..1439 || currentMinutes in 0..cheatMinutesEndTIme!!
+        }
     }
     data class ViewBlockerResult(
         val isBlocked: Boolean = false,

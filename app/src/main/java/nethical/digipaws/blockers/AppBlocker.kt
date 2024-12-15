@@ -53,14 +53,13 @@ class AppBlocker:BaseBlocker() {
 
         val currentMinutes = TimeTools.convertToMinutesFromMidnight(currentHour, currentMinute)
         cheatMinutes[packageName]?.forEach { (startMinutes, endMinutes) ->
-            if (currentMinutes in startMinutes until endMinutes) {
+            if ((startMinutes <= endMinutes && currentMinutes in startMinutes until endMinutes) || (startMinutes > endMinutes && (currentMinutes >= startMinutes || currentMinutes < endMinutes))) {
                 return true
             }
-        }
 
+        }
         return false
     }
-
     fun refreshCheatMinutesData(cheatList: List<AddCheatHoursActivity.CheatHourItem>) {
         cheatMinutes.clear()
         proceedBtnInfo.clear()
