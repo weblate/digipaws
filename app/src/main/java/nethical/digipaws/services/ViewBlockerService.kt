@@ -53,6 +53,7 @@ class ViewBlockerService : BaseBlockingService() {
     private fun handleViewBlockerResult(result: ViewBlocker.ViewBlockerResult?) {
         if (result == null || !result.isBlocked) return
         pressBack()
+
         val dialogIntent = Intent(this, WarningActivity::class.java)
         dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         dialogIntent.putExtra("warning_message", warningMessage)
@@ -114,7 +115,6 @@ class ViewBlockerService : BaseBlockingService() {
             eventTypes =
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
-            notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT
 
         }

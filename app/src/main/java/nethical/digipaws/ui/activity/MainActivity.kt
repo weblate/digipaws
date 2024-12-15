@@ -530,7 +530,10 @@ class MainActivity : AppCompatActivity() {
         }
         dialogDisplayOverOtherApps.btnAccept.setOnClickListener {
             dialog.dismiss()
-            Toast.makeText(this, "Find Digipaws and press enable", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                getString(R.string.find_digipaws_and_press_enable), Toast.LENGTH_LONG
+            ).show()
             val intent = Intent(
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")
@@ -694,6 +697,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun makeStartFocusModeDialog() {
         val dialogFocusModeBinding = DialogFocusModeBinding.inflate(layoutInflater)
+        dialogFocusModeBinding.focusModeMinsPicker.setValue(3)
+        dialogFocusModeBinding.focusModeMinsPicker.minValue = 2
+
         MaterialAlertDialogBuilder(this)
             .setView(dialogFocusModeBinding.root)
             .setPositiveButton(getString(R.string.start)) { _, _ ->
@@ -819,7 +825,7 @@ class MainActivity : AppCompatActivity() {
 
     data class WarningData(
         val message: String = "",
-        val timeInterval: Int = 5000,
+        val timeInterval: Int = 120000,
         val isDynamicIntervalSettingAllowed: Boolean = false
     )
 

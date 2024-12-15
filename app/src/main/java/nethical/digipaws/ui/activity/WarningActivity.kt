@@ -22,6 +22,8 @@ class WarningActivity : AppCompatActivity() {
         val mode = intent.getIntExtra("mode", 0)
         val binding = DialogWarningOverlayBinding.inflate(layoutInflater)
         val isHomePressRequested = intent.getBooleanExtra("is_press_home", false)
+        binding.minsPicker.setValue(3)
+        binding.minsPicker.minValue = 2
         val isDialogCancelable =
             mode != Constants.WARNING_SCREEN_MODE_APP_BLOCKER || isHomePressRequested
 
