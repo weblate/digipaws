@@ -137,4 +137,5 @@
     <string name="cheat_timings">%1$d:%2$d to %3$d:%4$d</string>
     <string name="configure_warning_screen">Warning Screen</string>
     <string name="proceed_in">Please wait %1$d seconds before pressing proceed</string>
+    <string name="to">To</string>
 </resources>

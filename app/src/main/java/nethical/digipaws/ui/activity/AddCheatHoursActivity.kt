@@ -1,7 +1,6 @@
 package nethical.digipaws.ui.activity
 
 import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -22,7 +21,7 @@ import nethical.digipaws.databinding.CheatHourItemBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
-import java.util.Calendar
+import nl.joery.timerangepicker.TimeRangePicker
 
 class AddCheatHoursActivity : AppCompatActivity() {
 
@@ -34,7 +33,6 @@ class AddCheatHoursActivity : AppCompatActivity() {
     private var selectedUnblockedApps: ArrayList<String>? = arrayListOf()
 
     private lateinit var dialogAddToCheatHoursBinding: DialogAddToCheatHoursBinding
-    var addToCheatHourDialog: MaterialAlertDialogBuilder? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -71,68 +69,33 @@ class AddCheatHoursActivity : AppCompatActivity() {
 
     private fun makeCheatHoursDialog() {
 
-        var endTimeInMins: Int? = null
-        var startTimeInMins: Int? = null
 
         dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
-        dialogAddToCheatHoursBinding.btnSelectEndTime.setOnClickListener {
-            if (startTimeInMins == null) {
-                Toast.makeText(
-                    this,
-                    getString(R.string.please_specify_start_time_first),
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
+
+        dialogAddToCheatHoursBinding.picker.startTime = TimeRangePicker.Time(6, 30)
+        dialogAddToCheatHoursBinding.picker.endTime = TimeRangePicker.Time(22, 0)
+
+        var endTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.endTimeMinutes
+        var startTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.startTimeMinutes
+
+        dialogAddToCheatHoursBinding.picker.setOnTimeChangeListener(object :
+            TimeRangePicker.OnTimeChangeListener {
+            override fun onStartTimeChange(startTime: TimeRangePicker.Time) {
+                dialogAddToCheatHoursBinding.fromTime.text =
+                    dialogAddToCheatHoursBinding.picker.startTime.toString()
+                startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
             }
 
-            val calendar = Calendar.getInstance()
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
+            override fun onEndTimeChange(endTime: TimeRangePicker.Time) {
+                dialogAddToCheatHoursBinding.endTime.text =
+                    dialogAddToCheatHoursBinding.picker.endTime.toString()
+                endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
+            }
 
-            val timePickerDialog = TimePickerDialog(
-                this,
-                { _, selectedHour, selectedMinute ->
-                    val selectedEndTime =
-                        TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
+            override fun onDurationChange(duration: TimeRangePicker.TimeDuration) {
+            }
+        })
 
-                    // Ensure end time is after start time
-                    if (startTimeInMins != null && selectedEndTime <= startTimeInMins!!) {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.end_time_must_be_after_start_time_has_passed),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        endTimeInMins = selectedEndTime
-                        dialogAddToCheatHoursBinding.btnSelectEndTime.text =
-                            getString(R.string.end_time, selectedHour, selectedMinute)
-                    }
-                },
-                hour,
-                minute,
-                false
-            )
-            timePickerDialog.show()
-        }
-        dialogAddToCheatHoursBinding.btnSelectStartTime.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
-
-            val timePickerDialog = TimePickerDialog(
-                this,
-                { _, selectedHour, selectedMinute ->
-                    startTimeInMins =
-                        TimeTools.convertToMinutesFromMidnight(selectedHour, selectedMinute)
-                    dialogAddToCheatHoursBinding.btnSelectStartTime.text =
-                        getString(R.string.start_time_02d_02d, selectedHour, selectedMinute)
-                },
-                hour,
-                minute,
-                false // Use 24-hour format
-            )
-            timePickerDialog.show()
-        }
         dialogAddToCheatHoursBinding.btnSelectUnblockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -153,17 +116,6 @@ class AddCheatHoursActivity : AppCompatActivity() {
                         this,
                         getString(R.string.please_type_a_title),
                         Toast.LENGTH_SHORT
-                    ).show()
-                }
-                if (startTimeInMins == null) {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.please_select_a_start_time), Toast.LENGTH_SHORT
-                    ).show()
-                } else if (endTimeInMins == null) {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.please_select_an_end_time), Toast.LENGTH_SHORT
                     ).show()
                 } else if (selectedUnblockedApps?.isEmpty() == true) {
                     Toast.makeText(
