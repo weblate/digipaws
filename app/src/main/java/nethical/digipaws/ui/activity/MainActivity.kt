@@ -537,8 +537,8 @@ class MainActivity : AppCompatActivity() {
                     return@setPositiveButton
                 }
                 savedPreferencesLoader.saveCheatHoursForViewBlocker(
-                    savedStartTimeInMinutes,
-                    savedEndTimeInMinutes,
+                    startTimeInMins!!,
+                    endTimeInMins!!,
                     dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
                 )
                 sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
