@@ -44,12 +44,11 @@ DigiPaws is an open-source Android productivity utility designed to help users r
 Click on any image to enlarge it.
 <table>
 	<tr>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/1.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/2.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/3.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/4.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/5.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/6.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241213-215830.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241214-224115.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241215-162510.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241215-162516.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241215-220936.png' width='120'></td>
 	</tr>
 </table>
 
