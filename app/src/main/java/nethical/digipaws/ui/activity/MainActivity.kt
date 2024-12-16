@@ -492,7 +492,6 @@ class MainActivity : AppCompatActivity() {
         dialogDeviceAdmin.point2.visibility = View.GONE
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogDeviceAdmin.root)
-            .setCancelable(false)
             .show()
 
         dialogDeviceAdmin.btnReject.setOnClickListener {
@@ -524,7 +523,6 @@ class MainActivity : AppCompatActivity() {
         dialogDisplayOverOtherApps.point4.text = getString(R.string.plan_a_robbery)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogDisplayOverOtherApps.root)
-            .setCancelable(false)
             .show()
 
         dialogDisplayOverOtherApps.btnReject.setOnClickListener {
@@ -552,7 +550,6 @@ class MainActivity : AppCompatActivity() {
 
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogAccessibilityServiceInfoBinding.root)
-            .setCancelable(false)
             .show()
 
         dialogAccessibilityServiceInfoBinding.btnReject.setOnClickListener {

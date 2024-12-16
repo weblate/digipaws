@@ -12,9 +12,11 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
+import android.widget.Toast
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.ui.overlay.UsageStatOverlayManager
 import nethical.digipaws.utils.SavedPreferencesLoader
@@ -39,6 +41,7 @@ class UsageTrackingService : AccessibilityService() {
 
     private var isReelCountToBeDisplayed = true
     private var isTimeElapsedCounterOn = true
+    private var supportsViewScrolled = false
 
     companion object {
 
@@ -102,7 +105,15 @@ class UsageTrackingService : AccessibilityService() {
 
         attentionSpanDataList = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
         reelCountData = savedPreferencesLoader.getReelsScrolled()
-        usageStatOverlayManager.startDisplaying()
+        if (Settings.canDrawOverlays(this)) {
+            usageStatOverlayManager.startDisplaying()
+        } else {
+            Toast.makeText(
+                this,
+                "Please provide 'Draw over other apps' permission to make this service work properly. ",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun setupTracker(){
@@ -175,7 +186,14 @@ class UsageTrackingService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event?.packageName == "com.google.android.youtube") {
+            Log.d(
+                "event",
+                event.source?.className.toString() + " event: " + event.eventType.toString()
+            )
+        }
         if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            supportsViewScrolled = true
             when {
                 event.source?.className == "androidx.viewpager.widget.ViewPager" && REEL_APPS_THAT_USE_VIEWPAGER.contains(
                     event.packageName
@@ -192,6 +210,9 @@ class UsageTrackingService : AccessibilityService() {
 
                 else -> resetReelTracking()
             }
+        }
+        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && !supportsViewScrolled) {
+            // TODO: FIND MECHANISM TO CALCULATE REELS SCROLLED HERE
         }
     }
 
