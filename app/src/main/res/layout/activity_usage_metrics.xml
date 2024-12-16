@@ -52,6 +52,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="8dp"
+                    android:gravity="center"
                     android:text="@string/your_average_attention_span_was_2_d_mins" />
 
                 <Button
@@ -121,6 +122,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="16dp"
+                    android:gravity="center"
                     android:text="@string/average_attention_span"
                     android:textStyle="bold" />
 

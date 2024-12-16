@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -67,6 +68,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun makeCheatHoursDialog() {
 
 
@@ -79,6 +81,19 @@ class AddCheatHoursActivity : AppCompatActivity() {
         var endTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.endTimeMinutes
         var startTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.startTimeMinutes
 
+        dialogAddToCheatHoursBinding.picker.setOnTouchListener { v, event ->
+            // Disable ScrollView's touch interception when interacting with the picker
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> dialogAddToCheatHoursBinding.scrollview.requestDisallowInterceptTouchEvent(
+                    true
+                )
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> dialogAddToCheatHoursBinding.scrollview.requestDisallowInterceptTouchEvent(
+                    false
+                )
+            }
+            v.onTouchEvent(event) // Pass the event to the picker
+        }
         dialogAddToCheatHoursBinding.picker.setOnTimeChangeListener(object :
             TimeRangePicker.OnTimeChangeListener {
             override fun onStartTimeChange(startTime: TimeRangePicker.Time) {

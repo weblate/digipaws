@@ -12,7 +12,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.MotionEvent
 import android.view.View
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -617,12 +619,14 @@ class MainActivity : AppCompatActivity() {
 
         val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
 
-
         dialogAddToCheatHoursBinding.btnSelectUnblockedApps.visibility = View.GONE
         dialogAddToCheatHoursBinding.cheatHourTitle.visibility = View.GONE
 
         dialogAddToCheatHoursBinding.picker.hourFormat = TimeRangePicker.HourFormat.FORMAT_24
-
+        fixPickerInterceptBug(
+            dialogAddToCheatHoursBinding.scrollview,
+            dialogAddToCheatHoursBinding.picker
+        )
         val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val savedEndTimeInMinutes =
             viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
@@ -821,6 +825,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun fixPickerInterceptBug(scrollview: ScrollView, picker: TimeRangePicker) {
+        picker.setOnTouchListener { v, event ->
+            // Disable ScrollView's touch interception when interacting with the picker
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> scrollview.requestDisallowInterceptTouchEvent(true)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> scrollview.requestDisallowInterceptTouchEvent(
+                    false
+                )
+            }
+            v.onTouchEvent(event) // Pass the event to the picker
+        }
     }
 
     data class WarningData(
