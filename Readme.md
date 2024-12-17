@@ -111,6 +111,11 @@ We welcome contributions from the community! If you'd like to contribute, please
 
 Please ensure your code adheres to our coding standards and includes relevant tests.
 
+## Translations 
+[![Translation Status](https://hosted.weblate.org/widgets/digipaws/-/multi-auto.svg)](https://hosted.weblate.org/projects/digipaws/)
+Press [here](https://hosted.weblate.org/projects/digipaws/) to help translate digipaws.
+
+
 ## Contributors
 - [Henry Delallal](https://github.com/HenriDellal): assisted in setting up fdroid version
 - [Remaker17](https://github.com/remaker17): setup workflow files
