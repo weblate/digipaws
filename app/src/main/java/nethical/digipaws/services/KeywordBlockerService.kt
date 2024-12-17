@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
@@ -24,7 +25,7 @@ class KeywordBlockerService : BaseBlockingService() {
 
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (!isDelayOver()) {
+        if (!isDelayOver(1500)) {
             return
         }
 
@@ -32,6 +33,7 @@ class KeywordBlockerService : BaseBlockingService() {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
             handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
         }
+        lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
 
     override fun onInterrupt() {
