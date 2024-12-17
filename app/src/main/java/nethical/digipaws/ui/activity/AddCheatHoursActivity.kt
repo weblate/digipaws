@@ -145,8 +145,7 @@ class AddCheatHoursActivity : AppCompatActivity() {
                             dialogAddToCheatHoursBinding.cheatHourTitle.text.toString(),
                             startTimeInMins!!,
                             endTimeInMins!!,
-                            selectedUnblockedApps!!,
-                            dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
+                            selectedUnblockedApps!!
                         )
                     )
                     binding.recyclerView2.adapter?.notifyItemInserted(cheatHoursList.size)

@@ -91,11 +91,10 @@ class ViewBlockerService : BaseBlockingService() {
         warningMessage = warningScreenConfig.message
         isDynamicCooldownAllowed =
             warningScreenConfig.isDynamicIntervalSettingAllowed
+        isProceedBtnDisabled = warningScreenConfig.isProceedDisabled
 
 
         val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
-        isProceedBtnDisabled =
-            viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
         viewBlocker.cheatMinuteStartTime =
             viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
         viewBlocker.cheatMinutesEndTIme = viewBlockerCheatHours.getInt("view_blocker_end_time", -1)

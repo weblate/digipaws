@@ -27,6 +27,7 @@ class AppBlockerService : BaseBlockingService() {
     private var cooldownIntervalInMillis = 10 * 60000
     private var warningMessage = ""
     private var isDynamicCooldownALlowed = false
+    private var isProceedDisabled = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
@@ -95,7 +96,7 @@ class AppBlockerService : BaseBlockingService() {
         dialogIntent.putExtra("is_dynamic_timing", isDynamicCooldownALlowed)
         dialogIntent.putExtra("result_id", packageName)
         dialogIntent.putExtra("default_cooldown", cooldownIntervalInMillis / 60000)
-        dialogIntent.putExtra("is_proceed_disabled", result.isProceedHidden)
+        dialogIntent.putExtra("is_proceed_disabled", isProceedDisabled)
         startActivity(dialogIntent)
 
     }
@@ -109,6 +110,7 @@ class AppBlockerService : BaseBlockingService() {
         warningMessage = warningScreenConfig.message
         isDynamicCooldownALlowed =
             warningScreenConfig.isDynamicIntervalSettingAllowed
+        isProceedDisabled = warningScreenConfig.isProceedDisabled
     }
 
     override fun onDestroy() {

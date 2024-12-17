@@ -102,14 +102,7 @@
         android:text="@string/select_end_time"
         android:visibility="gone" />
 
-    <CheckBox
-        android:id="@+id/cb_disable_proceed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/disable_proceed_button" />
-
-    <Button
+        <Button
         android:id="@+id/btn_select_unblocked_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

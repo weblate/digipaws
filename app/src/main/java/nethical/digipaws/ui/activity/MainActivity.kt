@@ -408,6 +408,8 @@ class MainActivity : AppCompatActivity() {
         val previousData = savedPreferencesLoader.loadAppBlockerWarningInfo()
         tweakAppBlockerWarningBinding.selectMins.setValue(previousData.timeInterval / 60000)
         tweakAppBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
+        tweakAppBlockerWarningBinding.cbProceedBtn.isChecked = previousData.isProceedDisabled
+
         MaterialAlertDialogBuilder(this)
             .setView(tweakAppBlockerWarningBinding.root)
             .setPositiveButton(getString(R.string.save)) { dialog, _ ->
@@ -416,7 +418,8 @@ class MainActivity : AppCompatActivity() {
                     WarningData(
                         tweakAppBlockerWarningBinding.warningMsgEdit.text.toString(),
                         selectedMinInMs,
-                        tweakAppBlockerWarningBinding.cbDynamicWarning.isChecked
+                        tweakAppBlockerWarningBinding.cbDynamicWarning.isChecked,
+                        tweakAppBlockerWarningBinding.cbProceedBtn.isChecked
                     )
                 )
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
@@ -444,6 +447,7 @@ class MainActivity : AppCompatActivity() {
         tweakViewBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
         tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked =
             previousData.isDynamicIntervalSettingAllowed
+        tweakViewBlockerWarningBinding.cbProceedBtn.isChecked = previousData.isProceedDisabled
 
         val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
         tweakViewBlockerWarningBinding.cbReelInbox.isChecked =
@@ -459,7 +463,8 @@ class MainActivity : AppCompatActivity() {
                     WarningData(
                         tweakViewBlockerWarningBinding.warningMsgEdit.text.toString(),
                         selectedMinInMs,
-                        tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked
+                        tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked,
+                        tweakViewBlockerWarningBinding.cbProceedBtn.isChecked
                     )
                 )
                 val editor = addReelData.edit()
@@ -628,9 +633,6 @@ class MainActivity : AppCompatActivity() {
         val savedEndTimeInMinutes =
             viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
         val savedStartTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
-        val isProceedBtnDisabled =
-            viewBlockerCheatHours.getBoolean("view_blocker_is_proceed_disabled", false)
-        dialogAddToCheatHoursBinding.cbDisableProceed.isChecked = isProceedBtnDisabled
 
         var endTimeInMins: Int? = null
         var startTimeInMins: Int? = null
@@ -682,8 +684,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 savedPreferencesLoader.saveCheatHoursForViewBlocker(
                     startTimeInMins!!,
-                    endTimeInMins!!,
-                    dialogAddToCheatHoursBinding.cbDisableProceed.isChecked
+                    endTimeInMins!!
                 )
                 sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
                 dialog.dismiss()
@@ -840,8 +841,9 @@ class MainActivity : AppCompatActivity() {
 
     data class WarningData(
         val message: String = "",
-        val timeInterval: Int = 120000,
-        val isDynamicIntervalSettingAllowed: Boolean = false
+        val timeInterval: Int = 120000, // default cooldown period
+        val isDynamicIntervalSettingAllowed: Boolean = false,
+        val isProceedDisabled: Boolean = false
     )
 
 }

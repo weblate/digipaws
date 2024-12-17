@@ -13,9 +13,6 @@ class AppBlocker:BaseBlocker() {
 
     var blockedAppsList = hashSetOf("")
 
-    var proceedBtnInfo: MutableMap<String, Boolean> =
-        mutableMapOf() // stores info about proceed button visibility
-
 
     fun doesAppNeedToBeBlocked(packageName: String): AppBlockerResult? {
 
@@ -32,8 +29,7 @@ class AppBlocker:BaseBlocker() {
 
         if (blockedAppsList.contains(packageName)) {
             return AppBlockerResult(
-                isBlocked = true,
-                isProceedHidden = proceedBtnInfo.getOrDefault(packageName, defaultValue = false)
+                isBlocked = true
             )
         }
         return null
@@ -62,7 +58,6 @@ class AppBlocker:BaseBlocker() {
     }
     fun refreshCheatMinutesData(cheatList: List<AddCheatHoursActivity.CheatHourItem>) {
         cheatMinutes.clear()
-        proceedBtnInfo.clear()
         cheatList.forEach { item ->
             val startTime = item.startTime
             val endTime = item.endTime
@@ -71,7 +66,6 @@ class AppBlocker:BaseBlocker() {
             packageNames.forEach { packageName ->
                 Log.d("cheat adding for", packageName)
 
-                proceedBtnInfo[packageName] = item.isProceedHidden
                 if (cheatMinutes.containsKey(packageName)) {
                     val cheatHourTimeData: List<Pair<Int, Int>>? = cheatMinutes[packageName]
                     val cheatHourNewTimeData: MutableList<Pair<Int, Int>> =
@@ -88,8 +82,7 @@ class AppBlocker:BaseBlocker() {
     }
 
     data class AppBlockerResult(
-        val isBlocked: Boolean = false,
-        val isProceedHidden: Boolean = false
+        val isBlocked: Boolean = false
     )
 
 }

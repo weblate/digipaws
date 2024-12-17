@@ -107,12 +107,11 @@ class SavedPreferencesLoader(private val context: Context) {
     }
 
     @SuppressLint("ApplySharedPref")
-    fun saveCheatHoursForViewBlocker(startTime: Int, endTime: Int, isProceedDisabled: Boolean) {
+    fun saveCheatHoursForViewBlocker(startTime: Int, endTime: Int) {
         val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val edit = sharedPreferences.edit()
         edit.putInt("view_blocker_start_time", startTime)
         edit.putInt("view_blocker_end_time", endTime)
-        edit.putBoolean("view_blocker_is_proceed_disabled", isProceedDisabled)
         edit.commit()
     }
 
