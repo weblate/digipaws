@@ -21,7 +21,7 @@
     <string name="manage_keyword_packs">Manage Keyword Packs</string>
     <string name="warning_keywords_settings">Enable Keyword Blocker Accessibility Service to manage blocked keywords</string>
     <string name="usage_stats">Usage Stats</string>
-    <string name="manage_trackers">Manage Trackers</string>
+    <string name="manage_overlay_trackers">Manage Real Time Overlay</string>
     <string name="warning_usage_tracker_settings">Enable Usage Tracker Accessibility Service to manage trackers</string>
     <string name="remove_anti_uninstall">Remove Anti-Uninstall</string>
     <string name="add_cheat_hours">Add Cheat Hours</string>
@@ -170,4 +170,6 @@
     <string name="alert">Alert!!</string>
     <string name="i_understand">I Understand</string>
     <string name="are_you_sure_you_want_to_turn_on_anti_uninstall_there_is_no_turning_back">ARE YOU SURE YOU WANT TO TURN ON ANTI UNINSTALL? There is no turning back...</string>
+    <string name="about_view_blocker">About View Blocker</string>
+    <string name="this_option_has_the_ability_to_block_youtube_shorts_and_instagram_reels_while_allowing_access_to_other_app_features">This option has the ability to block YouTube Shorts and Instagram Reels while allowing access to other app features.</string>
 </resources>

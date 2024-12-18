@@ -266,6 +266,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/textView19"
                         style="@style/TextAppearance.Material3.TitleLarge"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -285,6 +286,16 @@
                         app:chipIcon="@drawable/baseline_warning_24"
                         app:chipIconTint="@color/design_default_color_error"
                         app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/help_reel_blocker"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:icon="@drawable/baseline_help_outline_24"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/textView19"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -456,7 +467,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:enabled="false"
-                    android:text="@string/manage_trackers" />
+                    android:text="@string/manage_overlay_trackers" />
 
 
                 <TextView

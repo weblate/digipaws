@@ -276,6 +276,14 @@ class MainActivity : AppCompatActivity() {
         binding.btnDonate.setOnClickListener {
             openUrl("https://digipaws.life/donate")
         }
+
+        binding.helpReelBlocker.setOnClickListener {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.about_view_blocker))
+                .setMessage(getString(R.string.this_option_has_the_ability_to_block_youtube_shorts_and_instagram_reels_while_allowing_access_to_other_app_features))
+                .setPositiveButton(getString(R.string.ok), null)
+                .show()
+        }
     }
 
     private fun openUrl(url: String) {
