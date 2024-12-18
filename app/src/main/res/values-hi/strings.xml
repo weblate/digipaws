@@ -7,4 +7,6 @@
     <string name="anti_uninstall">अन्‍इंस्‍टॉल प्रतिबंधक</string>
     <string name="usage_tracker">उपयोग निगरानी</string>
     <string name="view_reel_blocker">व्यू/रील प्रतिबंधक</string>
+    <string name="disabled">बंद</string>
+    <string name="select_pinned_apps">पिन किए गए ऐप्स चुनें</string>
 </resources>
