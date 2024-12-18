@@ -1,10 +1,17 @@
 package nethical.digipaws.ui.activity
 
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -16,6 +23,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,6 +34,9 @@ import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
 import nethical.digipaws.views.CustomMarkerView
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import kotlin.properties.Delegates
 
 
@@ -60,23 +71,14 @@ class UsageMetricsActivity : AppCompatActivity() {
         totalReels = savedPreferencesLoader.getReelsScrolled()
         reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
 
-
-        lifecycleScope.launch {
-            // Get the current date and update UI elements
-
-            makeReelCountStatsChart()
-            makeAverageReelAttentionSpanChart()
-
-            val date = TimeTools.getCurrentDate()
-            binding.statsTodayReels.text = getString(R.string.you_scrolled_reels, totalReels[date])
-
-            val average = withContext(Dispatchers.Default) {
-                reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
-            }
-
-            binding.statsAttentionSpanToday.text =
-                getString(R.string.you_had_an_attention_span_of_seconds_video, average)
+        if (reelsAttentionSpanData.isEmpty() && totalReels.isEmpty()) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle("Experimental Usage Tracker")
+                .setMessage("This feature is not yet available on all devices. To check if your device is supported, open YouTube Shorts or Instagram Reels or Tiktok and, start scrolling, and then return here. If the stats remain empty, your device is currently unsupported. We are working to expand compatibility to more devices soon.")
+                .setPositiveButton("Okay", null)
+                .show()
         }
+
         binding.btnDigiWelbeing.setOnClickListener {
             val packageName = "com.google.android.apps.wellbeing"
             val intent = packageManager.getLaunchIntentForPackage(packageName)
@@ -90,6 +92,41 @@ class UsageMetricsActivity : AppCompatActivity() {
                     Snackbar.LENGTH_SHORT
                 ).show()
             }
+        }
+
+        binding.shareStats.setOnClickListener {
+            binding.shareStats.visibility = View.GONE
+            val screenshotFile = captureScreenshot(binding.linearMain)
+            binding.shareStats.visibility = View.VISIBLE
+            if (screenshotFile != null) {
+                // Open the BottomSheet to share the screenshot
+                openShareBottomSheet(screenshotFile)
+            } else {
+                Toast.makeText(this, "Failed to capture screenshot", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        lifecycleScope.launch {
+            // Get the current date and update UI elements
+
+            totalReels = savedPreferencesLoader.getReelsScrolled()
+            reelsAttentionSpanData = savedPreferencesLoader.loadUsageHoursAttentionSpanData()
+            makeReelCountStatsChart()
+            makeAverageReelAttentionSpanChart()
+
+            val date = TimeTools.getCurrentDate()
+            binding.statsTodayReels.text = getString(R.string.you_scrolled_reels, totalReels[date])
+
+            val average = withContext(Dispatchers.Default) {
+                reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
+            }
+
+            binding.statsAttentionSpanToday.text =
+                getString(R.string.you_had_an_attention_span_of_seconds_video, average)
         }
     }
 
@@ -203,6 +240,44 @@ class UsageMetricsActivity : AppCompatActivity() {
                     getString(R.string.seconds_video)
                 )
             }
+        }
+    }
+    private fun openShareBottomSheet(file: File) {
+        val uri = FileProvider.getUriForFile(this, "${packageName}.provider", file)
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share Stats"))
+    }
+
+    private fun captureScreenshot(rootView: View): File? {
+        // Create a Bitmap of the root layout
+        val bitmap = Bitmap.createBitmap(rootView.width, rootView.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        rootView.draw(canvas)
+
+        // Save the bitmap to a file in the cache directory
+        val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
+        try {
+            FileOutputStream(file).use { fos ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            }
+            return file
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    private fun isAppInstalled(packageName: String): Boolean {
+        return try {
+            packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
         }
     }
 

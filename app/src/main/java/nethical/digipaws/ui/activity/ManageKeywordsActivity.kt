@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,7 +24,7 @@ class ManageKeywordsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageKeywordsBinding
     lateinit var savedKeywordsList: ArrayList<String>
     private lateinit var keywordAdapter: KeywordAdapter
-
+    private var oldSize = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +40,7 @@ class ManageKeywordsActivity : AppCompatActivity() {
         }
 
         savedKeywordsList = intent.getStringArrayListExtra("PRE_SAVED_KEYWORDS") ?: arrayListOf()
+        oldSize = savedKeywordsList.size
 
         keywordAdapter = KeywordAdapter(savedKeywordsList)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -52,9 +54,34 @@ class ManageKeywordsActivity : AppCompatActivity() {
             finish()
         }
         binding.btnAddKeyword.setOnClickListener { makeAddKeywordDialog() }
-
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Show a confirmation dialog
+                if (oldSize != savedKeywordsList.size) {
+                    showExitDialog()
+                } else {
+                    finish()
+                }
+            }
+        })
     }
 
+
+    private fun showExitDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.discard_changes))
+            .setMessage(getString(R.string.are_you_sure_you_want_to_discard_all_changes_and_exit))
+            .setPositiveButton(getString(R.string.yes)) { dialog, _ ->
+                dialog.dismiss()
+                // Allow back press
+                finish()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+                // Do nothing, stay on the screen
+            }
+            .show()
+    }
     private fun makeAddKeywordDialog() {
         val dialogBinding = DialogAddKeywordBinding.inflate(layoutInflater)
 
