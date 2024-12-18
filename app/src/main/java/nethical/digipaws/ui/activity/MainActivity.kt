@@ -311,7 +311,8 @@ class MainActivity : AppCompatActivity() {
 
             val antiUninstallInfo = getSharedPreferences("anti_uninstall", Context.MODE_PRIVATE)
             isAntiUninstallOn = antiUninstallInfo.getBoolean("is_anti_uninstall_on", false)
-
+            val doesAntiUninstallBlockView =
+                antiUninstallInfo.getBoolean("is_configuring_blocked", false)
 
             withContext(Dispatchers.Main) {
                 // App Blocker
@@ -319,7 +320,7 @@ class MainActivity : AppCompatActivity() {
                 binding.apply {
                     selectBlockedApps.isEnabled = isAppBlockerOn
                     btnConfigAppblockerWarning.isEnabled = isAppBlockerOn
-                    appBlockerSelectCheatHours.isEnabled = isAppBlockerOn
+                    appBlockerSelectCheatHours.isEnabled = isAppBlockerOn  
                 }
 
                 // View Blocker
@@ -329,7 +330,7 @@ class MainActivity : AppCompatActivity() {
                     binding.viewBlockerWarning
                 )
                 binding.btnConfigViewblockerCheatHours.isEnabled = isViewBlockerOn
-                binding.btnConfigViewblockerWarning.isEnabled = isViewBlockerOn
+                binding.btnConfigViewblockerWarning.isEnabled = isViewBlockerOn  
 
                 // Keyword Blocker
                 updateChip(
@@ -338,7 +339,7 @@ class MainActivity : AppCompatActivity() {
                     binding.keywordBlockerWarning
                 )
                 binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
-                binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
+                binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn  
 
                 // Usage Tracker
                 if (!isDisplayOverOtherAppsOn) {
@@ -366,7 +367,7 @@ class MainActivity : AppCompatActivity() {
                     binding.focusModeWarning
                 )
                 binding.startFocusMode.isEnabled = isGeneralSettingsOn
-                binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn
+                binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn 
 
                 // Anti-Uninstall settings
                 binding.btnUnlockAntiUninstall.isEnabled = isAntiUninstallOn
@@ -385,6 +386,18 @@ class MainActivity : AppCompatActivity() {
                     binding.antiUninstallCardChip.isEnabled = !isAntiUninstallOn
                     binding.antiUninstallCardChip.text =
                         if (isAntiUninstallOn) getString(R.string.setup_complete) else getString(R.string.enter_setup)
+                }
+
+                if (doesAntiUninstallBlockView && isAntiUninstallOn) {
+                    binding.apply {
+                        btnConfigAppblockerWarning.isEnabled = false
+                        btnManagePreinstalledKeywords.isEnabled = false
+                        btnConfigViewblockerCheatHours.isEnabled = false
+                        selectBlockedKeywords.isEnabled = false
+                        selectBlockedApps.isEnabled = false
+                        appBlockerSelectCheatHours.isEnabled = false
+                        btnConfigViewblockerWarning.isEnabled = false
+                    }
                 }
             }
         }
@@ -777,7 +790,10 @@ class MainActivity : AppCompatActivity() {
 
 
                 val today = Calendar.getInstance()
-                if (selectedDate.before(today)) {
+
+                val daysDiff =
+                    (selectedDate.timeInMillis - today.timeInMillis) / (1000 * 60 * 60 * 24)
+                if (selectedDate.before(today) || daysDiff.toInt() == 0) {
                     Snackbar.make(
                         binding.root,
                         getString(R.string.anti_uninstall_removed),
@@ -788,8 +804,6 @@ class MainActivity : AppCompatActivity() {
                     sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_ANTI_UNINSTALL)
 
                 } else {
-                    val daysDiff =
-                        (selectedDate.timeInMillis - today.timeInMillis) / (1000 * 60 * 60 * 24)
 
                     MaterialAlertDialogBuilder(this)
                         .setTitle(getString(R.string.failed))
