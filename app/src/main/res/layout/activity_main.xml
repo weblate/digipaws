@@ -129,13 +129,13 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <Button
-                    android:id="@+id/select_focus_unblocked_apps"
+                    android:id="@+id/select_focus_blocked_apps"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:enabled="false"
-                    android:text="@string/select_unblocked_apps" />
+                    android:text="@string/select_blocked_apps" />
 
                 <Button
                     android:id="@+id/start_focus_mode"

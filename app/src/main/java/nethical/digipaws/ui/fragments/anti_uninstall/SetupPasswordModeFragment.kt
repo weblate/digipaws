@@ -34,7 +34,8 @@ class SetupPasswordModeFragment : Fragment() {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(getString(R.string.alert))
                 .setMessage(getString(R.string.are_you_sure_you_want_to_turn_on_anti_uninstall_there_is_no_turning_back))
-                .setPositiveButton(getString(R.string.i_understand)) { _, dialog ->
+
+                .setPositiveButton(getString(R.string.i_understand)) { _, _ ->
                     setupPasswordMode()
                 }
                 .setNegativeButton(getString(R.string.cancel)) { _, dialog ->

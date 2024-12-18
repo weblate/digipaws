@@ -224,11 +224,11 @@ class MainActivity : AppCompatActivity() {
         binding.btnManagePreinstalledKeywords.setOnClickListener {
             manageKeywordPackDialog()
         }
-        binding.selectFocusUnblockedApps.setOnClickListener {
+        binding.selectFocusBlockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
                 "PRE_SELECTED_APPS",
-                ArrayList(savedPreferencesLoader.getFocusModeUnblockedApps())
+                ArrayList(savedPreferencesLoader.getFocusModeBlockedApps())
             )
             selectFocusModeUnblockedAppsLauncher.launch(intent)
         }
@@ -367,7 +367,7 @@ class MainActivity : AppCompatActivity() {
                     binding.focusModeWarning
                 )
                 binding.startFocusMode.isEnabled = isGeneralSettingsOn
-                binding.selectFocusUnblockedApps.isEnabled = isGeneralSettingsOn 
+                binding.selectFocusBlockedApps.isEnabled = isGeneralSettingsOn
 
                 // Anti-Uninstall settings
                 binding.btnUnlockAntiUninstall.isEnabled = isAntiUninstallOn
@@ -399,6 +399,10 @@ class MainActivity : AppCompatActivity() {
                         btnConfigViewblockerWarning.isEnabled = false
                     }
                 }
+
+                val isFocusedModeOn = savedPreferencesLoader.getFocusModeData().isTurnedOn
+                binding.selectFocusBlockedApps.isEnabled = !isFocusedModeOn
+                binding.startFocusMode.isEnabled = !isFocusedModeOn
             }
         }
     }
@@ -750,6 +754,9 @@ class MainActivity : AppCompatActivity() {
                 val timer = NotificationTimerManager(this)
                 // TODO: add notification permission check
                 timer.startTimer(totalMillis.toLong())
+
+                binding.selectFocusBlockedApps.isEnabled = false
+                binding.startFocusMode.isEnabled = false
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .show()

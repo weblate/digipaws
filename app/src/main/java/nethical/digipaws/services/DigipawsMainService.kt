@@ -16,10 +16,12 @@ class DigipawsMainService : BaseBlockingService() {
     companion object {
         const val INTENT_ACTION_REFRESH_FOCUS_MODE = "nethical.digipaws.refresh.focus_mode"
         const val INTENT_ACTION_REFRESH_ANTI_UNINSTALL = "nethical.digipaws.refresh.anti_uninstall"
+
     }
 
     private var focusModeData = FocusModeData()
-    private var allowedAppList: HashSet<String> = hashSetOf()
+    private var blockedAppList: HashSet<String> = hashSetOf()
+    private var launcherPackage = "nethical.digipaws"
 
     private var isAntiUninstallOn = true
 
@@ -27,12 +29,13 @@ class DigipawsMainService : BaseBlockingService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         super.onAccessibilityEvent(event)
         if (focusModeData.isTurnedOn) {
-            if (!allowedAppList.contains(event?.packageName)) {
+            if (blockedAppList.contains(event?.packageName) && launcherPackage != event?.packageName) {
                 pressHome()
             }
 
             if (focusModeData.endTime < System.currentTimeMillis()) {
                 focusModeData.isTurnedOn = false
+                savedPreferencesLoader.saveFocusModeData(focusModeData)
             }
         }
 
@@ -74,9 +77,8 @@ class DigipawsMainService : BaseBlockingService() {
     }
 
     fun setupFocusMode() {
-        allowedAppList = savedPreferencesLoader.getFocusModeUnblockedApps().toHashSet()
-        allowedAppList.add(packageName)
-        getDefaultLauncherPackageName()?.let { allowedAppList.add(it) }
+        blockedAppList = savedPreferencesLoader.getFocusModeBlockedApps().toHashSet()
+        getDefaultLauncherPackageName()?.let { launcherPackage = it }
         focusModeData = savedPreferencesLoader.getFocusModeData()
     }
 
