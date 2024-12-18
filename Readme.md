@@ -44,11 +44,11 @@ DigiPaws is an open-source Android productivity utility designed to help users r
 Click on any image to enlarge it.
 <table>
 	<tr>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241213-215830.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241214-224115.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241215-162510.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241215-162516.png' width='120'></td>
-		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_20241215-220936.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/1.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/2.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/3.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/4.png' width='120'></td>
+		<td><img src='fastlane/metadata/android/en-US/images/phoneScreenshots/5.png' width='120'></td>
 	</tr>
 </table>
 
@@ -60,7 +60,11 @@ Allows user to configure everything as they desire according to their own needs.
 
 ### Gamified Mode (🚧🔨)
 
-Thhis Mode introduces a gamified experience to control screen time using various fun elements like quests and goals. This mode tracks your usage and configures everything accordingly as the days pass by.
+This Mode introduces a gamified experience to control screen time using various fun elements like
+quests and goals. This mode tracks your usage and configures everything accordingly as the days pass
+by.
+> [!CAUTION]
+> This mode is still in development and might take a while to release.
 
 ## Configuring
 
@@ -84,9 +88,10 @@ Thhis Mode introduces a gamified experience to control screen time using various
 - [x] Customisable warning screen
 - [x] Quests and gamified mode
 - [x] track how many tiktoks you scroll everyday 
+- [x] track attention span
 - [ ] Api for other developers to transform their existing apps into digipaw quests!
 - [ ] Geoblocker (basically block things when a certain area is entered, like workplace)
-- [x] Block cusomtom user defined keywords
+- [x] Block custom user defined keywords
 - [ ] Modular and downloadable view blockers
 - [ ] expand the app to ios and desktop.
 - [ ] 
