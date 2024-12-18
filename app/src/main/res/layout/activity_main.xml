@@ -15,6 +15,7 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/launcher_card"
+            android:visibility="gone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
@@ -51,7 +52,7 @@
                         android:id="@+id/launcher_status_chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/disabled"
+                        android:text="Comming soon!"
                         app:chipIcon="@drawable/baseline_warning_24"
                         app:chipIconTint="@color/design_default_color_error"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -537,6 +538,60 @@
                     android:text="@string/warning_general_settings"
                     android:textAlignment="center"
                     android:textColor="?attr/colorError" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/support_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/anti_uninstall_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/TextAppearance.Material3.TitleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/support"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_discord"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/join_discord" />
+
+                <Button
+                    android:id="@+id/btn_instagram"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/follow_us_on_instagram" />
+
+                <Button
+                    android:id="@+id/btn_donate"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Donate us" />
+
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

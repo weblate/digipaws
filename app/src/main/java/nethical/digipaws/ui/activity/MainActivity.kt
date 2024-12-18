@@ -4,6 +4,7 @@ import android.Manifest
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.app.admin.DevicePolicyManager
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -263,6 +264,26 @@ class MainActivity : AppCompatActivity() {
         }
         binding.keywordBlockerStatusChip.setOnClickListener {
             makeAccessibilityInfoDialog("Keyword Blocker", KeywordBlockerService::class.java)
+        }
+        binding.btnDiscord.setOnClickListener {
+            openUrl("https://discord.com/invite/Vs9mwUtuCN")
+        }
+
+        binding.btnInstagram.setOnClickListener {
+            openUrl("https://www.instagram.com/digipaws.app")
+        }
+
+        binding.btnDonate.setOnClickListener {
+            openUrl("https://digipaws.life/donate")
+        }
+    }
+
+    private fun openUrl(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, "No application found to open the link", Toast.LENGTH_SHORT).show()
         }
     }
 
