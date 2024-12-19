@@ -96,7 +96,7 @@ class UsageMetricsActivity : AppCompatActivity() {
 
         binding.shareStats.setOnClickListener {
             binding.shareStats.visibility = View.GONE
-            val screenshotFile = captureScreenshot(binding.linearMain)
+            val screenshotFile = captureScreenshot(binding.linearSharePic)
             binding.shareStats.visibility = View.VISIBLE
             if (screenshotFile != null) {
                 // Open the BottomSheet to share the screenshot
@@ -254,23 +254,31 @@ class UsageMetricsActivity : AppCompatActivity() {
     }
 
     private fun captureScreenshot(rootView: View): File? {
-        // Create a Bitmap of the root layout
+        // Create a Bitmap of the root layout based on its actual size
         val bitmap = Bitmap.createBitmap(rootView.width, rootView.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         rootView.draw(canvas)
 
-        // Save the bitmap to a file in the cache directory
+        // Resize the Bitmap to Instagram story dimensions (1080x1920)
+        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 1080, 1920, true)
+
+        // Save the resized bitmap to a file in the cache directory
         val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
         try {
             FileOutputStream(file).use { fos ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
             }
             return file
         } catch (e: IOException) {
             e.printStackTrace()
+        } finally {
+            // Recycle bitmaps to free memory
+            bitmap.recycle()
+            resizedBitmap.recycle()
         }
         return null
     }
+
 
     private fun isAppInstalled(packageName: String): Boolean {
         return try {
