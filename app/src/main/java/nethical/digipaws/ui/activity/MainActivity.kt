@@ -407,10 +407,11 @@ class MainActivity : AppCompatActivity() {
                         btnConfigViewblockerWarning.isEnabled = false
                     }
                 }
-
-                val isFocusedModeOn = savedPreferencesLoader.getFocusModeData().isTurnedOn
-                binding.selectFocusBlockedApps.isEnabled = !isFocusedModeOn
-                binding.startFocusMode.isEnabled = !isFocusedModeOn
+                if (isGeneralSettingsOn) {
+                    val isFocusedModeOn = savedPreferencesLoader.getFocusModeData().isTurnedOn
+                    binding.selectFocusBlockedApps.isEnabled = !isFocusedModeOn
+                    binding.startFocusMode.isEnabled = !isFocusedModeOn
+                }
             }
         }
     }
@@ -774,11 +775,13 @@ class MainActivity : AppCompatActivity() {
     private fun manageKeywordPackDialog() {
         val dialogManageKeywordPacks = DialogKeywordPackageBinding.inflate(layoutInflater)
 
+        val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
+
+        dialogManageKeywordPacks.cbAdultKeywords.isChecked = sp.getBoolean("adult_blocker", false)
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.manage_keyword_blockers))
             .setView(dialogManageKeywordPacks.root)
             .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
                 sp.edit()
                     .putBoolean("adult_blocker", dialogManageKeywordPacks.cbAdultKeywords.isChecked)
                     .commit()
