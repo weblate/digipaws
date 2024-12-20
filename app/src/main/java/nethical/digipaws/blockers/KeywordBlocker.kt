@@ -16,7 +16,7 @@ class KeywordBlocker : BaseBlocker() {
     }
 
     private fun checkIfNodeEditText(node: AccessibilityNodeInfo?): Boolean {
-        return node?.className == "android.widget.EditText"
+        return node?.className == "android.widget.TextView"
     }
 
 

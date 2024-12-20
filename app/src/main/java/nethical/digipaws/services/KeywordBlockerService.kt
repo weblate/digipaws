@@ -25,7 +25,7 @@ class KeywordBlockerService : BaseBlockingService() {
 
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (!isDelayOver(1500)) {
+        if (!isDelayOver(10000)) {
             return
         }
 
