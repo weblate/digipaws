@@ -1,6 +1,5 @@
 package nethical.digipaws.views
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.TextView
 import com.github.mikephil.charting.components.MarkerView
@@ -14,19 +13,17 @@ class CustomMarkerView(context: Context, layoutResource: Int) :
 
     private val tvContent: TextView = findViewById(R.id.tvContent)
 
-    var units = ""
     var showDecimal = true
-
-    @SuppressLint("SetTextI18n")
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
-        super.refreshContent(e, highlight)
-        // Customize the marker content
-        if (showDecimal) {
-            val rounded = "%.2f".format(e?.y)
-            tvContent.text = "$rounded $units"
-        } else {
-            tvContent.text = "${"%.0f".format(e?.y)}" // TODO: shit slow asf, needs to fix
+        e?.y?.let { value ->
+            tvContent.text = if (showDecimal) {
+                "%.2f".format(value)  // Efficient decimal formatting
+            } else {
+                value.toInt().toString()  // Convert to integer for non-decimal
+            }
         }
+
+        super.refreshContent(e, highlight)
     }
 
     override fun getOffset(): MPPointF {

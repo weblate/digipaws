@@ -42,6 +42,7 @@ import nethical.digipaws.databinding.DialogKeywordPackageBinding
 import nethical.digipaws.databinding.DialogPermissionInfoBinding
 import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
 import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
+import nethical.digipaws.databinding.TermsAndConditionsDialogBinding
 import nethical.digipaws.receivers.AdminReceiver
 import nethical.digipaws.services.AppBlockerService
 import nethical.digipaws.services.DigipawsMainService
@@ -95,6 +96,10 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        if (isFirstLaunch()) {
+            showTermsAndConditionsDialog()
+        }
+
         setupActivityLaunchers()
         setupClickListeners()
 
@@ -414,6 +419,65 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+
+    private fun isFirstLaunch(): Boolean {
+        val sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("isFirstLaunch", true)
+    }
+
+    private fun setFirstLaunchCompleted() {
+        val sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putBoolean("isFirstLaunch", false).apply()
+    }
+
+    private fun showTermsAndConditionsDialog() {
+        val binding =
+            TermsAndConditionsDialogBinding.inflate(layoutInflater) // Bind the dialog layout
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(binding.root)
+            .setCancelable(false)
+            .create()
+
+
+        binding.btnContinue.isEnabled = false // Initially disable the button
+        binding.checkboxAgree.setOnCheckedChangeListener { _, isChecked ->
+            binding.btnContinue.isEnabled = isChecked
+        }
+
+        binding.tvTermsLink.setOnClickListener {
+            val browserIntent =
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://digipaws.life/terms-and-conditions"))
+            startActivity(browserIntent)
+        }
+
+        binding.btnContinue.setOnClickListener {
+            setFirstLaunchCompleted()
+            dialog.dismiss()
+            makeIntroDialog()
+        }
+
+        binding.btnTosReject.setOnClickListener {
+            finishAffinity()
+        }
+
+        dialog.show()
+    }
+
+    private fun makeIntroDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Welcome")
+            .setMessage(
+                "Thanks for trying out DigiPaws!\n\n" +
+                        "We're still in beta and would love to hear your opinions and ideas. " +
+                        "Join us on our Discord or Telegram servers to share your feedback and help us improve DigiPaws!"
+            )
+            .setNegativeButton("Okay") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 
 

@@ -4,9 +4,9 @@
     <string name="focus_mode">Focus Mode</string>
     <string name="app_blocker">App Blocker</string>
     <string name="view_reel_blocker">View/Reel Blocker</string>
-    <string name="keyword_blocker">Keyword Blocker</string>
+    <string name="keyword_blocker">Keyword Blocker (BETA)</string>
     <string name="anti_uninstall">Anti Uninstall</string>
-    <string name="usage_tracker">Usage Tracker</string>
+    <string name="usage_tracker">Usage Tracker (BETA)</string>
     <string name="disabled">Disabled</string>
     <string name="select_pinned_apps">Select pinned apps</string>
     <string name="warning_launcher_settings">Set Digipaws as the default launcher to access this option</string>
@@ -166,7 +166,7 @@
     <string name="join_discord">Join Discord</string>
     <string name="follow_us_on_instagram">Follow us on Instagram</string>
     <string name="support">Support</string>
-    <string name="if_you_enable_this_you_won_t_be_able_to_change_configurations_such_as_adding_blocked_apps_keywords_and_more">If you enable this, you won\'t be able to change configurations such as adding blocked apps, keywords, and more until you remove anti-uninstall.</string>
+    <string name="if_you_enable_this_you_won_t_be_able_to_change_configurations_such_as_adding_blocked_apps_keywords_and_more">If you enable this, you won\'t be able to change configurations such as adding blocked apps, keywords, and more until you remove anti-uninstall. Your existing changes will be used for the entire period.</string>
     <string name="alert">Alert!!</string>
     <string name="i_understand">I Understand</string>
     <string name="are_you_sure_you_want_to_turn_on_anti_uninstall_there_is_no_turning_back">ARE YOU SURE YOU WANT TO TURN ON ANTI UNINSTALL? There is no turning back...</string>

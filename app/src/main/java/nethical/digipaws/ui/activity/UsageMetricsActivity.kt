@@ -94,8 +94,26 @@ class UsageMetricsActivity : AppCompatActivity() {
             }
         }
 
+
+        val markerViewReel = CustomMarkerView(this, R.layout.custom_marker_view)
+        markerViewReel.apply {
+            chartView = binding.reelsStats
+            showDecimal = false
+        }
+        binding.reelsStats.marker = markerViewReel
+
+
+        val markerViewAttention = CustomMarkerView(this, R.layout.custom_marker_view)
+        markerViewAttention.apply {
+            chartView = binding.avgAttentionStats
+            showDecimal = true
+        }
+        binding.avgAttentionStats.marker = markerViewAttention
+
         binding.shareStats.setOnClickListener {
             binding.btnDigiWelbeing.text = "Tracked Using Digipaws"
+
+            markerViewReel.visibility = View.GONE
             val screenshotFile = captureScreenshot(binding.linearSharePic)
             if (screenshotFile != null) {
                 // Open the BottomSheet to share the screenshot
@@ -104,8 +122,11 @@ class UsageMetricsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to capture screenshot", Toast.LENGTH_SHORT).show()
             }
 
+            markerViewReel.visibility = View.VISIBLE
             binding.btnDigiWelbeing.text = getString(R.string.view_more)
         }
+
+
     }
 
     override fun onResume() {
@@ -120,10 +141,14 @@ class UsageMetricsActivity : AppCompatActivity() {
             makeAverageReelAttentionSpanChart()
 
             val date = TimeTools.getCurrentDate()
-            binding.statsTodayReels.text = getString(R.string.you_scrolled_reels, totalReels[date])
+            binding.statsTodayReels.text =
+                getString(R.string.you_scrolled_reels, totalReels.getOrDefault(date, 0))
 
-            val average = withContext(Dispatchers.Default) {
+            var average = withContext(Dispatchers.Default) {
                 reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
+            }
+            if (average == null) {
+                average = 0.0
             }
 
             binding.statsAttentionSpanToday.text =
@@ -135,9 +160,7 @@ class UsageMetricsActivity : AppCompatActivity() {
     private fun setupChartUI(
         chart: LineChart,
         labels: List<String>,
-        lineDataSet: LineDataSet,
-        chartUnits: String = "",
-        showDecimal: Boolean = true
+        lineDataSet: LineDataSet
     ) {
 
         lineDataSet.apply {
@@ -186,11 +209,6 @@ class UsageMetricsActivity : AppCompatActivity() {
             data = LineData(lineDataSet)
 
         }
-        val markerView = CustomMarkerView(this, R.layout.custom_marker_view)
-        markerView.chartView = chart
-        markerView.units = chartUnits
-        markerView.showDecimal = showDecimal
-        chart.marker = markerView
         chart.invalidate()
     }
 
@@ -211,9 +229,9 @@ class UsageMetricsActivity : AppCompatActivity() {
             // Switch back to the main thread to update the UI
             withContext(Dispatchers.Main) {
                 setupChartUI(
-                    binding.reelsStats, labels, lineDataSet,
-                    getString(R.string.short_videos_scrolled), false
+                    binding.reelsStats, labels, lineDataSet
                 )
+
             }
         }
     }
@@ -237,8 +255,7 @@ class UsageMetricsActivity : AppCompatActivity() {
             // Switch back to the main thread to update the UI
             withContext(Dispatchers.Main) {
                 setupChartUI(
-                    binding.avgAttentionStats, labels, lineDataSet,
-                    getString(R.string.seconds_video)
+                    binding.avgAttentionStats, labels, lineDataSet
                 )
             }
         }
@@ -260,14 +277,12 @@ class UsageMetricsActivity : AppCompatActivity() {
         val canvas = Canvas(bitmap)
         rootView.draw(canvas)
 
-        // Resize the Bitmap to Instagram story dimensions (1080x1920)
-        val resizedBitmap = Bitmap.createScaledBitmap(bitmap, 1080, 1920, true)
 
         // Save the resized bitmap to a file in the cache directory
         val file = File(cacheDir, "screenshot_${System.currentTimeMillis()}.png")
         try {
             FileOutputStream(file).use { fos ->
-                resizedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
             }
             return file
         } catch (e: IOException) {
@@ -275,7 +290,6 @@ class UsageMetricsActivity : AppCompatActivity() {
         } finally {
             // Recycle bitmaps to free memory
             bitmap.recycle()
-            resizedBitmap.recycle()
         }
         return null
     }
