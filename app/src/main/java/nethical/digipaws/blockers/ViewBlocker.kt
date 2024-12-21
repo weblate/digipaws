@@ -23,13 +23,14 @@ class ViewBlocker : BaseBlocker() {
             "com.zhiliaoapp.musically",
             "com.ss.android.ugc.aweme"
         )
+        val BLOCKED_VIEW_ID_LIST = mutableListOf(
+            "com.instagram.android:id/root_clips_layout",
+            "com.google.android.youtube:id/reel_recycler",
+            "app.revanced.android.youtube:id/reel_recycler"
+        )
+
     }
     private val cooldownViewIdsList = mutableMapOf<String, Long>()
-    private val blockedViewIdsList = mutableListOf(
-        "com.instagram.android:id/root_clips_layout",
-        "com.google.android.youtube:id/reel_recycler",
-        "app.revanced.android.youtube:id/reel_recycler"
-    )
 
 
     var isIGInboxReelAllowed = false
@@ -69,7 +70,7 @@ class ViewBlocker : BaseBlocker() {
         }
 
 
-        blockedViewIdsList.forEach { viewId ->
+        BLOCKED_VIEW_ID_LIST.forEach { viewId ->
             if(isViewOpened(node,viewId)){
                 if (isCooldownActive(viewId)) {
                     return ViewBlockerResult(isReelFoundInCooldownState = true, viewId = viewId)

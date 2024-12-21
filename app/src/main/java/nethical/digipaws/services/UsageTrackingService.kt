@@ -1,6 +1,5 @@
 package nethical.digipaws.services
 
-import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -19,11 +18,10 @@ import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
 import nethical.digipaws.blockers.ViewBlocker
 import nethical.digipaws.ui.overlay.UsageStatOverlayManager
-import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
 import java.util.concurrent.TimeUnit
 
-class UsageTrackingService : AccessibilityService() {
+class UsageTrackingService : BaseBlockingService() {
 
     private var screenOnTime: Long = 0
     private var accumulatedTime: Long = 0
@@ -36,7 +34,6 @@ class UsageTrackingService : AccessibilityService() {
 
     private var attentionSpanDataList = mutableMapOf<String, MutableList<AttentionSpanVideoItem>>()
     private var lastVideoViewFoundTime: Long? = null
-    private val savedPreferencesLoader = SavedPreferencesLoader(this)
     private var reelCountData = mutableMapOf<String, Int>()
 
     private var isReelCountToBeDisplayed = true
@@ -50,14 +47,22 @@ class UsageTrackingService : AccessibilityService() {
         private const val TAG = "ScreenTimeTracking"
         private const val USER_Y_SWIPE_THRESHOLD: Long = 2
 
-        const val VIDEO_TYPE_REEL = 1
-
-        val REEL_APPS_THAT_USE_VIEWPAGER = hashSetOf(
-            "com.instagram.android",
+        private val SUPPORTED_TRACKING_APPS = hashSetOf(
             "com.ss.android.ugc.trill",
             "com.zhiliaoapp.musically",
-            "com.ss.android.ugc.aweme"
+            "com.ss.android.ugc.aweme",
+            "com.instagram.android",
+            "com.google.android.youtube",
+            "app.revanced.android.youtube"
         )
+
+        private val APPS_THAT_USE_VIEWPAGER = hashSetOf(
+            "com.ss.android.ugc.trill",
+            "com.zhiliaoapp.musically",
+            "com.ss.android.ugc.aweme",
+            "com.instagram.android"
+        )
+        const val VIDEO_TYPE_REEL = 1
     }
 
     private val screenReceiver = object : BroadcastReceiver() {
@@ -81,7 +86,8 @@ class UsageTrackingService : AccessibilityService() {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onServiceConnected() {
         serviceInfo = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_VIEW_SCROLLED
+            eventTypes =
+                AccessibilityEvent.TYPE_VIEW_SCROLLED or AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.DEFAULT
         }
@@ -186,37 +192,48 @@ class UsageTrackingService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event?.packageName == "com.google.android.youtube") {
-            Log.d(
-                "event",
-                event.source?.className.toString() + " event: " + event.eventType.toString()
-            )
+
+        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && isDelayOver(2000)) {
+            // apps supports reel tracking
+            if (SUPPORTED_TRACKING_APPS.contains(event.packageName)) {
+
+                // find reel tracking view and hide the counter if not found
+                ViewBlocker.BLOCKED_VIEW_ID_LIST.forEach { viewId ->
+                    if (ViewBlocker.findElementById(rootInActiveWindow, viewId) == null) {
+                        hideReelTrackingView()
+                    }
+                }
+            } else {
+                // app is not supported so hide it
+                hideReelTrackingView()
+            }
+
+            lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
+
         }
+
         if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
             supportsViewScrolled = true
             when {
-                event.source?.className == "androidx.viewpager.widget.ViewPager" && REEL_APPS_THAT_USE_VIEWPAGER.contains(
+                // handle tiktok + Instagram scrolls
+                event.source?.className == "androidx.viewpager.widget.ViewPager" && APPS_THAT_USE_VIEWPAGER.contains(
                     event.packageName
                 ) -> takeReelAction()
 
+                // youtube scrolls
                 (event.packageName == "com.google.android.youtube" || event.packageName == "app.revanced.android.youtube") &&
                         event.source?.className == "android.support.v7.widget.RecyclerView" -> {
                     val reelView = ViewBlocker.findElementById(
                         rootInActiveWindow,
                         "com.google.android.youtube:id/reel_recycler"
                     )
-                    if (reelView != null) takeReelAction() else resetReelTracking()
+                    if (reelView != null) takeReelAction() else hideReelTrackingView()
                 }
-
-                else -> resetReelTracking()
             }
-        }
-        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && !supportsViewScrolled) {
-            // TODO: FIND MECHANISM TO CALCULATE REELS SCROLLED HERE
         }
     }
 
-    private fun resetReelTracking() {
+    private fun hideReelTrackingView() {
         usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
         lastVideoViewFoundTime = null
     }
@@ -263,6 +280,7 @@ class UsageTrackingService : AccessibilityService() {
             }
 
             trackAttentionSpan()
+            lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
         }
     }
 
