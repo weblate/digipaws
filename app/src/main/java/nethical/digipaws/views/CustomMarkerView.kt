@@ -21,12 +21,11 @@ class CustomMarkerView(context: Context, layoutResource: Int) :
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
         super.refreshContent(e, highlight)
         // Customize the marker content
-//        if(showDecimal){
-        if (true) {
-            val rounded = "%.2f".format(e?.y).toFloat()
+        if (showDecimal) {
+            val rounded = "%.2f".format(e?.y)
             tvContent.text = "$rounded $units"
         } else {
-            tvContent.text = "${e?.y?.toInt()}" // TODO: shit slow asf, needs to fix
+            tvContent.text = "${"%.0f".format(e?.y)}" // TODO: shit slow asf, needs to fix
         }
     }
 

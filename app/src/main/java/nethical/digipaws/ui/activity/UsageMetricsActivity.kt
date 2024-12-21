@@ -95,15 +95,16 @@ class UsageMetricsActivity : AppCompatActivity() {
         }
 
         binding.shareStats.setOnClickListener {
-            binding.shareStats.visibility = View.GONE
+            binding.btnDigiWelbeing.text = "Tracked Using Digipaws"
             val screenshotFile = captureScreenshot(binding.linearSharePic)
-            binding.shareStats.visibility = View.VISIBLE
             if (screenshotFile != null) {
                 // Open the BottomSheet to share the screenshot
                 openShareBottomSheet(screenshotFile)
             } else {
                 Toast.makeText(this, "Failed to capture screenshot", Toast.LENGTH_SHORT).show()
             }
+
+            binding.btnDigiWelbeing.text = getString(R.string.view_more)
         }
     }
 

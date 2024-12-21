@@ -70,15 +70,6 @@
                         android:layout_marginTop="8dp"
                         android:text="@string/view_more" />
 
-                    <TextView
-                        android:id="@+id/textView21"
-                        style="@style/TextAppearance.Material3.BodySmall"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="8dp"
-                        android:text="Tracked Using Digipaws.life" />
-
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
