@@ -392,6 +392,17 @@
                     android:enabled="false"
                     android:text="@string/manage_keyword_packs" />
 
+
+                <Button
+                    android:id="@+id/btn_manage_keyword_blocker"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:enabled="false"
+                    android:text="@string/configure_blocker" />
+
+
                 <TextView
                     android:id="@+id/keyword_blocker_warning"
                     style="@style/TextAppearance.Material3.BodySmall"

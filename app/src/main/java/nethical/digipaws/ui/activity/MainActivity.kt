@@ -38,6 +38,7 @@ import nethical.digipaws.databinding.ActivityMainBinding
 import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
 import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
+import nethical.digipaws.databinding.DialogKeywordBlockerConfigBinding
 import nethical.digipaws.databinding.DialogKeywordPackageBinding
 import nethical.digipaws.databinding.DialogPermissionInfoBinding
 import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
@@ -229,6 +230,9 @@ class MainActivity : AppCompatActivity() {
         binding.btnManagePreinstalledKeywords.setOnClickListener {
             manageKeywordPackDialog()
         }
+        binding.btnManageKeywordBlocker.setOnClickListener {
+            makeKeywordBlockerConfigDialog()
+        }
         binding.selectFocusBlockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -352,7 +356,8 @@ class MainActivity : AppCompatActivity() {
                     binding.keywordBlockerWarning
                 )
                 binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
-                binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn  
+                binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
+                binding.btnManageKeywordBlocker.isEnabled = isKeywordBlockerOn
 
                 // Usage Tracker
                 if (!isDisplayOverOtherAppsOn) {
@@ -405,6 +410,7 @@ class MainActivity : AppCompatActivity() {
                     binding.apply {
                         btnConfigAppblockerWarning.isEnabled = false
                         btnManagePreinstalledKeywords.isEnabled = false
+                        btnManageKeywordBlocker.isEnabled = false
                         btnConfigViewblockerCheatHours.isEnabled = false
                         selectBlockedKeywords.isEnabled = false
                         selectBlockedApps.isEnabled = false
@@ -659,6 +665,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun makeAccessibilityInfoDialog(title: String, cls: Class<*>) {
         val dialogAccessibilityServiceInfoBinding =
             DialogPermissionInfoBinding.inflate(layoutInflater)
@@ -850,6 +857,41 @@ class MainActivity : AppCompatActivity() {
                     .putBoolean("adult_blocker", dialogManageKeywordPacks.cbAdultKeywords.isChecked)
                     .commit()
                 sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
+            }
+            .show()
+    }
+
+    @SuppressLint("ApplySharedPref")
+    private fun makeKeywordBlockerConfigDialog() {
+        val dialogManageKeywordBlocker = DialogKeywordBlockerConfigBinding.inflate(layoutInflater)
+
+        val sp = getSharedPreferences("keyword_blocker_configs", Context.MODE_PRIVATE)
+
+        dialogManageKeywordBlocker.cbSearchTextField.isChecked =
+            sp.getBoolean("search_all_text_fields", false)
+        dialogManageKeywordBlocker.redirectUrl.setText(
+            sp.getString(
+                "redirect_url",
+                "https://www.youtube.com/watch?v=x31tDT-4fQw&t=1s"
+            )
+        )
+
+        MaterialAlertDialogBuilder(this)
+            .setView(dialogManageKeywordBlocker.root)
+            .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                sp.edit()
+                    .putBoolean(
+                        "search_all_text_fields",
+                        dialogManageKeywordBlocker.cbSearchTextField.isChecked
+                    )
+                    .putString(
+                        "redirect_url",
+                        dialogManageKeywordBlocker.redirectUrl.text.toString()
+                    )
+                    .commit()
+                sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_CONFIG)
+            }
+            .setNegativeButton(getString(R.string.close)) { _, _ ->
             }
             .show()
     }

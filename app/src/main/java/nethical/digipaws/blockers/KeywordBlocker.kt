@@ -34,6 +34,9 @@ class KeywordBlocker : BaseBlocker() {
     }
     lateinit var blockedKeyword: HashSet<String>
 
+    lateinit var redirectUrl: String
+    var isSearchAllTextFields = false
+
     var recursionResultNodes: MutableList<AccessibilityNodeInfo> = mutableListOf()
     private fun containsBlockedKeyword(url: String): String? {
         // Split text by whitespace to get individual words and check each word
@@ -47,7 +50,7 @@ class KeywordBlocker : BaseBlocker() {
         return null
     }
 
-    fun parseTextForKeywords(input: String): Set<String> {
+    private fun parseTextForKeywords(input: String): Set<String> {
         // Basic word extraction for any text
         fun extractWords(text: String): Set<String> {
             return text.split(Regex("[^a-zA-Z0-9]+"))
@@ -90,29 +93,50 @@ class KeywordBlocker : BaseBlocker() {
         event: AccessibilityEvent
     ): KeywordBlockerResult {
         rootNode ?: return KeywordBlockerResult()
-        val textNode: AccessibilityNodeInfo?
+        val displayUrlTextNode: AccessibilityNodeInfo?
 
+        var detectedAdultKeyword: String? = null
+
+        if (isSearchAllTextFields) {
+
+            recursionResultNodes.clear()
+            findNodesByClassName(rootNode, "android.widget.TextView", false)
+
+            try {
+                recursionResultNodes.forEach { node ->
+                    val word = containsBlockedKeyword(node.text.toString())
+                    if (word != null) {
+                        detectedAdultKeyword = word
+                        return@forEach
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("Keyword Blocker", e.toString())
+            }
+        }
         // Check if the package name exists in the map
         val urlBarInfo = URL_BAR_ID_LIST[event.packageName]
-
-        var detectedAdultKeyword: String? = searchKeywordsInWebViewTitle(rootNode)
-
-        if (urlBarInfo == null) {
+        if (urlBarInfo == null && detectedAdultKeyword != null) {
+            // App is not a supported browser and adult word was found so hence press home
             return KeywordBlockerResult(true, detectedAdultKeyword)
         }
 
+        if (urlBarInfo == null) return KeywordBlockerResult()
         val idPrefixPart = event.packageName.toString() + ":id/"
-        textNode = ViewBlocker.findElementById(rootNode, idPrefixPart + urlBarInfo.displayUrlBarId)
+        displayUrlTextNode =
+            ViewBlocker.findElementById(rootNode, idPrefixPart + urlBarInfo.displayUrlBarId)
+
+
 
         if (detectedAdultKeyword == null) {
-            val nodeText = textNode?.text ?: return KeywordBlockerResult()
-            Log.d("Keyword Blocker Evaluation ", nodeText.toString())
 
-            detectedAdultKeyword =
-                containsBlockedKeyword(nodeText.toString()) ?: return KeywordBlockerResult()
+            detectedAdultKeyword = searchKeywordsInWebViewTitle(rootNode) ?: containsBlockedKeyword(
+                displayUrlTextNode?.text.toString()
+            ) ?: return KeywordBlockerResult()
+
         }
 
-        textNode?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        displayUrlTextNode?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         Thread.sleep(200)
 
         Log.d("edit", idPrefixPart + urlBarInfo.editUrlBarId)
@@ -124,8 +148,7 @@ class KeywordBlocker : BaseBlocker() {
 
         editUrlBar.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
             putCharSequence(
-                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
-                "https://www.youtube.com/watch?v=x31tDT-4fQw&t=1s"
+                AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, redirectUrl
             )
         })
         Thread.sleep(300)
@@ -153,11 +176,11 @@ class KeywordBlocker : BaseBlocker() {
         }
         val webView = recursionResultNodes.getOrNull(0) ?: return null
         Log.d("Keyword Blocker", "Webview found")
-        val webViewTitle = webView.text ?: return "unsupported browser detected"
+        val resultWord = webView.text
 
-        Log.d("Keyword Blocker", "Webview title $webViewTitle")
+        Log.d("Keyword Blocker", "Webview title $resultWord")
 
-        return containsBlockedKeyword(webViewTitle.toString())
+        return containsBlockedKeyword(resultWord.toString())
 
     }
 

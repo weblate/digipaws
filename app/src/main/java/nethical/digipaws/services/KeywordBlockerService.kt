@@ -20,7 +20,10 @@ class KeywordBlockerService : BaseBlockingService() {
 
     companion object {
         const val INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST =
-            "nethical.digipaws.refresh.keywordblocker"
+            "nethical.digipaws.refresh.keywordblocker.blockedwords"
+
+        const val INTENT_ACTION_REFRESH_CONFIG =
+            "nethical.digipaws.refresh.keywordblocker.config"
     }
 
     private val keywordBlocker = KeywordBlocker()
@@ -29,7 +32,7 @@ class KeywordBlockerService : BaseBlockingService() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
-        if (!isDelayOver(2000) || event == null) {
+        if (!isDelayOver(2000) || event == null || event.packageName == packageName) {
             return
         }
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
@@ -46,7 +49,8 @@ class KeywordBlockerService : BaseBlockingService() {
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onServiceConnected() {
         super.onServiceConnected()
-        setupBlockers()
+        setupBlockedWords()
+        setupConfig()
         val info = AccessibilityServiceInfo().apply {
             eventTypes =
                 AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_SCROLLED
@@ -59,6 +63,7 @@ class KeywordBlockerService : BaseBlockingService() {
 
         val filter = IntentFilter().apply {
             addAction(INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
+            addAction(INTENT_ACTION_REFRESH_CONFIG)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(refreshReceiver, filter, RECEIVER_EXPORTED)
@@ -70,8 +75,9 @@ class KeywordBlockerService : BaseBlockingService() {
 
     private val refreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent != null && intent.action == INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST) {
-                setupBlockers()
+            when (intent?.action) {
+                INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST -> setupBlockedWords()
+                INTENT_ACTION_REFRESH_CONFIG -> setupConfig()
             }
         }
     }
@@ -89,7 +95,7 @@ class KeywordBlockerService : BaseBlockingService() {
     }
 
 
-    private fun setupBlockers() {
+    private fun setupBlockedWords() {
         val keywords = savedPreferencesLoader.loadBlockedKeywords().toMutableSet()
         val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
         val isAdultBlockerOn = sp.getBoolean("adult_blocker", false)
@@ -98,6 +104,17 @@ class KeywordBlockerService : BaseBlockingService() {
         }
         keywordBlocker.blockedKeyword = keywords.toHashSet()
     }
+
+    private fun setupConfig() {
+        val sp = getSharedPreferences("keyword_blocker_configs", Context.MODE_PRIVATE)
+
+        keywordBlocker.isSearchAllTextFields = sp.getBoolean("search_all_text_fields", false)
+        keywordBlocker.redirectUrl =
+            sp.getString("redirect_url", "https://www.youtube.com/watch?v=x31tDT-4fQw&t=1s")
+                .toString()
+
+    }
+
 
 
     override fun onDestroy() {

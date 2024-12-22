@@ -172,4 +172,5 @@
     <string name="are_you_sure_you_want_to_turn_on_anti_uninstall_there_is_no_turning_back">ARE YOU SURE YOU WANT TO TURN ON ANTI UNINSTALL? There is no turning back...</string>
     <string name="about_view_blocker">About View Blocker</string>
     <string name="this_option_has_the_ability_to_block_youtube_shorts_and_instagram_reels_while_allowing_access_to_other_app_features">This option has the ability to block YouTube Shorts and Instagram Reels while allowing access to other app features.</string>
+    <string name="configure_blocker">Configure Blocker</string>
 </resources>
