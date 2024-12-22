@@ -8,9 +8,11 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.SystemClock
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import nethical.digipaws.blockers.KeywordBlocker
 import nethical.digipaws.data.blockers.KeywordPacks
 
@@ -24,15 +26,16 @@ class KeywordBlockerService : BaseBlockingService() {
     private val keywordBlocker = KeywordBlocker()
 
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (!isDelayOver(10000)) {
+
+        if (!isDelayOver(2000) || event == null) {
             return
         }
-
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
-        if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
-            handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode))
-        }
+        Log.d("KeywordBlocker", "Searching Keywords")
+        handleKeywordBlockerResult(keywordBlocker.checkIfUserGettingFreaky(rootnode, event))
+
         lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
 
@@ -45,7 +48,8 @@ class KeywordBlockerService : BaseBlockingService() {
         super.onServiceConnected()
         setupBlockers()
         val info = AccessibilityServiceInfo().apply {
-            eventTypes = AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+            eventTypes =
+                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or AccessibilityEvent.TYPE_VIEW_SCROLLED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
             flags = AccessibilityServiceInfo.DEFAULT
@@ -72,10 +76,16 @@ class KeywordBlockerService : BaseBlockingService() {
         }
     }
 
-    private fun handleKeywordBlockerResult(detectedWord: String?) {
-        if (detectedWord == null) return
-        Toast.makeText(this, "Blocked keyword $detectedWord was found.", Toast.LENGTH_LONG).show()
-        pressHome()
+    private fun handleKeywordBlockerResult(result: KeywordBlocker.KeywordBlockerResult) {
+        if (result.resultDetectWord == null) return
+        Toast.makeText(
+            this,
+            "Blocked keyword ${result.resultDetectWord} was found.",
+            Toast.LENGTH_LONG
+        ).show()
+        if (result.isHomePressRequested) {
+            pressHome()
+        }
     }
 
 
