@@ -1,11 +1,14 @@
 package nethical.digipaws.ui.activity
 
 import android.os.Bundle
+import android.text.InputFilter
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -85,15 +88,44 @@ class ManageKeywordsActivity : AppCompatActivity() {
     private fun makeAddKeywordDialog() {
         val dialogBinding = DialogAddKeywordBinding.inflate(layoutInflater)
 
+
+        val filter = InputFilter { source, _, _, _, _, _ ->
+            // Allow Unicode letters and digits (but not special characters or spaces)
+            if (source.contains(" ")) {
+                "" // Reject the input
+            } else {
+                source // Accept the input
+            }
+        }
+
+        // Apply the filter
+        dialogBinding.keywordInput.filters = arrayOf(filter)
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.add_a_new_keyword))
             .setView(dialogBinding.root)
             .setPositiveButton(getString(R.string.add)) { dialog, _ ->
-                val keyword = dialogBinding.keywordInput.text.toString().trim()
-                if (keyword.isNotEmpty()) {
-                    savedKeywordsList.add(keyword)
-                    keywordAdapter.notifyItemInserted(savedKeywordsList.size - 1)
+                var keyword = dialogBinding.keywordInput.text.toString().trim()
+                if (keyword.isEmpty()) {
+                    return@setPositiveButton
                 }
+                if (Patterns.WEB_URL.matcher(keyword).matches()) {
+                    val regex = Regex("^(?:https?://)?(?:www\\.)?([\\w-]+)\\.")
+                    keyword = regex.find(keyword)?.groupValues?.get(1) ?: ""
+                    Toast.makeText(
+                        this,
+                        "Cannot add links, converted and added as a word.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                if (savedKeywordsList.contains(keyword)) {
+                    Toast.makeText(this, "Same Keyword already exists", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+
+                savedKeywordsList.add(keyword)
+                keywordAdapter.notifyItemInserted(savedKeywordsList.size - 1)
+
                 dialog.dismiss()
             }
             .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->

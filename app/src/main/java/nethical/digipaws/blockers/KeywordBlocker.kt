@@ -42,7 +42,6 @@ class KeywordBlocker : BaseBlocker() {
         // Split text by whitespace to get individual words and check each word
         val keywords = parseTextForKeywords(url)
         keywords.forEach { word ->
-            Log.d("Keyword in url", word)
             if (blockedKeyword.contains(word.lowercase())) {
                 return word
             }
