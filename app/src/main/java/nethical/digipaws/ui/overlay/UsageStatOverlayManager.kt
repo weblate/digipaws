@@ -15,7 +15,7 @@ class UsageStatOverlayManager(private val context: Context) {
 
     private var overlayView: View? = null
     var binding: OverlayUsageStatBinding? = null
-    private var isOverlayVisible = false
+    var isOverlayVisible = false
     private var windowManager: WindowManager? = null
     private lateinit var layoutParams: LayoutParams
     private var proceedTimer: CountDownTimer? = null
@@ -27,7 +27,7 @@ class UsageStatOverlayManager(private val context: Context) {
         if (overlayView != null || isOverlayVisible) return
 
         binding = OverlayUsageStatBinding.inflate(LayoutInflater.from(context))
-
+        isOverlayVisible = true
         overlayView = binding?.root
 
         // Set up WindowManager.LayoutParams for the overlay

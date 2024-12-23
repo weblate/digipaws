@@ -480,6 +480,15 @@ class MainActivity : AppCompatActivity() {
                         "Join us on our Discord or Telegram servers to share your feedback and help us improve DigiPaws!"
             )
             .setNegativeButton("Okay") { dialog, _ ->
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ActivityCompat.checkSelfPermission(
+                            this, Manifest.permission.POST_NOTIFICATIONS
+                        ) != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
                 dialog.dismiss()
             }
             .setCancelable(false)

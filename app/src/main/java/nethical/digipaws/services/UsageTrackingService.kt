@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -119,6 +120,15 @@ class UsageTrackingService : BaseBlockingService() {
                 "Please provide 'Draw over other apps' permission to make this service work properly. ",
                 Toast.LENGTH_LONG
             ).show()
+
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            ).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+
+            startActivity(intent)
         }
     }
 
@@ -194,6 +204,12 @@ class UsageTrackingService : BaseBlockingService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && isDelayOver(2000)) {
+
+            if (Settings.canDrawOverlays(this) && !usageStatOverlayManager.isOverlayVisible) {
+                if (isReelCountToBeDisplayed || isTimeElapsedCounterOn) {
+                    usageStatOverlayManager.startDisplaying()
+                }
+            }
             // apps supports reel tracking
             if (SUPPORTED_TRACKING_APPS.contains(event.packageName)) {
                 Log.d("source", event.source?.className.toString())
