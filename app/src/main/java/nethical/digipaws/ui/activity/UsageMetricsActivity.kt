@@ -144,6 +144,11 @@ class UsageMetricsActivity : AppCompatActivity() {
             binding.statsTodayReels.text =
                 getString(R.string.you_scrolled_reels, totalReels.getOrDefault(date, 0))
 
+            if (totalReels.getOrDefault(date, 0) == 0) {
+                binding.statsAttentionSpanToday.visibility = View.GONE
+            } else {
+                binding.statsAttentionSpanToday.visibility = View.VISIBLE
+            }
             var average = withContext(Dispatchers.Default) {
                 reelsAttentionSpanData[date]?.let { calculateAverageAttentionSpan(it, date) }
             }

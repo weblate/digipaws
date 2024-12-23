@@ -196,7 +196,7 @@ class UsageTrackingService : BaseBlockingService() {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED && isDelayOver(2000)) {
             // apps supports reel tracking
             if (SUPPORTED_TRACKING_APPS.contains(event.packageName)) {
-
+                Log.d("source", event.source?.className.toString())
                 // find reel tracking view and hide the counter if not found
                 ViewBlocker.BLOCKED_VIEW_ID_LIST.forEach { viewId ->
                     if (ViewBlocker.findElementById(rootInActiveWindow, viewId) == null) {
@@ -240,8 +240,10 @@ class UsageTrackingService : BaseBlockingService() {
 
     private fun trackAttentionSpan(type: Int = VIDEO_TYPE_REEL) {
         lastVideoViewFoundTime?.let {
-            val elapsedTime = (SystemClock.uptimeMillis() - it) / 1000f
-
+            var elapsedTime = (SystemClock.uptimeMillis() - it) / 1000f
+            if (elapsedTime > 150f) {
+                elapsedTime = 150f
+            }
             val currentDate = TimeTools.getCurrentDate()
             if (attentionSpanDataList[currentDate] == null) {
                 attentionSpanDataList[currentDate] = mutableListOf()
