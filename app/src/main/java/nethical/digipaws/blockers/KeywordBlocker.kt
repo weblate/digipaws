@@ -20,9 +20,7 @@ class KeywordBlocker : BaseBlocker() {
             // Todo; Fix firefox redirector not working because fails to access the edittext
             "org.mozilla.firefox" to BrowserUrlBarInfo(
                 displayUrlBarId = "mozac_browser_toolbar_url_view",
-                editUrlBarId = "mozac_browser_toolbar_edit_url_view",
                 browserSugggestionBoxId = "sfcnt",
-                isSuggestionEqualToGo = true
             ),
             "com.opera.browser" to BrowserUrlBarInfo(
                 displayUrlBarId = "url_field",
@@ -110,7 +108,7 @@ class KeywordBlocker : BaseBlocker() {
                     }
                 }
             } catch (e: Exception) {
-                Log.d("Keyword Blocker", e.toString())
+                Log.d("Keyword Blocker 111", e.toString())
             }
         }
         // Check if the package name exists in the map
@@ -143,7 +141,7 @@ class KeywordBlocker : BaseBlocker() {
 
         val editUrlBarId = urlBarInfo.editUrlBarId ?: urlBarInfo.displayUrlBarId
         val editUrlBar = ViewBlocker.findElementById(rootNode, idPrefixPart + editUrlBarId)
-            ?: return KeywordBlockerResult(true, detectedAdultKeyword)
+            ?: return KeywordBlockerResult(false, detectedAdultKeyword)
 
         editUrlBar.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, Bundle().apply {
             putCharSequence(

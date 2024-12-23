@@ -18,6 +18,7 @@ import nethical.digipaws.data.blockers.KeywordPacks
 
 class KeywordBlockerService : BaseBlockingService() {
 
+    var refreshCooldown = 1000
     companion object {
         const val INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST =
             "nethical.digipaws.refresh.keywordblocker.blockedwords"
@@ -32,7 +33,7 @@ class KeywordBlockerService : BaseBlockingService() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
-        if (!isDelayOver(2000) || event == null || event.packageName == packageName) {
+        if (!isDelayOver(refreshCooldown) || event == null || event.packageName == "nethical.digipaws") {
             return
         }
         val rootnode: AccessibilityNodeInfo? = rootInActiveWindow
@@ -112,6 +113,10 @@ class KeywordBlockerService : BaseBlockingService() {
         keywordBlocker.redirectUrl =
             sp.getString("redirect_url", "https://www.youtube.com/watch?v=x31tDT-4fQw&t=1s")
                 .toString()
+
+        if (keywordBlocker.isSearchAllTextFields) {
+            refreshCooldown = 5000
+        }
 
     }
 
