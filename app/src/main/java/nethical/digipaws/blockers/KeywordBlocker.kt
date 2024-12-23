@@ -1,11 +1,15 @@
 package nethical.digipaws.blockers
 
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
+import android.content.res.Resources
+import android.graphics.Path
 import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 
-class KeywordBlocker : BaseBlocker() {
+class KeywordBlocker(val service: AccessibilityService) : BaseBlocker() {
     companion object {
         val URL_BAR_ID_LIST = mapOf(
 
@@ -30,6 +34,7 @@ class KeywordBlocker : BaseBlocker() {
         )
 
     }
+
     lateinit var blockedKeyword: HashSet<String>
 
     lateinit var redirectUrl: String
@@ -132,7 +137,8 @@ class KeywordBlocker : BaseBlocker() {
             ) ?: return KeywordBlockerResult()
 
         }
-
+        performSmallUpwardScroll()
+        Thread.sleep(200)
         displayUrlTextNode?.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         Thread.sleep(200)
 
@@ -200,6 +206,51 @@ class KeywordBlocker : BaseBlocker() {
         return
     }
 
+
+    fun performSmallUpwardScroll() {
+        // Create a path for the gesture
+        val path = Path()
+
+        // Screen dimensions (you may want to get these dynamically)
+        val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+
+        // Start point: bottom quarter of screen
+        val startY = (screenHeight * 0.75).toFloat()
+        // End point: slightly above start point (small scroll)
+        val endY = startY - (screenHeight * 0.1).toFloat()
+
+        // Center horizontally
+        val centerX = Resources.getSystem().displayMetrics.widthPixels / 2f
+
+        // Define the gesture path
+        path.moveTo(centerX, startY)
+        path.lineTo(centerX, endY)
+
+        // Create gesture builder
+        val gestureBuilder = GestureDescription.Builder()
+        val gestureStroke = GestureDescription.StrokeDescription(
+            path,
+            0, // start time
+            200 // duration in milliseconds
+        )
+
+        // Build and dispatch gesture
+        val gesture = gestureBuilder
+            .addStroke(gestureStroke)
+            .build()
+
+        service.dispatchGesture(gesture, object : AccessibilityService.GestureResultCallback() {
+            override fun onCompleted(gestureDescription: GestureDescription?) {
+                super.onCompleted(gestureDescription)
+                // Handle completion if needed
+            }
+
+            override fun onCancelled(gestureDescription: GestureDescription?) {
+                super.onCancelled(gestureDescription)
+                // Handle cancellation if needed
+            }
+        }, null)
+    }
 
     data class BrowserUrlBarInfo(
         val displayUrlBarId: String,

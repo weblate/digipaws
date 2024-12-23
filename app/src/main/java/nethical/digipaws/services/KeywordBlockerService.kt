@@ -27,7 +27,7 @@ class KeywordBlockerService : BaseBlockingService() {
             "nethical.digipaws.refresh.keywordblocker.config"
     }
 
-    private val keywordBlocker = KeywordBlocker()
+    private val keywordBlocker = KeywordBlocker(this)
 
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
