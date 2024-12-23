@@ -57,11 +57,10 @@ class UsageTrackingService : BaseBlockingService() {
             "app.revanced.android.youtube"
         )
 
-        private val APPS_THAT_USE_VIEWPAGER = hashSetOf(
+        private val TIKTOK_PACKAGES = hashSetOf(
             "com.ss.android.ugc.trill",
             "com.zhiliaoapp.musically",
             "com.ss.android.ugc.aweme",
-            "com.instagram.android"
         )
         const val VIDEO_TYPE_REEL = 1
     }
@@ -232,9 +231,17 @@ class UsageTrackingService : BaseBlockingService() {
             supportsViewScrolled = true
             when {
                 // handle tiktok + Instagram scrolls
-                event.source?.className == "androidx.viewpager.widget.ViewPager" && APPS_THAT_USE_VIEWPAGER.contains(
+                TIKTOK_PACKAGES.contains(
                     event.packageName
                 ) -> takeReelAction()
+
+                event.source?.className == "androidx.viewpager.widget.ViewPager" && event.packageName == "com.instagram.android" -> {
+                    val reelView = ViewBlocker.findElementById(
+                        rootInActiveWindow,
+                        "com.instagram.android:id/root_clips_layout"
+                    )
+                    if (reelView != null) takeReelAction() else hideReelTrackingView()
+                }
 
                 // youtube scrolls
                 (event.packageName == "com.google.android.youtube" || event.packageName == "app.revanced.android.youtube") &&
@@ -297,7 +304,7 @@ class UsageTrackingService : BaseBlockingService() {
                 usageStatOverlayManager.binding?.reelCounter?.visibility = View.GONE
             }
 
-            trackAttentionSpan()
+//            trackAttentionSpan()
             lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
         }
     }

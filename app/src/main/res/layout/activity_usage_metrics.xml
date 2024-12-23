@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/linear_main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp"
         tools:context=".ui.activity.UsageMetricsActivity">
@@ -60,7 +60,8 @@
                         android:layout_gravity="center"
                         android:layout_marginBottom="8dp"
                         android:gravity="center"
-                        android:text="@string/your_average_attention_span_was_2_d_mins" />
+                        android:text="@string/your_average_attention_span_was_2_d_mins"
+                        android:visibility="gone" />
 
                     <Button
                         android:id="@+id/btn_digi_welbeing"
@@ -113,6 +114,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:visibility="gone"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp">
 
@@ -138,7 +140,7 @@
                     android:id="@+id/avg_attention_stats"
                     android:layout_width="match_parent"
                     android:layout_height="250dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="8dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

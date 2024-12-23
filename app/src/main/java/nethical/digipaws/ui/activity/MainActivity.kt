@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             if (isGranted) {
                 // Permission granted, show notifications
                 Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
-                makeStartFocusModeDialog()
+//                makeStartFocusModeDialog()
             } else {
                 // Permission denied
                 Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
