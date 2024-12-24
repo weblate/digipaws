@@ -46,7 +46,20 @@ class UsageTrackingService : BaseBlockingService() {
         const val INTENT_ACTION_REFRESH_USAGE_TRACKER = "nethical.digipaws.refresh.usage_tracker"
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
-        private const val USER_Y_SWIPE_THRESHOLD: Long = 2
+        private const val USER_Y_SWIPE_THRESHOLD: Long = 1
+
+        // when you scroll a video, different apps return different number of TYPE_VIEW_SCROLLED events. This list was prepared
+        // after a thorough analysis of different apps.
+        private val MIN_SCROLL_THRESHOLD = mapOf(
+            "com.ss.android.ugc.trill" to 1,
+            "com.zhiliaoapp.musically" to 1,
+            "com.ss.android.ugc.aweme" to 1,
+
+            "com.google.android.youtub" to 2,
+            "app.revanced.android.youtube" to 2,
+            "com.facebook.katana" to 2
+
+        )
 
         private val SUPPORTED_TRACKING_APPS = hashSetOf(
             "com.ss.android.ugc.trill",
@@ -54,7 +67,8 @@ class UsageTrackingService : BaseBlockingService() {
             "com.ss.android.ugc.aweme",
             "com.instagram.android",
             "com.google.android.youtube",
-            "app.revanced.android.youtube"
+            "app.revanced.android.youtube",
+            "com.facebook.katana"
         )
 
         private val TIKTOK_PACKAGES = hashSetOf(
@@ -228,19 +242,28 @@ class UsageTrackingService : BaseBlockingService() {
         }
 
         if (event?.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            Log.d("scroll", event.source?.className.toString())
             supportsViewScrolled = true
             when {
                 // handle tiktok + Instagram scrolls
                 TIKTOK_PACKAGES.contains(
                     event.packageName
-                ) -> takeReelAction()
+                ) && event.source?.className == "androidx.viewpager.widget.ViewPager" -> {
+                    takeReelAction(event.packageName.toString())
+                }
+
+                event.packageName == "com.facebook.katana" && event.source?.className == "androidx.recyclerview.widget.RecyclerView" -> {
+                    val nodes =
+                        rootInActiveWindow.findAccessibilityNodeInfosByText("FbShortsComposerAttachmentComponentSpec_STICKER")
+                    if (nodes.firstOrNull() != null) takeReelAction("com.facebook.katana")
+                }
 
                 event.source?.className == "androidx.viewpager.widget.ViewPager" && event.packageName == "com.instagram.android" -> {
                     val reelView = ViewBlocker.findElementById(
                         rootInActiveWindow,
                         "com.instagram.android:id/root_clips_layout"
                     )
-                    if (reelView != null) takeReelAction() else hideReelTrackingView()
+                    if (reelView != null) takeReelAction("com.instagram.android") else hideReelTrackingView()
                 }
 
                 // youtube scrolls
@@ -250,7 +273,7 @@ class UsageTrackingService : BaseBlockingService() {
                         rootInActiveWindow,
                         "com.google.android.youtube:id/reel_recycler"
                     )
-                    if (reelView != null) takeReelAction() else hideReelTrackingView()
+                    if (reelView != null) takeReelAction("com.google.android.youtube") else hideReelTrackingView()
                 }
             }
         }
@@ -286,8 +309,8 @@ class UsageTrackingService : BaseBlockingService() {
         lastVideoViewFoundTime = SystemClock.uptimeMillis()
     }
 
-    private fun takeReelAction(yThreshold: Long = USER_Y_SWIPE_THRESHOLD) {
-        if (++userYSwipeEventCounter > yThreshold) {
+    private fun takeReelAction(packageName: String) {
+        if (++userYSwipeEventCounter > (MIN_SCROLL_THRESHOLD[packageName] ?: 1)) {
             userYSwipeEventCounter = 0
             val date = TimeTools.getCurrentDate()
             val newCount = (reelCountData[date] ?: 0) + 1
