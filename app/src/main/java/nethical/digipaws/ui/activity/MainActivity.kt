@@ -974,10 +974,7 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             Snackbar.make(
                                 binding.root,
-                                getString(R.string.incorrect_password_please_try_again) + antiUninstallInfo.getString(
-                                    "password",
-                                    "pass"
-                                ),
+                                getString(R.string.incorrect_password_please_try_again),
                                 Snackbar.LENGTH_SHORT
                             )
                                 .setAction(getString(R.string.retry)) {
