@@ -79,7 +79,7 @@
     <string name="accessibility_permission_usage_tracker">
         THIS FEATURE REQUIRES DISPLAY OVER OTHER APPS (DRAW OVER OTHER APPS) PERMISSION TO WORK. PLEASE ENABLE IT FIRST AND THEN ENABLE THIS. RESTART IF SERVICE MALFUNCTIONS.\n\n
 
-        Enabling this would unlock the following in DigiPaws:\n1. Count number of reels scrolled\n2. Calculate average attention span watching those reels\n3. A floating overlay that shows time elapsed\n\n
+        Enabling this would unlock the following in DigiPaws:\n1. Count number of reels/tiktoks scrolled\n2. A floating overlay that shows time elapsed\n\n
         DigiPaws needs access to accessibility data to know when you open a specific feature within an app, like a social media feed or a game.
         This lets DigiPaws block those features for you based on your preferences, helping you stay focused and reduce screen distractions.\n\n
         Rest assured, all accessibility data stays securely on your device—we never share or transmit your data, ensuring your privacy is always protected.

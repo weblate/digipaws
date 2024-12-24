@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
 
     <LinearLayout
         android:id="@+id/linear_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
         tools:context=".ui.activity.UsageMetricsActivity">
 
 
@@ -19,7 +20,8 @@
             android:id="@+id/linear_share_pic"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -103,7 +105,18 @@
                         android:id="@+id/reels_stats"
                         android:layout_width="match_parent"
                         android:layout_height="250dp"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp">
+
+                    </com.github.mikephil.charting.charts.LineChart>
+
+                    <TextView
+                        android:id="@+id/textView21"
+                        style="@style/TextAppearance.Material3.BodySmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Includes data tracked from scrolling activity on platforms like Instagram Reels, YouTube Shorts, Facebook Reels, and TikTok, referred to here collectively as Reels." />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -148,6 +161,7 @@
             android:id="@+id/share_stats"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
             android:text="Share your Stats"
             app:icon="@drawable/baseline_share_24" />

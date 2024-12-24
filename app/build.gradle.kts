@@ -14,7 +14,6 @@ android {
         targetSdk = 34
         versionCode = 14
         versionName = "1.3-alpha"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,6 +32,12 @@ android {
     }
 
 
+    splits {
+        abi {
+            isEnable = false
+
+        }
+    }
 
     buildTypes {
         release {
@@ -41,7 +46,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+
+            // required because of hardcoded f-droid values
+            applicationVariants.all {
+                val variant = this
+                if (variant.flavorName == "lite") {
+                    variant.outputs
+                        .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+                        .forEach { output ->
+                            val outputFileName = "app-lite-universal-release-unsigned.apk"
+                            println("OutputFileName: $outputFileName")
+                            output.outputFileName = outputFileName
+                        }
+                }
+            }
         }
     }
     compileOptions {
@@ -56,6 +74,8 @@ android {
         buildConfig = true
     }
 }
+
+
 
 dependencies {
 

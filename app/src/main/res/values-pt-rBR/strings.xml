@@ -80,7 +80,6 @@
     <string name="manage_keyword_blockers">Gerenciar bloqueadores de palavras-chave</string>
     <string name="failed">Falhou</string>
     <string name="usage_tracker">Rastreador de uso</string>
-    <string name="select_unblocked_apps">Selecione aplicativos desbloqueados</string>
     <string name="write_down_a_keyword">Escreva uma palavra-chave</string>
     <string name="in_warning_changeable_cooldown">tempo de espera variável em aviso</string>
     <string name="block_all_uninstall_attempts_until_you_remove_anti_uninstall_with_a_password">Bloqueie todas as tentativas de desinstalação até que a proteção anti-desinstalação seja removida com uma senha</string>
@@ -107,7 +106,6 @@
     <string name="warning_view_blocker_settings">Habilitar o serviço de acessibilidade do View Blocker para gerenciar o bloqueio de visualizações</string>
     <string name="remove">Remover</string>
     <string name="warning_keywords_settings">Habilitar o Serviço de Acessibilidade do Bloqueador de Palavras-chave para gerenciar palavras-chave bloqueadas</string>
-    <string name="manage_trackers">Gerenciar rastreadores</string>
     <string name="warning_usage_tracker_settings">Habilitar o Serviço de Acessibilidade do Rastreador de Uso para gerenciar rastreadores</string>
     <string name="apps">Aplicativos:</string>
     <string name="allow_viewing_instagram_reels_sent_in_instagram_inbox">Permitir a visualização de reels do Instagram enviados na caixa de entrada do Instagram</string>

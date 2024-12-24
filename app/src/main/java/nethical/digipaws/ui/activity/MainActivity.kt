@@ -716,7 +716,7 @@ class MainActivity : AppCompatActivity() {
         val sp = getSharedPreferences("config_tracker",Context.MODE_PRIVATE)
 
         dialogConfigurationTracker.cbReelCounter.isChecked = sp.getBoolean("is_reel_counter", true)
-        dialogConfigurationTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed", true)
+        dialogConfigurationTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed", false)
 
         MaterialAlertDialogBuilder(this)
             .setView(dialogConfigurationTracker.root)

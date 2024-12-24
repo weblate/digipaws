@@ -46,7 +46,6 @@ class UsageTrackingService : BaseBlockingService() {
         const val INTENT_ACTION_REFRESH_USAGE_TRACKER = "nethical.digipaws.refresh.usage_tracker"
         private const val UPDATE_INTERVAL = 1000L // 1 second
         private const val TAG = "ScreenTimeTracking"
-        private const val USER_Y_SWIPE_THRESHOLD: Long = 1
 
         // when you scroll a video, different apps return different number of TYPE_VIEW_SCROLLED events. This list was prepared
         // after a thorough analysis of different apps.
@@ -55,9 +54,10 @@ class UsageTrackingService : BaseBlockingService() {
             "com.zhiliaoapp.musically" to 1,
             "com.ss.android.ugc.aweme" to 1,
 
-            "com.google.android.youtub" to 2,
+            "com.google.android.youtube" to 2,
             "app.revanced.android.youtube" to 2,
-            "com.facebook.katana" to 2
+            "com.facebook.katana" to 2,
+            "com.instagram.android" to 2
 
         )
 
@@ -65,6 +65,7 @@ class UsageTrackingService : BaseBlockingService() {
             "com.ss.android.ugc.trill",
             "com.zhiliaoapp.musically",
             "com.ss.android.ugc.aweme",
+
             "com.instagram.android",
             "com.google.android.youtube",
             "app.revanced.android.youtube",
@@ -149,7 +150,7 @@ class UsageTrackingService : BaseBlockingService() {
         val sp = getSharedPreferences("config_tracker",Context.MODE_PRIVATE)
 
         isReelCountToBeDisplayed = sp.getBoolean("is_reel_counter",true)
-        isTimeElapsedCounterOn = sp.getBoolean("is_time_elapsed",true)
+        isTimeElapsedCounterOn = sp.getBoolean("is_time_elapsed", false)
 
         if (!isTimeElapsedCounterOn) {
             usageStatOverlayManager.binding?.timeElapsedTxt?.visibility = View.GONE
@@ -245,19 +246,21 @@ class UsageTrackingService : BaseBlockingService() {
             Log.d("scroll", event.source?.className.toString())
             supportsViewScrolled = true
             when {
-                // handle tiktok + Instagram scrolls
+                // handle tiktok scrolls
                 TIKTOK_PACKAGES.contains(
                     event.packageName
                 ) && event.source?.className == "androidx.viewpager.widget.ViewPager" -> {
                     takeReelAction(event.packageName.toString())
                 }
 
+                // handle facebook scrolls
                 event.packageName == "com.facebook.katana" && event.source?.className == "androidx.recyclerview.widget.RecyclerView" -> {
                     val nodes =
                         rootInActiveWindow.findAccessibilityNodeInfosByText("FbShortsComposerAttachmentComponentSpec_STICKER")
                     if (nodes.firstOrNull() != null) takeReelAction("com.facebook.katana")
                 }
 
+                // handle instagram scrolls
                 event.source?.className == "androidx.viewpager.widget.ViewPager" && event.packageName == "com.instagram.android" -> {
                     val reelView = ViewBlocker.findElementById(
                         rootInActiveWindow,
@@ -267,13 +270,24 @@ class UsageTrackingService : BaseBlockingService() {
                 }
 
                 // youtube scrolls
-                (event.packageName == "com.google.android.youtube" || event.packageName == "app.revanced.android.youtube") &&
+                event.packageName == "com.google.android.youtube" &&
                         event.source?.className == "android.support.v7.widget.RecyclerView" -> {
                     val reelView = ViewBlocker.findElementById(
                         rootInActiveWindow,
                         "com.google.android.youtube:id/reel_recycler"
                     )
                     if (reelView != null) takeReelAction("com.google.android.youtube") else hideReelTrackingView()
+                }
+
+
+                // revanced scrolls
+                event.packageName == "app.revanced.android.youtube" &&
+                        event.source?.className == "android.support.v7.widget.RecyclerView" -> {
+                    val reelView = ViewBlocker.findElementById(
+                        rootInActiveWindow,
+                        "app.revanced.android.youtube:id/reel_recycler"
+                    )
+                    if (reelView != null) takeReelAction("app.revanced.android.youtube") else hideReelTrackingView()
                 }
             }
         }
@@ -309,8 +323,8 @@ class UsageTrackingService : BaseBlockingService() {
         lastVideoViewFoundTime = SystemClock.uptimeMillis()
     }
 
-    private fun takeReelAction(packageName: String) {
-        if (++userYSwipeEventCounter > (MIN_SCROLL_THRESHOLD[packageName] ?: 1)) {
+    private fun takeReelAction(eventPackageName: String) {
+        if (++userYSwipeEventCounter > (MIN_SCROLL_THRESHOLD[eventPackageName]!!)) {
             userYSwipeEventCounter = 0
             val date = TimeTools.getCurrentDate()
             val newCount = (reelCountData[date] ?: 0) + 1
@@ -328,6 +342,8 @@ class UsageTrackingService : BaseBlockingService() {
             }
 
 //            trackAttentionSpan()
+
+            savedPreferencesLoader.saveReelsScrolled(reelCountData)
             lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
         }
     }
