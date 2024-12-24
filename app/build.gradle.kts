@@ -6,6 +6,7 @@ plugins {
 android {
     namespace = "nethical.digipaws"
     compileSdk = 34
+    flavorDimensions += "version"
 
     defaultConfig {
         applicationId = "nethical.digipaws"
@@ -16,6 +17,22 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    productFlavors {
+        create("lite") {
+            dimension = "version"
+            versionNameSuffix = "-lite"
+            buildConfigField("Boolean", "FDROID_VARIANT", "true")
+        }
+
+        create("play-store") {
+            dimension = "version"
+            versionNameSuffix = "-full"
+            buildConfigField("Boolean", "FDROID_VARIANT", "false")
+        }
+    }
+
+
 
     buildTypes {
         release {
@@ -36,6 +53,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
