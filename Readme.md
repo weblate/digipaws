@@ -78,7 +78,7 @@ by.
 - [x] Focus Quest
 - [x] Anti-Uninstall
 - [x] Customisable warning screen
-- [x] Quests and gamified mode
+- [ ] Quests and gamified mode
 - [x] track how many tiktoks you scroll everyday 
 - [x] track attention span
 - [ ] Api for other developers to transform their existing apps into digipaw quests!
@@ -86,7 +86,6 @@ by.
 - [x] Block custom user defined keywords
 - [ ] Modular and downloadable view blockers
 - [ ] expand the app to ios and desktop.
-- [ ] 
 ## Contributing
 
 We welcome contributions from the community! If you'd like to contribute, please follow these steps:
@@ -107,6 +106,8 @@ We welcome contributions from the community! If you'd like to contribute, please
 5. Create a new Pull Request.
 
 Please ensure your code adheres to our coding standards and includes relevant tests.
+
+Developing codes for accessibility services and blockers can be exceptionally complex and challenging to understand. This is primarily because blocking mechanisms must account for various app types, each functioning differently. Discovering these mechanisms has often required extensive app-specific debugging, coupled with trial-and-error approaches.
 
 ## Translations 
 [![Translation Status](https://hosted.weblate.org/widgets/digipaws/-/multi-auto.svg)](https://hosted.weblate.org/projects/digipaws/)
