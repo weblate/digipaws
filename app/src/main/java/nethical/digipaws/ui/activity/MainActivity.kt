@@ -21,6 +21,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -67,7 +68,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var addCheatHoursActivity: ActivityResultLauncher<Intent>
 
     private val savedPreferencesLoader = SavedPreferencesLoader(this)
-
+    private lateinit var options: ActivityOptionsCompat
     private var isDeviceAdminOn = false
     private var isAntiUninstallOn = false
     private var isDisplayOverOtherAppsOn = false
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         if (isFirstLaunch()) {
             showTermsAndConditionsDialog()
         }
-
+        options = ActivityOptionsCompat.makeCustomAnimation(this, R.anim.fade_in, R.anim.fade_out)
         setupActivityLaunchers()
         setupClickListeners()
 
@@ -170,7 +171,9 @@ class MainActivity : AppCompatActivity() {
                 "PRE_SELECTED_APPS",
                 ArrayList(savedPreferencesLoader.loadPinnedApps())
             )
-            selectPinnedAppsLauncher.launch(intent)
+
+            selectPinnedAppsLauncher.launch(intent, options)
+
         }
         binding.selectBlockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
@@ -178,7 +181,7 @@ class MainActivity : AppCompatActivity() {
                 "PRE_SELECTED_APPS",
                 ArrayList(savedPreferencesLoader.loadBlockedApps())
             )
-            selectBlockedAppsLauncher.launch(intent)
+            selectBlockedAppsLauncher.launch(intent, options)
         }
         binding.selectBlockedKeywords.setOnClickListener {
             val intent = Intent(this, ManageKeywordsActivity::class.java)
@@ -186,11 +189,11 @@ class MainActivity : AppCompatActivity() {
                 "PRE_SAVED_KEYWORDS",
                 ArrayList(savedPreferencesLoader.loadBlockedKeywords())
             )
-            selectBlockedKeywords.launch(intent)
+            selectBlockedKeywords.launch(intent, options)
         }
         binding.appBlockerSelectCheatHours.setOnClickListener {
             val intent = Intent(this, AddCheatHoursActivity::class.java)
-            addCheatHoursActivity.launch(intent)
+            addCheatHoursActivity.launch(intent, options)
         }
         binding.btnConfigAppblockerWarning.setOnClickListener {
             TweakAppBlockerWarning(savedPreferencesLoader).show(
@@ -227,7 +230,7 @@ class MainActivity : AppCompatActivity() {
         }
         binding.selectUsageStats.setOnClickListener {
             val intent = Intent(this, UsageMetricsActivity::class.java)
-            startActivity(intent)
+            startActivity(intent, options.toBundle())
         }
         binding.selectFocusBlockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
@@ -235,7 +238,7 @@ class MainActivity : AppCompatActivity() {
                 "PRE_SELECTED_APPS",
                 ArrayList(savedPreferencesLoader.getFocusModeBlockedApps())
             )
-            selectFocusModeUnblockedAppsLauncher.launch(intent)
+            selectFocusModeUnblockedAppsLauncher.launch(intent, options)
         }
 
 
@@ -260,7 +263,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 if (binding.antiUninstallWarning.visibility == View.GONE) {
                     val intent = Intent(this, SetupAntiUninstallActivity::class.java)
-                    startActivity(intent)
+                    startActivity(intent, options.toBundle())
                 } else {
                     makeAccessibilityInfoDialog("General Features", DigipawsMainService::class.java)
                 }
@@ -308,7 +311,7 @@ class MainActivity : AppCompatActivity() {
     private fun openUrl(url: String) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         try {
-            startActivity(intent)
+            startActivity(intent, options.toBundle())
         } catch (e: ActivityNotFoundException) {
             Toast.makeText(this, "No application found to open the link", Toast.LENGTH_SHORT).show()
         }
@@ -469,9 +472,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.tvTermsLink.setOnClickListener {
-            val browserIntent =
-                Intent(Intent.ACTION_VIEW, Uri.parse("https://digipaws.life/terms-and-conditions"))
-            startActivity(browserIntent)
+            openUrl("https://digipaws.life/terms-and-conditions")
         }
 
         binding.btnContinue.setOnClickListener {
@@ -565,7 +566,7 @@ class MainActivity : AppCompatActivity() {
                 DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                 "Enable admin to enable anti uninstall."
             )
-            startActivity(intent)
+            startActivity(intent, options.toBundle())
 
         }
     }
@@ -597,7 +598,7 @@ class MainActivity : AppCompatActivity() {
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:$packageName")
             )
-            startActivity(intent)
+            startActivity(intent, options.toBundle())
 
         }
     }
@@ -627,7 +628,7 @@ class MainActivity : AppCompatActivity() {
             val componentName = ComponentName(this, cls)
 
             intent.putExtra(":settings:fragment_args_key", componentName.flattenToString())
-            startActivity(intent)
+            startActivity(intent, options.toBundle())
         } catch (e: Exception) {
             e.printStackTrace()
             // Fallback to general Accessibility Settings
@@ -753,5 +754,12 @@ class MainActivity : AppCompatActivity() {
         val isDynamicIntervalSettingAllowed: Boolean = false,
         val isProceedDisabled: Boolean = false
     )
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        // Apply reverse fade transition when returning to the previous activity
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+    }
 
 }
