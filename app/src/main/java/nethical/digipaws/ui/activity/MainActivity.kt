@@ -13,9 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.MotionEvent
 import android.view.View
-import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -35,14 +33,9 @@ import kotlinx.coroutines.withContext
 import nethical.digipaws.Constants
 import nethical.digipaws.R
 import nethical.digipaws.databinding.ActivityMainBinding
-import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
-import nethical.digipaws.databinding.DialogConfigTrackerBinding
 import nethical.digipaws.databinding.DialogFocusModeBinding
-import nethical.digipaws.databinding.DialogKeywordBlockerConfigBinding
-import nethical.digipaws.databinding.DialogKeywordPackageBinding
 import nethical.digipaws.databinding.DialogPermissionInfoBinding
 import nethical.digipaws.databinding.DialogRemoveAntiUninstallBinding
-import nethical.digipaws.databinding.DialogTweakBlockerWarningBinding
 import nethical.digipaws.databinding.TermsAndConditionsDialogBinding
 import nethical.digipaws.receivers.AdminReceiver
 import nethical.digipaws.services.AppBlockerService
@@ -50,9 +43,14 @@ import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.KeywordBlockerService
 import nethical.digipaws.services.UsageTrackingService
 import nethical.digipaws.services.ViewBlockerService
+import nethical.digipaws.ui.dialogs.TweakAppBlockerWarning
+import nethical.digipaws.ui.dialogs.TweakKeywordBlocker
+import nethical.digipaws.ui.dialogs.TweakKeywordPack
+import nethical.digipaws.ui.dialogs.TweakUsageTracker
+import nethical.digipaws.ui.dialogs.TweakViewBlockerCheatHours
+import nethical.digipaws.ui.dialogs.TweakViewBlockerWarning
 import nethical.digipaws.utils.NotificationTimerManager
 import nethical.digipaws.utils.SavedPreferencesLoader
-import nl.joery.timerangepicker.TimeRangePicker
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -73,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private var isDeviceAdminOn = false
     private var isAntiUninstallOn = false
     private var isDisplayOverOtherAppsOn = false
-    val notificationPermissionLauncher =
+    private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 // Permission granted, show notifications
@@ -164,6 +162,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
 
+
+        // click listeners for configuration options
         binding.selectPinnedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -172,7 +172,6 @@ class MainActivity : AppCompatActivity() {
             )
             selectPinnedAppsLauncher.launch(intent)
         }
-
         binding.selectBlockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -181,7 +180,6 @@ class MainActivity : AppCompatActivity() {
             )
             selectBlockedAppsLauncher.launch(intent)
         }
-
         binding.selectBlockedKeywords.setOnClickListener {
             val intent = Intent(this, ManageKeywordsActivity::class.java)
             intent.putStringArrayListExtra(
@@ -190,27 +188,57 @@ class MainActivity : AppCompatActivity() {
             )
             selectBlockedKeywords.launch(intent)
         }
-
         binding.appBlockerSelectCheatHours.setOnClickListener {
             val intent = Intent(this, AddCheatHoursActivity::class.java)
             addCheatHoursActivity.launch(intent)
         }
         binding.btnConfigAppblockerWarning.setOnClickListener {
-            makeTweakAppBlockerWarningIntervalDialog()
+            TweakAppBlockerWarning(savedPreferencesLoader).show(
+                supportFragmentManager,
+                "tweak_app_blocker_warning"
+            )
         }
         binding.btnConfigViewblockerWarning.setOnClickListener {
-            makeTweakViewBlockerWarningIntervalDialog()
+            TweakViewBlockerWarning(savedPreferencesLoader).show(
+                supportFragmentManager,
+                "tweak_view_blocker_warning"
+            )
         }
         binding.btnConfigViewblockerCheatHours.setOnClickListener {
-            makeViewBlockerCheatHoursDialog()
+            TweakViewBlockerCheatHours(savedPreferencesLoader).show(
+                supportFragmentManager,
+                "tweak_view_blocker_cheat_hours"
+            )
         }
         binding.btnConfigTracker.setOnClickListener{
-            makeDialogConfigTracker()
+            TweakUsageTracker(savedPreferencesLoader).show(
+                supportFragmentManager,
+                "tweak_usage_tracker"
+            )
+        }
+        binding.btnUnlockAntiUninstall.setOnClickListener {
+            makeRemoveAntiUninstallDialog()
+        }
+        binding.btnManagePreinstalledKeywords.setOnClickListener {
+            TweakKeywordPack().show(supportFragmentManager, "tweak_keyword_pack")
+        }
+        binding.btnManageKeywordBlocker.setOnClickListener {
+            TweakKeywordBlocker().show(supportFragmentManager, "tweak_keyword_blocker")
         }
         binding.selectUsageStats.setOnClickListener {
             val intent = Intent(this, UsageMetricsActivity::class.java)
             startActivity(intent)
         }
+        binding.selectFocusBlockedApps.setOnClickListener {
+            val intent = Intent(this, SelectAppsActivity::class.java)
+            intent.putStringArrayListExtra(
+                "PRE_SELECTED_APPS",
+                ArrayList(savedPreferencesLoader.getFocusModeBlockedApps())
+            )
+            selectFocusModeUnblockedAppsLauncher.launch(intent)
+        }
+
+
         binding.startFocusMode.setOnClickListener {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -224,24 +252,8 @@ class MainActivity : AppCompatActivity() {
             }
             makeStartFocusModeDialog()
         }
-        binding.btnUnlockAntiUninstall.setOnClickListener {
-            makeRemoveAntiUninstallDialog()
-        }
-        binding.btnManagePreinstalledKeywords.setOnClickListener {
-            manageKeywordPackDialog()
-        }
-        binding.btnManageKeywordBlocker.setOnClickListener {
-            makeKeywordBlockerConfigDialog()
-        }
-        binding.selectFocusBlockedApps.setOnClickListener {
-            val intent = Intent(this, SelectAppsActivity::class.java)
-            intent.putStringArrayListExtra(
-                "PRE_SELECTED_APPS",
-                ArrayList(savedPreferencesLoader.getFocusModeBlockedApps())
-            )
-            selectFocusModeUnblockedAppsLauncher.launch(intent)
-        }
 
+        // listeners for turn on/ off buttons
         binding.antiUninstallCardChip.setOnClickListener {
             if (!isDeviceAdminOn) {
                 makeDeviceAdminPermissionDialog()
@@ -254,7 +266,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
+        binding.keywordBlockerStatusChip.setOnClickListener {
+            makeAccessibilityInfoDialog("Keyword Blocker", KeywordBlockerService::class.java)
+        }
         binding.focusModeStatusChip.setOnClickListener {
             makeAccessibilityInfoDialog("General Features", DigipawsMainService::class.java)
         }
@@ -271,21 +285,17 @@ class MainActivity : AppCompatActivity() {
                 makeAccessibilityInfoDialog("Usage Tracker", UsageTrackingService::class.java)
             }
         }
-        binding.keywordBlockerStatusChip.setOnClickListener {
-            makeAccessibilityInfoDialog("Keyword Blocker", KeywordBlockerService::class.java)
-        }
+
+        // socials click listeners
         binding.btnDiscord.setOnClickListener {
             openUrl("https://discord.com/invite/Vs9mwUtuCN")
         }
-
         binding.btnInstagram.setOnClickListener {
             openUrl("https://www.instagram.com/digipaws.app")
         }
-
         binding.btnDonate.setOnClickListener {
             openUrl("https://digipaws.life/donate")
         }
-
         binding.helpReelBlocker.setOnClickListener {
             MaterialAlertDialogBuilder(this)
                 .setTitle(getString(R.string.about_view_blocker))
@@ -342,12 +352,12 @@ class MainActivity : AppCompatActivity() {
 
                 // View Blocker
                 updateChip(
-                    isViewBlockerOn,
-                    binding.viewBlockerStatusChip,
-                    binding.viewBlockerWarning
+                    isViewBlockerOn, binding.viewBlockerStatusChip, binding.viewBlockerWarning
                 )
-                binding.btnConfigViewblockerCheatHours.isEnabled = isViewBlockerOn
-                binding.btnConfigViewblockerWarning.isEnabled = isViewBlockerOn  
+                binding.apply {
+                    btnConfigViewblockerCheatHours.isEnabled = isViewBlockerOn
+                    btnConfigViewblockerWarning.isEnabled = isViewBlockerOn
+                }
 
                 // Keyword Blocker
                 updateChip(
@@ -355,9 +365,11 @@ class MainActivity : AppCompatActivity() {
                     binding.keywordBlockerStatusChip,
                     binding.keywordBlockerWarning
                 )
-                binding.selectBlockedKeywords.isEnabled = isKeywordBlockerOn
-                binding.btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
-                binding.btnManageKeywordBlocker.isEnabled = isKeywordBlockerOn
+                binding.apply {
+                    selectBlockedKeywords.isEnabled = isKeywordBlockerOn
+                    btnManagePreinstalledKeywords.isEnabled = isKeywordBlockerOn
+                    btnManageKeywordBlocker.isEnabled = isKeywordBlockerOn
+                }
 
                 // Usage Tracker
                 if (!isDisplayOverOtherAppsOn) {
@@ -373,8 +385,10 @@ class MainActivity : AppCompatActivity() {
                         binding.usageTrackerStatusChip,
                         binding.usageTrackerWarning
                     )
-                    binding.selectUsageStats.isEnabled = true
-                    binding.btnConfigTracker.isEnabled = true
+                    binding.apply {
+                        selectUsageStats.isEnabled = true
+                        btnConfigTracker.isEnabled = true
+                    }
                 }
 
 
@@ -384,8 +398,10 @@ class MainActivity : AppCompatActivity() {
                     binding.focusModeStatusChip,
                     binding.focusModeWarning
                 )
-                binding.startFocusMode.isEnabled = isGeneralSettingsOn
-                binding.selectFocusBlockedApps.isEnabled = isGeneralSettingsOn
+                binding.apply {
+                    startFocusMode.isEnabled = isGeneralSettingsOn
+                    selectFocusBlockedApps.isEnabled = isGeneralSettingsOn
+                }
 
                 // Anti-Uninstall settings
                 binding.btnUnlockAntiUninstall.isEnabled = isAntiUninstallOn
@@ -525,94 +541,6 @@ class MainActivity : AppCompatActivity() {
         return isAccessibilityEnabled == 1 && enabledServices.contains(serviceName)
     }
 
-    private fun makeTweakAppBlockerWarningIntervalDialog() {
-        val tweakAppBlockerWarningBinding: DialogTweakBlockerWarningBinding =
-            DialogTweakBlockerWarningBinding.inflate(layoutInflater)
-        tweakAppBlockerWarningBinding.selectMins.minValue = 1
-        tweakAppBlockerWarningBinding.selectMins.maxValue = 240
-
-        val previousData = savedPreferencesLoader.loadAppBlockerWarningInfo()
-        tweakAppBlockerWarningBinding.selectMins.setValue(previousData.timeInterval / 60000)
-        tweakAppBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
-        tweakAppBlockerWarningBinding.cbProceedBtn.isChecked = previousData.isProceedDisabled
-
-        MaterialAlertDialogBuilder(this)
-            .setView(tweakAppBlockerWarningBinding.root)
-            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
-                val selectedMinInMs = tweakAppBlockerWarningBinding.selectMins.getValue() * 60000
-                savedPreferencesLoader.saveAppBlockerWarningInfo(
-                    WarningData(
-                        tweakAppBlockerWarningBinding.warningMsgEdit.text.toString(),
-                        selectedMinInMs,
-                        tweakAppBlockerWarningBinding.cbDynamicWarning.isChecked,
-                        tweakAppBlockerWarningBinding.cbProceedBtn.isChecked
-                    )
-                )
-                sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
-                dialog.dismiss()
-            }
-            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    @SuppressLint("ApplySharedPref")
-    private fun makeTweakViewBlockerWarningIntervalDialog() {
-        val tweakViewBlockerWarningBinding: DialogTweakBlockerWarningBinding =
-            DialogTweakBlockerWarningBinding.inflate(layoutInflater)
-        tweakViewBlockerWarningBinding.selectMins.minValue = 1
-        tweakViewBlockerWarningBinding.selectMins.maxValue = 240
-
-        tweakViewBlockerWarningBinding.cbFirstReel.visibility = View.VISIBLE
-        tweakViewBlockerWarningBinding.cbReelInbox.visibility = View.VISIBLE
-
-
-        val previousData = savedPreferencesLoader.loadViewBlockerWarningInfo()
-        tweakViewBlockerWarningBinding.selectMins.setValue(previousData.timeInterval / 60000)
-        tweakViewBlockerWarningBinding.warningMsgEdit.setText(previousData.message)
-        tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked =
-            previousData.isDynamicIntervalSettingAllowed
-        tweakViewBlockerWarningBinding.cbProceedBtn.isChecked = previousData.isProceedDisabled
-
-        val addReelData = getSharedPreferences("config_reels", Context.MODE_PRIVATE)
-        tweakViewBlockerWarningBinding.cbReelInbox.isChecked =
-            addReelData.getBoolean("is_reel_inbox", false)
-        tweakViewBlockerWarningBinding.cbFirstReel.isChecked =
-            addReelData.getBoolean("is_reel_first", false)
-
-        MaterialAlertDialogBuilder(this)
-            .setView(tweakViewBlockerWarningBinding.root)
-            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
-                val selectedMinInMs = tweakViewBlockerWarningBinding.selectMins.getValue() * 60000
-                savedPreferencesLoader.saveViewBlockerWarningInfo(
-                    WarningData(
-                        tweakViewBlockerWarningBinding.warningMsgEdit.text.toString(),
-                        selectedMinInMs,
-                        tweakViewBlockerWarningBinding.cbDynamicWarning.isChecked,
-                        tweakViewBlockerWarningBinding.cbProceedBtn.isChecked
-                    )
-                )
-                val editor = addReelData.edit()
-                editor.putBoolean(
-                    "is_reel_inbox",
-                    tweakViewBlockerWarningBinding.cbReelInbox.isChecked
-                )
-                editor.putBoolean(
-                    "is_reel_first",
-                    tweakViewBlockerWarningBinding.cbFirstReel.isChecked
-                )
-
-                editor.commit()
-                sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
-                dialog.dismiss()
-            }
-            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
     private fun makeDeviceAdminPermissionDialog() {
         val dialogDeviceAdmin =
             DialogPermissionInfoBinding.inflate(layoutInflater)
@@ -674,7 +602,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun makeAccessibilityInfoDialog(title: String, cls: Class<*>) {
         val dialogAccessibilityServiceInfoBinding =
             DialogPermissionInfoBinding.inflate(layoutInflater)
@@ -694,8 +621,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    fun openAccessibilityServiceScreen(cls: Class<*>) {
+    private fun openAccessibilityServiceScreen(cls: Class<*>) {
         try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             val componentName = ComponentName(this, cls)
@@ -708,121 +634,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
     }
-
-    @SuppressLint("ApplySharedPref")
-    private fun makeDialogConfigTracker(){
-        val dialogConfigurationTracker = DialogConfigTrackerBinding.inflate(layoutInflater)
-
-        val sp = getSharedPreferences("config_tracker",Context.MODE_PRIVATE)
-
-        dialogConfigurationTracker.cbReelCounter.isChecked = sp.getBoolean("is_reel_counter", true)
-        dialogConfigurationTracker.cbTimeElapsed.isChecked = sp.getBoolean("is_time_elapsed", false)
-
-        MaterialAlertDialogBuilder(this)
-            .setView(dialogConfigurationTracker.root)
-            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
-
-                val editor = sp.edit()
-                editor.putBoolean(
-                    "is_reel_counter",
-                    dialogConfigurationTracker.cbReelCounter.isChecked
-                )
-                editor.putBoolean(
-                    "is_time_elapsed",
-                    dialogConfigurationTracker.cbTimeElapsed.isChecked
-                )
-
-                editor.commit()
-                sendRefreshRequest(UsageTrackingService.INTENT_ACTION_REFRESH_USAGE_TRACKER)
-                dialog.dismiss()
-            }
-            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-
-
-    }
-
-    private fun makeViewBlockerCheatHoursDialog() {
-
-        val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
-
-        dialogAddToCheatHoursBinding.btnSelectUnblockedApps.visibility = View.GONE
-        dialogAddToCheatHoursBinding.cheatHourTitle.visibility = View.GONE
-
-        dialogAddToCheatHoursBinding.picker.hourFormat = TimeRangePicker.HourFormat.FORMAT_24
-        fixPickerInterceptBug(
-            dialogAddToCheatHoursBinding.scrollview,
-            dialogAddToCheatHoursBinding.picker
-        )
-        val viewBlockerCheatHours = getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
-        val savedEndTimeInMinutes =
-            viewBlockerCheatHours.getInt("view_blocker_end_time", -1)
-        val savedStartTimeInMinutes = viewBlockerCheatHours.getInt("view_blocker_start_time", -1)
-
-        var endTimeInMins: Int? = null
-        var startTimeInMins: Int? = null
-
-        if (savedStartTimeInMinutes != -1 || savedEndTimeInMinutes != -1) {
-            dialogAddToCheatHoursBinding.picker.startTimeMinutes = savedStartTimeInMinutes
-            dialogAddToCheatHoursBinding.picker.endTimeMinutes = savedEndTimeInMinutes
-            startTimeInMins = savedStartTimeInMinutes
-            endTimeInMins = savedStartTimeInMinutes
-        } else {
-            dialogAddToCheatHoursBinding.picker.startTimeMinutes = 0
-            dialogAddToCheatHoursBinding.picker.endTimeMinutes = 0
-            dialogAddToCheatHoursBinding.fromTime.text = getString(R.string.from)
-            dialogAddToCheatHoursBinding.endTime.text = getString(R.string.end)
-        }
-
-
-
-        dialogAddToCheatHoursBinding.picker.setOnTimeChangeListener(object :
-            TimeRangePicker.OnTimeChangeListener {
-            override fun onStartTimeChange(startTime: TimeRangePicker.Time) {
-                dialogAddToCheatHoursBinding.fromTime.text =
-                    dialogAddToCheatHoursBinding.picker.startTime.toString()
-                startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
-                endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
-            }
-
-            override fun onEndTimeChange(endTime: TimeRangePicker.Time) {
-                dialogAddToCheatHoursBinding.endTime.text =
-                    dialogAddToCheatHoursBinding.picker.endTime.toString()
-                startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
-                endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
-            }
-
-            override fun onDurationChange(duration: TimeRangePicker.TimeDuration) {
-            }
-        })
-
-        MaterialAlertDialogBuilder(this)
-            .setView(dialogAddToCheatHoursBinding.root)
-            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
-                if (startTimeInMins == null || endTimeInMins == null) {
-                    Toast.makeText(
-                        this,
-                        getString(R.string.please_specify_time),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return@setPositiveButton
-                }
-                savedPreferencesLoader.saveCheatHoursForViewBlocker(
-                    startTimeInMins!!,
-                    endTimeInMins!!
-                )
-                sendRefreshRequest(ViewBlockerService.INTENT_ACTION_REFRESH_VIEW_BLOCKER)
-                dialog.dismiss()
-
-            }
-            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
 
     private fun makeStartFocusModeDialog() {
         val dialogFocusModeBinding = DialogFocusModeBinding.inflate(layoutInflater)
@@ -848,60 +659,6 @@ class MainActivity : AppCompatActivity() {
                 binding.startFocusMode.isEnabled = false
             }
             .setNegativeButton(getString(R.string.cancel), null)
-            .show()
-    }
-
-    @SuppressLint("ApplySharedPref")
-    private fun manageKeywordPackDialog() {
-        val dialogManageKeywordPacks = DialogKeywordPackageBinding.inflate(layoutInflater)
-
-        val sp = getSharedPreferences("keyword_blocker_packs", Context.MODE_PRIVATE)
-
-        dialogManageKeywordPacks.cbAdultKeywords.isChecked = sp.getBoolean("adult_blocker", false)
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.manage_keyword_blockers))
-            .setView(dialogManageKeywordPacks.root)
-            .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                sp.edit()
-                    .putBoolean("adult_blocker", dialogManageKeywordPacks.cbAdultKeywords.isChecked)
-                    .commit()
-                sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_BLOCKED_KEYWORD_LIST)
-            }
-            .show()
-    }
-
-    @SuppressLint("ApplySharedPref")
-    private fun makeKeywordBlockerConfigDialog() {
-        val dialogManageKeywordBlocker = DialogKeywordBlockerConfigBinding.inflate(layoutInflater)
-
-        val sp = getSharedPreferences("keyword_blocker_configs", Context.MODE_PRIVATE)
-
-        dialogManageKeywordBlocker.cbSearchTextField.isChecked =
-            sp.getBoolean("search_all_text_fields", false)
-        dialogManageKeywordBlocker.redirectUrl.setText(
-            sp.getString(
-                "redirect_url",
-                "https://www.youtube.com/watch?v=x31tDT-4fQw&t=1s"
-            )
-        )
-
-        MaterialAlertDialogBuilder(this)
-            .setView(dialogManageKeywordBlocker.root)
-            .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                sp.edit()
-                    .putBoolean(
-                        "search_all_text_fields",
-                        dialogManageKeywordBlocker.cbSearchTextField.isChecked
-                    )
-                    .putString(
-                        "redirect_url",
-                        dialogManageKeywordBlocker.redirectUrl.text.toString()
-                    )
-                    .commit()
-                sendRefreshRequest(KeywordBlockerService.INTENT_ACTION_REFRESH_CONFIG)
-            }
-            .setNegativeButton(getString(R.string.close)) { _, _ ->
-            }
             .show()
     }
 
@@ -988,20 +745,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun fixPickerInterceptBug(scrollview: ScrollView, picker: TimeRangePicker) {
-        picker.setOnTouchListener { v, event ->
-            // Disable ScrollView's touch interception when interacting with the picker
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> scrollview.requestDisallowInterceptTouchEvent(true)
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> scrollview.requestDisallowInterceptTouchEvent(
-                    false
-                )
-            }
-            v.onTouchEvent(event) // Pass the event to the picker
-        }
     }
 
     data class WarningData(
