@@ -17,28 +17,35 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.R
-import nethical.digipaws.databinding.ActivityAddCheatHoursActivityBinding
+import nethical.digipaws.databinding.ActivityAddTimedActionActivityBinding
 import nethical.digipaws.databinding.CheatHourItemBinding
-import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
+import nethical.digipaws.databinding.DialogAddTimedActionBinding
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nethical.digipaws.utils.TimeTools
 import nl.joery.timerangepicker.TimeRangePicker
 
-class AddCheatHoursActivity : AppCompatActivity() {
+class TimedActionActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityAddCheatHoursActivityBinding
+    companion object {
+        const val MODE_APP_BLOCKER_CHEAT_HOURS = 1
+        const val MODE_AUTO_FOCUS = 2
+    }
+
+    private lateinit var binding: ActivityAddTimedActionActivityBinding
     private val savedPreferencesLoader = SavedPreferencesLoader(this)
-    private var cheatHoursList: MutableList<CheatHourItem> = mutableListOf()
+    private var timedActionList: MutableList<AutoTimedActionItem> = mutableListOf()
 
     private lateinit var selectUnblockedAppsLauncher: ActivityResultLauncher<Intent>
     private var selectedUnblockedApps: ArrayList<String>? = arrayListOf()
 
-    private lateinit var dialogAddToCheatHoursBinding: DialogAddToCheatHoursBinding
+    private lateinit var dialogAddToTimedActionBinding: DialogAddTimedActionBinding
+
+    private var selectedMode = MODE_APP_BLOCKER_CHEAT_HOURS
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityAddCheatHoursActivityBinding.inflate(layoutInflater)
+        binding = ActivityAddTimedActionActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -47,87 +54,106 @@ class AddCheatHoursActivity : AppCompatActivity() {
             insets
         }
 
-        cheatHoursList = savedPreferencesLoader.loadCheatHoursList()
+        if (intent.hasExtra("selected_mode")) {
+            selectedMode = intent.getIntExtra("selected_mode", MODE_APP_BLOCKER_CHEAT_HOURS)
+        }
+
+        when (selectedMode) {
+            MODE_APP_BLOCKER_CHEAT_HOURS -> {
+                timedActionList = savedPreferencesLoader.loadAppBlockerCheatHoursList()
+            }
+
+            MODE_AUTO_FOCUS -> timedActionList = savedPreferencesLoader.loadAutoFocusHoursList()
+        }
         selectUnblockedAppsLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
                     val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
                     selectedApps?.let {
                         selectedUnblockedApps = selectedApps
-                        dialogAddToCheatHoursBinding.btnSelectUnblockedApps.text =
+                        dialogAddToTimedActionBinding.btnSelectUnblockedApps.text =
                             getString(R.string.app_s_selected, selectedApps.size)
                     }
                 }
             }
 
         binding.recyclerView2.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView2.adapter = CheatHourAdapter(cheatHoursList)
+        binding.recyclerView2.adapter = CheatHourAdapter(timedActionList)
 
         binding.button.setOnClickListener {
             makeCheatHoursDialog()
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     private fun makeCheatHoursDialog() {
 
 
-        dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
+        dialogAddToTimedActionBinding = DialogAddTimedActionBinding.inflate(layoutInflater)
 
-        dialogAddToCheatHoursBinding.picker.startTime = TimeRangePicker.Time(6, 30)
-        dialogAddToCheatHoursBinding.picker.endTime = TimeRangePicker.Time(22, 0)
+        dialogAddToTimedActionBinding.picker.startTime = TimeRangePicker.Time(6, 30)
+        dialogAddToTimedActionBinding.picker.endTime = TimeRangePicker.Time(22, 0)
 
-        dialogAddToCheatHoursBinding.picker.hourFormat = TimeRangePicker.HourFormat.FORMAT_24
-        var endTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.endTimeMinutes
-        var startTimeInMins: Int? = dialogAddToCheatHoursBinding.picker.startTimeMinutes
+        dialogAddToTimedActionBinding.picker.hourFormat = TimeRangePicker.HourFormat.FORMAT_24
+        var endTimeInMins: Int? = dialogAddToTimedActionBinding.picker.endTimeMinutes
+        var startTimeInMins: Int? = dialogAddToTimedActionBinding.picker.startTimeMinutes
 
-        dialogAddToCheatHoursBinding.picker.setOnTouchListener { v, event ->
+        dialogAddToTimedActionBinding.picker.setOnTouchListener { v, event ->
             // Disable ScrollView's touch interception when interacting with the picker
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> dialogAddToCheatHoursBinding.scrollview.requestDisallowInterceptTouchEvent(
+                MotionEvent.ACTION_DOWN -> dialogAddToTimedActionBinding.scrollview.requestDisallowInterceptTouchEvent(
                     true
                 )
 
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> dialogAddToCheatHoursBinding.scrollview.requestDisallowInterceptTouchEvent(
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> dialogAddToTimedActionBinding.scrollview.requestDisallowInterceptTouchEvent(
                     false
                 )
             }
             v.onTouchEvent(event) // Pass the event to the picker
         }
-        dialogAddToCheatHoursBinding.picker.setOnTimeChangeListener(object :
+        dialogAddToTimedActionBinding.picker.setOnTimeChangeListener(object :
             TimeRangePicker.OnTimeChangeListener {
             override fun onStartTimeChange(startTime: TimeRangePicker.Time) {
-                dialogAddToCheatHoursBinding.fromTime.text =
-                    dialogAddToCheatHoursBinding.picker.startTime.toString()
-                startTimeInMins = dialogAddToCheatHoursBinding.picker.startTimeMinutes
+                dialogAddToTimedActionBinding.fromTime.text =
+                    dialogAddToTimedActionBinding.picker.startTime.toString()
+                startTimeInMins = dialogAddToTimedActionBinding.picker.startTimeMinutes
             }
 
             override fun onEndTimeChange(endTime: TimeRangePicker.Time) {
-                dialogAddToCheatHoursBinding.endTime.text =
-                    dialogAddToCheatHoursBinding.picker.endTime.toString()
-                endTimeInMins = dialogAddToCheatHoursBinding.picker.endTimeMinutes
+                dialogAddToTimedActionBinding.endTime.text =
+                    dialogAddToTimedActionBinding.picker.endTime.toString()
+                endTimeInMins = dialogAddToTimedActionBinding.picker.endTimeMinutes
             }
 
             override fun onDurationChange(duration: TimeRangePicker.TimeDuration) {
             }
         })
 
-        dialogAddToCheatHoursBinding.btnSelectUnblockedApps.setOnClickListener {
+        when (selectedMode) {
+            MODE_AUTO_FOCUS -> {
+                dialogAddToTimedActionBinding.timedTitle.text = "Specify Auto-Focus Hours"
+                dialogAddToTimedActionBinding.btnSelectUnblockedApps.text = "Select Apps to Block"
+            }
+
+            MODE_APP_BLOCKER_CHEAT_HOURS -> {
+                dialogAddToTimedActionBinding.timedTitle.text = "Specify Cheat Hours"
+                dialogAddToTimedActionBinding.timedTitle.text = "Specify Apps to Unblock"
+            }
+        }
+
+        dialogAddToTimedActionBinding.btnSelectUnblockedApps.setOnClickListener {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
                 "PRE_SELECTED_APPS",
                 selectedUnblockedApps
             )
-            intent.putStringArrayListExtra(
-                "APP_LIST",
-                java.util.ArrayList(savedPreferencesLoader.loadBlockedApps())
-            )
+
             selectUnblockedAppsLauncher.launch(intent)
         }
         MaterialAlertDialogBuilder(this)
-            .setView(dialogAddToCheatHoursBinding.root)
+            .setView(dialogAddToTimedActionBinding.root)
             .setPositiveButton(getString(R.string.add)) { dialog, _ ->
-                if (dialogAddToCheatHoursBinding.cheatHourTitle.text?.isEmpty() == true) {
+                if (dialogAddToTimedActionBinding.cheatHourTitle.text?.isEmpty() == true) {
                     Toast.makeText(
                         this,
                         getString(R.string.please_type_a_title),
@@ -136,20 +162,20 @@ class AddCheatHoursActivity : AppCompatActivity() {
                 } else if (selectedUnblockedApps?.isEmpty() == true) {
                     Toast.makeText(
                         this,
-                        getString(R.string.please_select_a_few_apps_to_block), Toast.LENGTH_SHORT
+                        getString(R.string.please_select_a_few_apps), Toast.LENGTH_SHORT
                     )
                         .show()
                 } else {
-                    cheatHoursList.add(
-                        CheatHourItem(
-                            dialogAddToCheatHoursBinding.cheatHourTitle.text.toString(),
+                    timedActionList.add(
+                        AutoTimedActionItem(
+                            dialogAddToTimedActionBinding.cheatHourTitle.text.toString(),
                             startTimeInMins!!,
                             endTimeInMins!!,
                             selectedUnblockedApps!!
                         )
                     )
-                    binding.recyclerView2.adapter?.notifyItemInserted(cheatHoursList.size)
-                    savedPreferencesLoader.saveCheatHoursList(cheatHoursList)
+                    binding.recyclerView2.adapter?.notifyItemInserted(timedActionList.size)
+                    saveList()
                     dialog.dismiss()
                 }
 
@@ -162,22 +188,22 @@ class AddCheatHoursActivity : AppCompatActivity() {
 
 
     inner class CheatHourAdapter(
-        private val items: List<CheatHourItem>
+        private val items: List<AutoTimedActionItem>
     ) : RecyclerView.Adapter<CheatHourAdapter.CheatHourViewHolder>() {
 
         inner class CheatHourViewHolder(private val binding: CheatHourItemBinding) :
             RecyclerView.ViewHolder(binding.root) {
 
             @SuppressLint("SetTextI18n")
-            fun bind(item: CheatHourItem) {
+            fun bind(item: AutoTimedActionItem) {
                 binding.cheatHourTitle.text = item.title
-                val convertedStartTime = TimeTools.convertMinutesTo24Hour(item.startTime)
-                val convertedEndTIme = TimeTools.convertMinutesTo24Hour(item.endTime)
+                val convertedStartTime = TimeTools.convertMinutesTo24Hour(item.startTimeInMins)
+                val convertedEndTIme = TimeTools.convertMinutesTo24Hour(item.endTimeInMins)
 
                 binding.removeCheatHour.setOnClickListener {
-                    cheatHoursList.removeAt(layoutPosition)
+                    timedActionList.removeAt(layoutPosition)
                     notifyItemRemoved(layoutPosition)
-                    savedPreferencesLoader.saveCheatHoursList(cheatHoursList)
+                    saveList()
                 }
 
                 binding.cheatTimings.text =
@@ -212,13 +238,23 @@ class AddCheatHoursActivity : AppCompatActivity() {
         override fun getItemCount(): Int = items.size
     }
 
+    private fun saveList() {
+        when (selectedMode) {
+            MODE_APP_BLOCKER_CHEAT_HOURS -> savedPreferencesLoader.saveAppBlockerCheatHoursList(
+                timedActionList
+            )
 
-    data class CheatHourItem(
+            MODE_AUTO_FOCUS -> savedPreferencesLoader.saveAutoFocusHoursList(timedActionList)
+        }
+    }
+
+    data class AutoTimedActionItem(
         val title: String,
-        val startTime: Int,
-        val endTime: Int,
+        val startTimeInMins: Int,
+        val endTimeInMins: Int,
         val packages: ArrayList<String>,
         val isProceedHidden: Boolean = false
     )
+
 
 }

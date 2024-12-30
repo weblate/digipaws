@@ -1,13 +1,12 @@
 package nethical.digipaws.utils
 
-import android.annotation.SuppressLint
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import nethical.digipaws.services.DigipawsMainService
 import nethical.digipaws.services.UsageTrackingService.AttentionSpanVideoItem
-import nethical.digipaws.ui.activity.AddCheatHoursActivity
 import nethical.digipaws.ui.activity.MainActivity
+import nethical.digipaws.ui.activity.TimedActionActivity
 
 class SavedPreferencesLoader(private val context: Context) {
 
@@ -49,7 +48,7 @@ class SavedPreferencesLoader(private val context: Context) {
             context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         sharedPreferences.edit().putStringSet("blocked_keywords", pinnedApps).apply()
     }
-    fun saveCheatHoursList(cheatHoursList: MutableList<AddCheatHoursActivity.CheatHourItem>) {
+    fun saveAppBlockerCheatHoursList(cheatHoursList: MutableList<TimedActionActivity.AutoTimedActionItem>) {
         val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
@@ -60,7 +59,7 @@ class SavedPreferencesLoader(private val context: Context) {
         editor.apply()
     }
 
-    fun loadCheatHoursList(): MutableList<AddCheatHoursActivity.CheatHourItem> {
+    fun loadAppBlockerCheatHoursList(): MutableList<TimedActionActivity.AutoTimedActionItem> {
         val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val gson = Gson()
 
@@ -68,7 +67,34 @@ class SavedPreferencesLoader(private val context: Context) {
 
         if (json.isNullOrEmpty()) return mutableListOf()
 
-        val type = object : TypeToken<MutableList<AddCheatHoursActivity.CheatHourItem>>() {}.type
+        val type =
+            object : TypeToken<MutableList<TimedActionActivity.AutoTimedActionItem>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun saveAutoFocusHoursList(cheatHoursList: MutableList<TimedActionActivity.AutoTimedActionItem>) {
+        val sharedPreferences =
+            context.getSharedPreferences("auto_focus_hours", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+
+        val json = gson.toJson(cheatHoursList)
+
+        editor.putString("auto_focus_list", json)
+        editor.apply()
+    }
+
+    fun loadAutoFocusHoursList(): MutableList<TimedActionActivity.AutoTimedActionItem> {
+        val sharedPreferences =
+            context.getSharedPreferences("auto_focus_hours", Context.MODE_PRIVATE)
+        val gson = Gson()
+
+        val json = sharedPreferences.getString("auto_focus_list", null)
+
+        if (json.isNullOrEmpty()) return mutableListOf()
+
+        val type =
+            object : TypeToken<MutableList<TimedActionActivity.AutoTimedActionItem>>() {}.type
         return gson.fromJson(json, type)
     }
 
@@ -106,13 +132,12 @@ class SavedPreferencesLoader(private val context: Context) {
         editor.apply()
     }
 
-    @SuppressLint("ApplySharedPref")
     fun saveCheatHoursForViewBlocker(startTime: Int, endTime: Int) {
         val sharedPreferences = context.getSharedPreferences("cheat_hours", Context.MODE_PRIVATE)
         val edit = sharedPreferences.edit()
         edit.putInt("view_blocker_start_time", startTime)
         edit.putInt("view_blocker_end_time", endTime)
-        edit.commit()
+        edit.apply()
     }
 
     fun loadViewBlockerWarningInfo(): MainActivity.WarningData {

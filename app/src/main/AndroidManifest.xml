@@ -32,7 +32,7 @@
             android:name=".ui.activity.UsageMetricsActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activity.AddCheatHoursActivity"
+            android:name=".ui.activity.TimedActionActivity"
             android:exported="false" />
         <activity
             android:name=".ui.activity.ManageKeywordsActivity"

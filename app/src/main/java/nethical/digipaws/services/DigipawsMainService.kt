@@ -10,6 +10,10 @@ import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.widget.Toast
+import nethical.digipaws.ui.activity.TimedActionActivity
+import nethical.digipaws.utils.TimeTools
+import java.util.Calendar
 import java.util.Locale
 
 class DigipawsMainService : BaseBlockingService() {
@@ -25,9 +29,29 @@ class DigipawsMainService : BaseBlockingService() {
 
     private var isAntiUninstallOn = true
 
-
+    private var autoFocusData: List<TimedActionActivity.AutoTimedActionItem> = emptyList()
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         super.onAccessibilityEvent(event)
+        autoFocusData.forEach { item ->
+            val currentTime = Calendar.getInstance()
+            val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
+            val currentMinute = currentTime.get(Calendar.MINUTE)
+
+            val currentMinutes = TimeTools.convertToMinutesFromMidnight(currentHour, currentMinute)
+            if ((item.startTimeInMins <= item.endTimeInMins && currentMinutes in item.startTimeInMins until item.endTimeInMins) || (item.startTimeInMins > item.endTimeInMins && (currentMinutes >= item.startTimeInMins || currentMinutes < item.endTimeInMins))) {
+                Log.d("yes", "yes")
+                if (item.packages.contains(event?.packageName) && launcherPackage != event?.packageName) {
+                    pressHome()
+                    Toast.makeText(
+                        this,
+                        "Auto focus running, ends in ${item.endTimeInMins - currentMinutes} minutes",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+        }
+
         if (focusModeData.isTurnedOn) {
             if (blockedAppList.contains(event?.packageName) && launcherPackage != event?.packageName) {
                 pressHome()
@@ -80,6 +104,7 @@ class DigipawsMainService : BaseBlockingService() {
         blockedAppList = savedPreferencesLoader.getFocusModeBlockedApps().toHashSet()
         getDefaultLauncherPackageName()?.let { launcherPackage = it }
         focusModeData = savedPreferencesLoader.getFocusModeData()
+        autoFocusData = savedPreferencesLoader.loadAutoFocusHoursList()
     }
 
     fun setupAntiUninstall() {

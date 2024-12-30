@@ -146,6 +146,15 @@
                     android:enabled="false"
                     android:text="@string/start_focus_mode" />
 
+                <Button
+                    android:id="@+id/auto_focus"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:enabled="false"
+                    android:text="Setup Auto-Focus" />
+
                 <TextView
                     android:id="@+id/focus_mode_warning"
                     style="@style/TextAppearance.Material3.BodySmall"

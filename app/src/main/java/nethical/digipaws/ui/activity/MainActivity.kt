@@ -67,6 +67,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var addCheatHoursActivity: ActivityResultLauncher<Intent>
 
+    private lateinit var addAutoFocusHoursActivity: ActivityResultLauncher<Intent>
+
     private val savedPreferencesLoader = SavedPreferencesLoader(this)
     private lateinit var options: ActivityOptionsCompat
     private var isDeviceAdminOn = false
@@ -159,6 +161,11 @@ class MainActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
                 sendRefreshRequest(AppBlockerService.INTENT_ACTION_REFRESH_APP_BLOCKER)
             }
+
+        addAutoFocusHoursActivity =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+                sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_FOCUS_MODE)
+            }
     }
 
     private fun setupClickListeners() {
@@ -192,7 +199,8 @@ class MainActivity : AppCompatActivity() {
             selectBlockedKeywords.launch(intent, options)
         }
         binding.appBlockerSelectCheatHours.setOnClickListener {
-            val intent = Intent(this, AddCheatHoursActivity::class.java)
+            val intent = Intent(this, TimedActionActivity::class.java)
+            intent.putExtra("selected_mode", TimedActionActivity.MODE_APP_BLOCKER_CHEAT_HOURS)
             addCheatHoursActivity.launch(intent, options)
         }
         binding.btnConfigAppblockerWarning.setOnClickListener {
@@ -239,6 +247,11 @@ class MainActivity : AppCompatActivity() {
                 ArrayList(savedPreferencesLoader.getFocusModeBlockedApps())
             )
             selectFocusModeUnblockedAppsLauncher.launch(intent, options)
+        }
+        binding.autoFocus.setOnClickListener {
+            val intent = Intent(this, TimedActionActivity::class.java)
+            intent.putExtra("selected_mode", TimedActionActivity.MODE_AUTO_FOCUS)
+            addAutoFocusHoursActivity.launch(intent, options)
         }
 
 
@@ -404,6 +417,7 @@ class MainActivity : AppCompatActivity() {
                 binding.apply {
                     startFocusMode.isEnabled = isGeneralSettingsOn
                     selectFocusBlockedApps.isEnabled = isGeneralSettingsOn
+                    autoFocus.isEnabled = isGeneralSettingsOn
                 }
 
                 // Anti-Uninstall settings
@@ -435,6 +449,7 @@ class MainActivity : AppCompatActivity() {
                         selectBlockedApps.isEnabled = false
                         appBlockerSelectCheatHours.isEnabled = false
                         btnConfigViewblockerWarning.isEnabled = false
+                        startFocusMode.isEnabled = false
                     }
                 }
                 if (isGeneralSettingsOn) {
@@ -755,11 +770,5 @@ class MainActivity : AppCompatActivity() {
         val isProceedDisabled: Boolean = false
     )
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-
-        // Apply reverse fade transition when returning to the previous activity
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
-    }
 
 }

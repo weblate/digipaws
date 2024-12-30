@@ -2,7 +2,7 @@ package nethical.digipaws.blockers
 
 import android.os.SystemClock
 import android.util.Log
-import nethical.digipaws.ui.activity.AddCheatHoursActivity
+import nethical.digipaws.ui.activity.TimedActionActivity
 import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
 
@@ -56,11 +56,11 @@ class AppBlocker:BaseBlocker() {
         }
         return false
     }
-    fun refreshCheatMinutesData(cheatList: List<AddCheatHoursActivity.CheatHourItem>) {
+    fun refreshCheatMinutesData(cheatList: List<TimedActionActivity.AutoTimedActionItem>) {
         cheatMinutes.clear()
         cheatList.forEach { item ->
-            val startTime = item.startTime
-            val endTime = item.endTime
+            val startTime = item.startTimeInMins
+            val endTime = item.endTimeInMins
             val packageNames: ArrayList<String> = item.packages
 
             packageNames.forEach { packageName ->

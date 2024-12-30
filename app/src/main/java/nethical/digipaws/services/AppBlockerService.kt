@@ -103,7 +103,7 @@ class AppBlockerService : BaseBlockingService() {
 
     private fun setupBlocker() {
         appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()
-        appBlocker.refreshCheatMinutesData(savedPreferencesLoader.loadCheatHoursList())
+        appBlocker.refreshCheatMinutesData(savedPreferencesLoader.loadAppBlockerCheatHoursList())
 
         val warningScreenConfig = savedPreferencesLoader.loadAppBlockerWarningInfo()
         cooldownIntervalInMillis = warningScreenConfig.timeInterval

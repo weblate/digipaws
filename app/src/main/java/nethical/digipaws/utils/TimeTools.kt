@@ -1,11 +1,14 @@
 package nethical.digipaws.utils
 
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 class TimeTools {
     companion object {
@@ -52,6 +55,12 @@ class TimeTools {
             val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
 
             return dateTime.format(formatter)
+        }
+        fun convertTo24HourTimeFormat(currentTimeMillis: Long): String {
+            val dateFormat =
+                SimpleDateFormat("HH:mm", Locale.getDefault()) // HH:mm is 24-hour format
+            val date = Date(currentTimeMillis)
+            return dateFormat.format(date)
         }
 
     }

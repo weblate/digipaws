@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import nethical.digipaws.R
-import nethical.digipaws.databinding.DialogAddToCheatHoursBinding
+import nethical.digipaws.databinding.DialogAddTimedActionBinding
 import nethical.digipaws.services.ViewBlockerService
 import nethical.digipaws.utils.SavedPreferencesLoader
 import nl.joery.timerangepicker.TimeRangePicker
@@ -21,7 +21,7 @@ class TweakViewBlockerCheatHours(savedPreferencesLoader: SavedPreferencesLoader)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-        val dialogAddToCheatHoursBinding = DialogAddToCheatHoursBinding.inflate(layoutInflater)
+        val dialogAddToCheatHoursBinding = DialogAddTimedActionBinding.inflate(layoutInflater)
 
         // Hide unused UI elements
         dialogAddToCheatHoursBinding.btnSelectUnblockedApps.visibility = View.GONE
