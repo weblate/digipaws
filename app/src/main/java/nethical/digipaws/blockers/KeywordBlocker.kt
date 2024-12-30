@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import java.util.Locale
 
 class KeywordBlocker(val service: AccessibilityService) : BaseBlocker() {
     companion object {
@@ -57,7 +58,7 @@ class KeywordBlocker(val service: AccessibilityService) : BaseBlocker() {
         fun extractWords(text: String): Set<String> {
             return text.split(Regex("[^a-zA-Z0-9]+"))
                 .filter { it.isNotEmpty() }
-                .map { it.toLowerCase() }
+                .map { it.lowercase(Locale.ROOT) }
                 .toSet()
         }
 

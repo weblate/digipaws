@@ -41,7 +41,6 @@
     <string name="failed_to_launch_system_digital_wellbeing">Falha ao iniciar o sistema de bem-estar digital</string>
     <string name="reel_count">Contagem de Reel</string>
     <string name="please_specify_start_time_first">Por favor, especifique a hora de início primeiro</string>
-    <string name="please_select_a_few_apps_to_block">Selecione alguns aplicativos para bloquear</string>
     <string name="cheat_timings">%1$d:%2$d to %3$d:%4$d</string>
     <string name="to">Para</string>
     <string name="please_specify_time">Por favor especifique o horário</string>
