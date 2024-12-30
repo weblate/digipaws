@@ -32,7 +32,7 @@ class ViewBlockerService : BaseBlockingService() {
     private var isProceedBtnDisabled = false
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if(!isDelayOver()){
+        if (!isDelayOver(4000)) {
             return
         }
         val rootNode: AccessibilityNodeInfo? = rootInActiveWindow
@@ -64,7 +64,7 @@ class ViewBlockerService : BaseBlockingService() {
         dialogIntent.putExtra("is_proceed_disabled", isProceedBtnDisabled)
         dialogIntent.putExtra("is_press_home", result.requestHomePressInstead)
         startActivity(dialogIntent)
-
+        lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
 
     private val refreshReceiver = object : BroadcastReceiver() {

@@ -28,11 +28,10 @@ class AppBlockerService : BaseBlockingService() {
     private var warningMessage = ""
     private var isDynamicCooldownALlowed = false
     private var isProceedDisabled = false
-
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
         val packageName = event?.packageName.toString()
-        if (!isDelayOver()) {
+        if (!isDelayOver(4000)) {
             return
         }
         handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName), packageName)
@@ -99,6 +98,7 @@ class AppBlockerService : BaseBlockingService() {
         dialogIntent.putExtra("is_proceed_disabled", isProceedDisabled)
         startActivity(dialogIntent)
 
+        lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
 
     private fun setupBlocker() {
