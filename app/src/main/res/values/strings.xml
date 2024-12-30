@@ -143,7 +143,7 @@
     <string name="from">From</string>
     <string name="end">End</string>
     <string name="accept">Accept</string>
-    <string name="accessibility_perm_desc">DigiPaws uses the Accessibility permission to provide features like app monitoring and usage tracking to enhance your experience. This permission allows DigiPaws to detect app activities and help manage device usage effectively. Rest assured, all data is processed locally on your device and is never sent to any server or third party. Your privacy and data security are our top priorities.</string>
+    <string name="accessibility_perm_desc">DigiPaws uses the Accessibility permission to provide features like app monitoring and usage tracking to enhance your experience. This permission allows DigiPaws to detect app activities and help manage device usage effectively. Rest assured, all data is processed locally on your device and is never sent to any server or third party. Your privacy and data security are our top priorities. \n \n By pressing Accept, you acknowledge and agree to the above .</string>
     <string name="reject">Reject</string>
     <string name="peel_the_onions">Peel the onions</string>
     <string name="fix_your_life">Fix your life</string>

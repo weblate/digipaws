@@ -276,7 +276,8 @@ class UsageTrackingService : BaseBlockingService() {
                         rootInActiveWindow,
                         "com.google.android.youtube:id/reel_recycler"
                     )
-                    if (reelView != null) takeReelAction("com.google.android.youtube") else hideReelTrackingView()
+                    val commentsSection = ViewBlocker.findElementById(rootInActiveWindow,"com.google.android.youtube:id/engagement_panel_content")
+                    if (reelView != null && commentsSection == null) takeReelAction("com.google.android.youtube") else hideReelTrackingView()
                 }
 
 
@@ -287,7 +288,9 @@ class UsageTrackingService : BaseBlockingService() {
                         rootInActiveWindow,
                         "app.revanced.android.youtube:id/reel_recycler"
                     )
-                    if (reelView != null) takeReelAction("app.revanced.android.youtube") else hideReelTrackingView()
+                    // prevents events from scrolls on comments section
+                    val commentsSection = ViewBlocker.findElementById(rootInActiveWindow,"app.revanced.android.youtube:id/engagement_panel_content")
+                    if (reelView != null && commentsSection == null) takeReelAction("app.revanced.android.youtube") else hideReelTrackingView()
                 }
             }
         }

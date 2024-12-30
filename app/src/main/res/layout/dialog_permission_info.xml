@@ -99,7 +99,15 @@
             app:drawableTintMode="src_in" />
     </LinearLayout>
 
-    <Button
+        <Button
+            android:id="@+id/btn_reject"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/reject" />
+
+        <Button
         android:id="@+id/btn_accept"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -107,14 +115,6 @@
         android:layout_marginBottom="8dp"
         android:text="@string/accept" />
 
-    <Button
-        android:id="@+id/btn_reject"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:text="@string/reject" />
-
-</LinearLayout>
+    </LinearLayout>
 
 </ScrollView>
