@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.Toast
+import nethical.digipaws.Constants
 import nethical.digipaws.ui.activity.TimedActionActivity
 import nethical.digipaws.utils.TimeTools
 import java.util.Calendar
@@ -20,11 +21,10 @@ class DigipawsMainService : BaseBlockingService() {
     companion object {
         const val INTENT_ACTION_REFRESH_FOCUS_MODE = "nethical.digipaws.refresh.focus_mode"
         const val INTENT_ACTION_REFRESH_ANTI_UNINSTALL = "nethical.digipaws.refresh.anti_uninstall"
-
     }
 
     private var focusModeData = FocusModeData()
-    private var blockedAppList: HashSet<String> = hashSetOf()
+    private var selectedApps: HashSet<String> = hashSetOf()
     private var launcherPackage = "nethical.digipaws"
 
     private var isAntiUninstallOn = true
@@ -53,8 +53,20 @@ class DigipawsMainService : BaseBlockingService() {
         }
 
         if (focusModeData.isTurnedOn) {
-            if (blockedAppList.contains(event?.packageName) && launcherPackage != event?.packageName) {
-                pressHome()
+            when (focusModeData.modeType) {
+                // Block only apps selected by user
+                Constants.FOCUS_MODE_BLOCK_SELECTED -> {
+                    if (selectedApps.contains(event?.packageName) && launcherPackage != event?.packageName) {
+                        pressHome()
+                    }
+                }
+
+                // Block all apps except the ones selected
+                Constants.FOCUS_MODE_BLOCK_ALL_EX_SELECTED -> {
+                    if (!(selectedApps.contains(event?.packageName))) {
+                        pressHome()
+                    }
+                }
             }
 
             if (focusModeData.endTime < System.currentTimeMillis()) {
@@ -101,9 +113,17 @@ class DigipawsMainService : BaseBlockingService() {
     }
 
     fun setupFocusMode() {
-        blockedAppList = savedPreferencesLoader.getFocusModeBlockedApps().toHashSet()
+        selectedApps = savedPreferencesLoader.getFocusModeSelectedApps().toHashSet()
         getDefaultLauncherPackageName()?.let { launcherPackage = it }
         focusModeData = savedPreferencesLoader.getFocusModeData()
+
+        // As all apps wil get blocked except the selected ones, add essential packages
+        // to the list of selected apps
+        if (focusModeData.modeType == Constants.FOCUS_MODE_BLOCK_ALL_EX_SELECTED) {
+            selectedApps.add("com.android.systemui") // mostly notification bar
+            selectedApps.add(launcherPackage)
+        }
+
         autoFocusData = savedPreferencesLoader.loadAutoFocusHoursList()
     }
 
@@ -147,7 +167,8 @@ class DigipawsMainService : BaseBlockingService() {
 
     data class FocusModeData(
         var isTurnedOn: Boolean = false,
-        val endTime: Long = -1
+        val endTime: Long = -1,
+        val modeType: Int = Constants.FOCUS_MODE_BLOCK_ALL_EX_SELECTED
     )
 
 }

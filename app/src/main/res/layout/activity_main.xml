@@ -135,7 +135,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:enabled="false"
-                    android:text="@string/select_blocked_apps" />
+                    android:text="@string/select_apps" />
 
                 <Button
                     android:id="@+id/start_focus_mode"
@@ -153,7 +153,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:enabled="false"
-                    android:text="Setup Auto-Focus" />
+                    android:text="@string/setup_auto_focus" />
 
                 <TextView
                     android:id="@+id/focus_mode_warning"

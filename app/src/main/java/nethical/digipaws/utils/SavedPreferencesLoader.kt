@@ -233,7 +233,7 @@ class SavedPreferencesLoader(private val context: Context) {
         return gson.fromJson(json, type)
     }
 
-    fun saveFocusModeUnblockedApps(appList: List<String>) {
+    fun saveFocusModeSelectedApps(appList: List<String>) {
         val sharedPreferences =
             context.getSharedPreferences("focus_mode", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -241,16 +241,16 @@ class SavedPreferencesLoader(private val context: Context) {
 
         val json = gson.toJson(appList)
 
-        editor.putString("blocked_apps", json)
+        editor.putString("selected_apps", json)
         editor.apply()
     }
 
-    fun getFocusModeBlockedApps(): List<String> {
+    fun getFocusModeSelectedApps(): List<String> {
         val sharedPreferences =
             context.getSharedPreferences("focus_mode", Context.MODE_PRIVATE)
         val gson = Gson()
 
-        val json = sharedPreferences.getString("blocked_apps", null)
+        val json = sharedPreferences.getString("selected_apps", null)
 
         if (json.isNullOrEmpty()) return listOf()
 

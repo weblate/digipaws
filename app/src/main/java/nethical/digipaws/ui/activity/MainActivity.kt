@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                 if (result.resultCode == RESULT_OK) {
                     val selectedApps = result.data?.getStringArrayListExtra("SELECTED_APPS")
                     selectedApps?.let {
-                        savedPreferencesLoader.saveFocusModeUnblockedApps(selectedApps)
+                        savedPreferencesLoader.saveFocusModeSelectedApps(selectedApps)
                     }
                 }
             }
@@ -244,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, SelectAppsActivity::class.java)
             intent.putStringArrayListExtra(
                 "PRE_SELECTED_APPS",
-                ArrayList(savedPreferencesLoader.getFocusModeBlockedApps())
+                ArrayList(savedPreferencesLoader.getFocusModeSelectedApps())
             )
             selectFocusModeUnblockedAppsLauncher.launch(intent, options)
         }
@@ -653,9 +653,28 @@ class MainActivity : AppCompatActivity() {
 
     private fun makeStartFocusModeDialog() {
         val dialogFocusModeBinding = DialogFocusModeBinding.inflate(layoutInflater)
+        val previousData = savedPreferencesLoader.getFocusModeData()
         dialogFocusModeBinding.focusModeMinsPicker.setValue(3)
         dialogFocusModeBinding.focusModeMinsPicker.minValue = 2
 
+        var selectedMode = previousData.modeType
+        when (previousData.modeType) {
+            Constants.FOCUS_MODE_BLOCK_SELECTED -> dialogFocusModeBinding.blockSelected.isChecked =
+                true
+
+            Constants.FOCUS_MODE_BLOCK_ALL_EX_SELECTED -> dialogFocusModeBinding.blockAll.isChecked =
+                true
+        }
+
+        dialogFocusModeBinding.modeType.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                dialogFocusModeBinding.blockAll.id -> selectedMode =
+                    Constants.FOCUS_MODE_BLOCK_ALL_EX_SELECTED
+
+                dialogFocusModeBinding.blockSelected.id -> selectedMode =
+                    Constants.FOCUS_MODE_BLOCK_SELECTED
+            }
+        }
         MaterialAlertDialogBuilder(this)
             .setView(dialogFocusModeBinding.root)
             .setPositiveButton(getString(R.string.start)) { _, _ ->
@@ -663,7 +682,8 @@ class MainActivity : AppCompatActivity() {
                 savedPreferencesLoader.saveFocusModeData(
                     DigipawsMainService.FocusModeData(
                         true,
-                        System.currentTimeMillis() + totalMillis
+                        System.currentTimeMillis() + totalMillis,
+                        selectedMode
                     )
                 )
                 sendRefreshRequest(DigipawsMainService.INTENT_ACTION_REFRESH_FOCUS_MODE)
