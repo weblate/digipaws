@@ -32,6 +32,8 @@ class DigipawsMainService : BaseBlockingService() {
     private var autoFocusData: List<TimedActionActivity.AutoTimedActionItem> = emptyList()
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         super.onAccessibilityEvent(event)
+
+        // Check if autofocus hour ongoing
         autoFocusData.forEach { item ->
             val currentTime = Calendar.getInstance()
             val currentHour = currentTime.get(Calendar.HOUR_OF_DAY)
@@ -74,6 +76,7 @@ class DigipawsMainService : BaseBlockingService() {
                 savedPreferencesLoader.saveFocusModeData(focusModeData)
             }
         }
+
 
         if (isAntiUninstallOn) {
             Log.d("package name", event?.packageName.toString())

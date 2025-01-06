@@ -24,17 +24,37 @@ class AppBlockerService : BaseBlockingService() {
 
     private val appBlocker = AppBlocker()
 
-    private var cooldownIntervalInMillis = 10 * 60000
+    private var cooldownIntervalInMillis = 10 * 60000 // stores the default value for how long the user wants the app to be unblocked for
     private var warningMessage = ""
     private var isDynamicCooldownALlowed = false
     private var isProceedDisabled = false
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
-        val packageName = event?.packageName.toString()
-        if (!isDelayOver(4000)) {
-            return
+
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if(isDelayOver(4000)){
+            val packageName = event?.packageName.toString()
+            handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName), packageName)
         }
-        handleAppBlockerResult(appBlocker.doesAppNeedToBeBlocked(packageName), packageName)
+    }
+
+
+
+    private fun handleAppBlockerResult(result: AppBlocker.AppBlockerResult?, packageName: String) {
+        Log.d("Appblocker result", result.toString())
+        if (result == null || !result.isBlocked) return
+
+        val dialogIntent = Intent(this, WarningActivity::class.java)
+        dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        dialogIntent.putExtra("warning_message", warningMessage)
+        dialogIntent.putExtra("mode", Constants.WARNING_SCREEN_MODE_APP_BLOCKER)
+        dialogIntent.putExtra("is_dynamic_timing", isDynamicCooldownALlowed)
+        dialogIntent.putExtra("result_id", packageName)
+        dialogIntent.putExtra("default_cooldown", cooldownIntervalInMillis / 60000)
+        dialogIntent.putExtra("is_proceed_disabled", isProceedDisabled)
+        startActivity(dialogIntent)
+
+        lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
     }
 
     override fun onInterrupt() {
@@ -83,23 +103,6 @@ class AppBlockerService : BaseBlockingService() {
         }
     }
 
-
-    private fun handleAppBlockerResult(result: AppBlocker.AppBlockerResult?, packageName: String) {
-        Log.d("result", result.toString())
-        if (result == null || !result.isBlocked) return
-
-        val dialogIntent = Intent(this, WarningActivity::class.java)
-        dialogIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        dialogIntent.putExtra("warning_message", warningMessage)
-        dialogIntent.putExtra("mode", Constants.WARNING_SCREEN_MODE_APP_BLOCKER)
-        dialogIntent.putExtra("is_dynamic_timing", isDynamicCooldownALlowed)
-        dialogIntent.putExtra("result_id", packageName)
-        dialogIntent.putExtra("default_cooldown", cooldownIntervalInMillis / 60000)
-        dialogIntent.putExtra("is_proceed_disabled", isProceedDisabled)
-        startActivity(dialogIntent)
-
-        lastEventActionTakenTimeStamp = SystemClock.uptimeMillis()
-    }
 
     private fun setupBlocker() {
         appBlocker.blockedAppsList = savedPreferencesLoader.loadBlockedApps().toHashSet()

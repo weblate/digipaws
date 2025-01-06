@@ -8,8 +8,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
 
     <application
+        android:name=".Digipaws"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,8 +21,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DigiPaws"
-        android:name=".Digipaws"
         tools:targetApi="34">
+        <activity
+            android:name=".ui.activity.AppUsageActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.activity.WarningActivity"
             android:excludeFromRecents="true"

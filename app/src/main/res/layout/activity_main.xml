@@ -472,14 +472,22 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <Button
-                    android:id="@+id/select_usage_stats"
+                    android:id="@+id/select_reel_usage_stats"
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:enabled="false"
-                    android:text="@string/usage_stats" />
+                    android:text="Reel stats" />
 
+
+                <Button
+                    android:id="@+id/select_app_usage_stats"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="App usage stats" />
                 <Button
                     android:id="@+id/btn_config_tracker"
                     style="@style/Widget.Material3.Button.OutlinedButton"

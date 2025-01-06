@@ -236,8 +236,12 @@ class MainActivity : AppCompatActivity() {
         binding.btnManageKeywordBlocker.setOnClickListener {
             TweakKeywordBlocker().show(supportFragmentManager, "tweak_keyword_blocker")
         }
-        binding.selectUsageStats.setOnClickListener {
+        binding.selectAppUsageStats.setOnClickListener {
             val intent = Intent(this, UsageMetricsActivity::class.java)
+            startActivity(intent, options.toBundle())
+        }
+        binding.selectAppUsageStats.setOnClickListener {
+            val intent = Intent(this, AppUsageActivity::class.java)
             startActivity(intent, options.toBundle())
         }
         binding.selectFocusBlockedApps.setOnClickListener {
@@ -402,7 +406,7 @@ class MainActivity : AppCompatActivity() {
                         binding.usageTrackerWarning
                     )
                     binding.apply {
-                        selectUsageStats.isEnabled = true
+                        selectReelUsageStats.isEnabled = true
                         btnConfigTracker.isEnabled = true
                     }
                 }
