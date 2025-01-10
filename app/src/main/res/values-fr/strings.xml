@@ -1,2 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="password">Mot de passe</string>
+    <string name="turn_on_anti_uninstall">Activez l\'anti-désinstallateur</string>
+    <string name="anti_uninstall">Anti-désinstallation</string>
+    <string name="disabled">Désactivé</string>
+    <string name="add">Ajouter</string>
+    <string name="usage_stats">Statistiques d\'utilisations</string>
+    <string name="you_had_an_attention_span_of_seconds_video">Votre temps d\'attention en moyen a été de %1$.2f secondes par vidéo</string>
+    <string name="you_scrolled_2_d_reels">Vous avez défilé %2$d reels</string>
+    <string name="keyword_blocker">Bloqueur de mots-clés (BETA)</string>
+    <string name="cancel">Annuler</string>
+    <string name="focus_mode">Mode concentration</string>
+    <string name="app_s_selected">%1$d app-s sélectionné</string>
+    <string name="app_blocker">Bloqueur d\'app</string>
+    <string name="view_reel_blocker">Bloqueur shorts/reels</string>
+    <string name="usage_tracker">Traqueur d\'usage/d\'utilisation (BETA)</string>
+    <string name="select_blocked_apps">Sélectionnez les a apps bloquées</string>
+    <string name="start_focus_mode">Démarrer le mode concentration</string>
+    <string name="todays_stats">Statistiques d\'aujourd\'hui</string>
+    <string name="your_average_attention_span_was_2_d_mins">Votre temps d\'attention en moyen a été de %2$d minutes</string>
+    <string name="view_more">Voir plus</string>
+    <string name="save">Sauvez</string>
+    <string name="remove_anti_uninstall">Désactivez l\'anti-désinstallateur</string>
+    <string name="apps">Apps:</string>
+    <string name="minutes">minutes</string>
+    <string name="title">Titre</string>
+    <string name="ok">OK</string>
+    <string name="retry">Retentez</string>
+    <string name="you_scrolled_reels">Vous avez défilé %1$d reels</string>
+    <string name="end_time">Temps de fin:%02d:%02d</string>
+    <string name="reel_count">Nombre de reel</string>
+    <string name="short_videos_scrolled">Nombre de shorts défilez</string>
+    <string name="seconds_video">secondes/vidéo</string>
+    <string name="please_select_a_few_apps">S\'il vous plaît, sélectionnez quelques apps</string>
+    <string name="please_select_a_start_time">S\'il vous plaît, sélectionnez une heure de début</string>
+    <string name="please_type_a_title">S\'il vous plaît, saisissez un titre</string>
+    <string name="warning_launcher_settings">Définis Digipaws comme lanceur par défaut pour accéder à cette option</string>
+    <string name="close">Fermer</string>
+    <string name="number_of_reels_scrolled">Nombre de reels scrollé</string>
+    <string name="please_specify_start_time_first">S\'il vous plaît, veuillez spécifier le temps de début en premier</string>
+    <string name="please_select_an_end_time">S\'il vous plaît, sélectionnez une heure de fin</string>
+</resources>
